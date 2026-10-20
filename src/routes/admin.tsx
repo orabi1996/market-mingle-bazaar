@@ -285,6 +285,16 @@ function AdminConsole() {
                     </td>
                     <td className="p-3 text-end">
                       <div className="inline-flex items-center gap-2">
+                        <Link
+                          to="/store/$id"
+                          params={{ id: s.id }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-input bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                          title={lang === "ar" ? "زيارة واجهة المتجر" : "View Storefront"}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span>{lang === "ar" ? "عرض المتجر" : "View"}</span>
+                        </Link>
+
                         <button
                           onClick={() => toggleStoreVerification(s.id)}
                           className={`rounded-lg px-2.5 py-1 text-xs font-bold border transition ${

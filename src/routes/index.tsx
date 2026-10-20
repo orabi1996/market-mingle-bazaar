@@ -17,6 +17,9 @@ import {
   ArrowDownUp,
   Flame,
   CheckCircle2,
+  Star,
+  MapPin,
+  BadgeCheck,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -36,6 +39,7 @@ function Index() {
     t,
     lang,
     products,
+    stores,
     searchQuery,
     setSearchQuery,
     selectedCategory,
@@ -272,6 +276,89 @@ function Index() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Featured Verified Stores Showcase */}
+      <section className="mx-auto max-w-7xl px-4 pb-16">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+              <Store className="h-5 w-5 text-gold" />
+              <span>{lang === "ar" ? "المتاجر المعتمدة في باكس" : "Featured Partner Stores"}</span>
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {lang === "ar"
+                ? "تسوّق مباشرة من كبرى المتاجر الرسمية والتجار المعتمدين في الخليج بضمان كامل"
+                : "Shop directly from verified brand boutiques and trusted Gulf merchants"}
+            </p>
+          </div>
+
+          <Link
+            to="/sell"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-gold transition"
+          >
+            <span>{lang === "ar" ? "انضم كتاجر معتمد" : "Become a Partner"}</span>
+            <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {stores.map((s) => {
+            const storeProductCount = products.filter(
+              (p) => p.sellerId === s.id || p.seller.toLowerCase() === s.name.toLowerCase()
+            ).length;
+            const initials = s.name
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase();
+
+            return (
+              <Link
+                key={s.id}
+                to="/store/$id"
+                params={{ id: s.id }}
+                className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-1 hover:border-gold/50 hover:shadow-md cursor-pointer"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gold/20 to-primary/10 font-bold text-primary text-sm group-hover:scale-105 transition">
+                      {initials}
+                    </div>
+                    {s.isVerified && (
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+                        <BadgeCheck className="h-3 w-3" />
+                        {lang === "ar" ? "موثق" : "Verified"}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="font-bold text-sm text-foreground group-hover:text-gold transition line-clamp-1">
+                    {s.name}
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                    {s.category} • {s.city || "الرياض"}
+                  </p>
+
+                  <p className="text-xs text-muted-foreground/80 mt-2 line-clamp-2 leading-relaxed">
+                    {s.bio ? s.bio[lang] : s.owner}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1 text-gold font-bold">
+                    <Star className="h-3 w-3 fill-gold" />
+                    <span>{s.rating || 4.9}</span>
+                  </div>
+                  <span className="text-[11px] font-semibold text-primary group-hover:underline">
+                    {storeProductCount} {lang === "ar" ? "منتج ↗" : "items ↗"}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </section>
 
       {/* Seller Invitation Banner (Amazon Marketplace style) */}

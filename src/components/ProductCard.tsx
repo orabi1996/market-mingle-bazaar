@@ -37,7 +37,17 @@ export function ProductCard({ p }: { p: Product }) {
         />
       </Link>
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="text-xs text-muted-foreground">{p.category[lang]}</span>
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground gap-1">
+          <span>{p.category[lang]}</span>
+          <Link
+            to="/store/$id"
+            params={{ id: p.sellerId || "seller_techhub" }}
+            className="hover:text-gold transition truncate max-w-[110px] font-medium"
+            title={p.seller}
+          >
+            {p.seller}
+          </Link>
+        </div>
         <Link to="/product/$id" params={{ id: p.id }} className="line-clamp-2 font-medium hover:text-primary">
           {p.name[lang]}
         </Link>

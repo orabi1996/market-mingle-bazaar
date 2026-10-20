@@ -135,18 +135,21 @@ function RootComponent() {
             <div>
               <h4 className="font-bold text-white mb-3 text-sm">تسوق مع باكس</h4>
               <ul className="space-y-2 text-white/75">
-                <li><Link to="/" className="hover:text-gold">جميع الأقسام والتصنيفات</Link></li>
-                <li><Link to="/" className="hover:text-gold">عروض وصفقات اليوم</Link></li>
-                <li><Link to="/cart" className="hover:text-gold">عربة التسوق والطلبات</Link></li>
+                <li><Link to="/" className="hover:text-gold transition">جميع الأقسام والتصنيفات</Link></li>
+                <li><Link to="/" className="hover:text-gold transition">عروض وصفقات اليوم</Link></li>
+                <li><Link to="/cart" className="hover:text-gold transition">عربة التسوق والطلبات</Link></li>
+                <li><Link to="/orders" className="hover:text-gold transition">تتبع الشحنات والطلبات</Link></li>
+                <li><Link to="/wishlist" className="hover:text-gold transition">قائمة الأمنيات والمحفوظات</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-white mb-3 text-sm">خدمات التجار والأعمال</h4>
               <ul className="space-y-2 text-white/75">
-                <li><Link to="/sell" className="hover:text-gold">مركز بائعي باكس (Seller Central)</Link></li>
-                <li><Link to="/sell" className="hover:text-gold">لوحة تحكم المخزون والمنتجات</Link></li>
-                <li><Link to="/sell" className="hover:text-gold">الشحن اللوجستي والتحصيل</Link></li>
+                <li><Link to="/sell" className="hover:text-gold transition">مركز بائعي باكس (Seller Central)</Link></li>
+                <li><Link to="/sell" className="hover:text-gold transition">لوحة تحكم المخزون والمنتجات</Link></li>
+                <li><Link to="/admin" className="hover:text-gold transition">بوابة الإدارة المركزية والرقابة</Link></li>
+                <li><Link to="/sell" className="hover:text-gold transition">الشحن اللوجستي والتحصيل</Link></li>
               </ul>
             </div>
 

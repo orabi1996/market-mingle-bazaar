@@ -146,15 +146,21 @@ function ProductPage() {
           </div>
 
           {/* Sold by Merchant */}
-          <div className="rounded-xl border border-border p-3 flex items-center justify-between text-xs">
+          <Link
+            to="/store/$id"
+            params={{ id: p.sellerId || "seller_techhub" }}
+            className="rounded-xl border border-border p-3 flex items-center justify-between text-xs bg-card hover:border-gold/60 transition group cursor-pointer shadow-2xs"
+          >
             <div className="flex items-center gap-2">
-              <Store className="h-4 w-4 text-gold" />
+              <Store className="h-4 w-4 text-gold group-hover:scale-110 transition" />
               <span>
-                {t.by}: <b className="text-foreground">{p.seller}</b>
+                {t.by}: <b className="text-foreground underline decoration-dotted group-hover:text-gold transition">{p.seller}</b>
               </span>
             </div>
-            <span className="font-bold text-emerald-600">{lang === "ar" ? "تاجر موثق 🛡️" : "Verified Seller"}</span>
-          </div>
+            <span className="font-bold text-emerald-600 group-hover:underline flex items-center gap-1">
+              <span>{lang === "ar" ? "زيارة المتجر ↗" : "Visit Store ↗"}</span>
+            </span>
+          </Link>
 
           {/* Quantity and Add to cart */}
           <div className="mt-2 flex flex-col sm:flex-row items-center gap-3">

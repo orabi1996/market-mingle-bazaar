@@ -31,6 +31,10 @@ export type StoreInfo = {
   productsCount: number;
   totalSales: number;
   createdAt: string;
+  bio?: { ar: string; en: string };
+  city?: string;
+  country?: string;
+  rating?: number;
 };
 
 // Approximate rates from SAR (base)
@@ -224,6 +228,13 @@ export const INITIAL_STORES: StoreInfo[] = [
     productsCount: 18,
     totalSales: 45200,
     createdAt: "2026-01-15",
+    city: "الرياض",
+    country: "المملكة العربية السعودية",
+    rating: 4.9,
+    bio: {
+      ar: "متجر متخصص بأحدث الأجهزة الإلكترونية الذكية، ملحقات الهواتف والصوتيات الأصلية بضمان شامل وتوصيل سريع.",
+      en: "Specialized in premium electronics, original smart devices and audio equipment with full warranty.",
+    },
   },
   {
     id: "seller_oud",
@@ -237,6 +248,13 @@ export const INITIAL_STORES: StoreInfo[] = [
     productsCount: 12,
     totalSales: 28900,
     createdAt: "2026-02-01",
+    city: "جدة",
+    country: "المملكة العربية السعودية",
+    rating: 4.9,
+    bio: {
+      ar: "دار العود الملكي، متخصصون في دهن العود الطبيعي البيور، البخور الفاخر، والمخلطات الشرقية التراثية.",
+      en: "Royal Oud House specializing in natural pure oud, luxury frankincense, and heritage oriental perfumes.",
+    },
   },
   {
     id: "seller_milano",
@@ -250,6 +268,13 @@ export const INITIAL_STORES: StoreInfo[] = [
     productsCount: 10,
     totalSales: 16500,
     createdAt: "2026-02-18",
+    city: "دبي",
+    country: "الإمارات العربية المتحدة",
+    rating: 4.7,
+    bio: {
+      ar: "أزياء وحقائب وأحذية جلدية مصنعة يدوياً بأعلى معايير الأناقة الإيطالية والخليجية الحديثة.",
+      en: "Handcrafted Italian leather fashion, bags and accessories tailored for the contemporary Gulf style.",
+    },
   },
   {
     id: "seller_homeplus",
@@ -263,6 +288,13 @@ export const INITIAL_STORES: StoreInfo[] = [
     productsCount: 8,
     totalSales: 21400,
     createdAt: "2026-03-05",
+    city: "الدمام",
+    country: "المملكة العربية السعودية",
+    rating: 4.6,
+    bio: {
+      ar: "أحدث مستلزمات المنزل العصري، مكائن القهوة المختصة، وأجهزة المطبخ الذكية للطهي الاحترافي.",
+      en: "Modern home appliances, specialty coffee machines, and smart kitchenware for effortless living.",
+    },
   },
   {
     id: "seller_runpro",
@@ -276,6 +308,13 @@ export const INITIAL_STORES: StoreInfo[] = [
     productsCount: 15,
     totalSales: 19800,
     createdAt: "2026-03-20",
+    city: "مدينة الكويت",
+    country: "دولة الكويت",
+    rating: 4.8,
+    bio: {
+      ar: "المتجر الأول للمعدات الرياضية، أحذية الجري الاحترافية، ومستلزمات اللياقة البدنية والتمارين المنزلية.",
+      en: "Premier destination for athletic gear, running shoes, and home workout equipment.",
+    },
   },
 ];
 
@@ -559,6 +598,7 @@ type Ctx = {
   removeCoupon: () => void;
   calculateDiscount: (currentTotal: number) => number;
   notifications: Notification[];
+  addNotification: (n: Omit<Notification, "id" | "time" | "read">) => void;
   markAllNotificationsRead: () => void;
   markNotificationRead: (id: string) => void;
   clearNotifications: () => void;
@@ -924,6 +964,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("bax-notifications", JSON.stringify(n));
   };
 
+  const addNotification = (n: Omit<Notification, "id" | "time" | "read">) => {
+    const newNotif: Notification = {
+      ...n,
+      id: `notif_${Date.now()}`,
+      time: "الآن",
+      read: false,
+    };
+    saveNotifications([newNotif, ...notifications]);
+  };
+
   const markAllNotificationsRead = () => {
     const updated = notifications.map((n) => ({ ...n, read: true }));
     saveNotifications(updated);
@@ -996,6 +1046,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         removeCoupon,
         calculateDiscount,
         notifications,
+        addNotification,
         markAllNotificationsRead,
         markNotificationRead,
         clearNotifications,
