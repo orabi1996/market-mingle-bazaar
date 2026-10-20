@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import hero from "@/assets/hero.jpg";
 import { useStore } from "@/lib/store";
 import { ProductCard } from "@/components/ProductCard";
+import { useState } from "react";
 import {
   Sparkles,
   Truck,
@@ -12,6 +13,10 @@ import {
   ArrowRight,
   Filter,
   X,
+  SlidersHorizontal,
+  ArrowDownUp,
+  Flame,
+  CheckCircle2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -35,10 +40,15 @@ function Index() {
     setSearchQuery,
     selectedCategory,
     setSelectedCategory,
+    price,
   } = useStore();
 
-  // Filter products by Search Query & Category
-  const filteredProducts = products.filter((p) => {
+  const [sortBy, setSortBy] = useState<"featured" | "priceAsc" | "priceDesc" | "rating">("featured");
+  const [onlyDeals, setOnlyDeals] = useState(false);
+  const [maxPrice, setMaxPrice] = useState<number>(2000);
+
+  // Filter products by Search Query, Category, Deals & Price
+  let filteredProducts = products.filter((p) => {
     const matchesSearch =
       !searchQuery.trim() ||
       p.name.ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,8 +61,30 @@ function Index() {
       p.category.ar.includes(selectedCategory) ||
       p.category.en.toLowerCase().includes(selectedCategory.toLowerCase());
 
-    return matchesSearch && matchesCategory;
+    const matchesDeals = !onlyDeals || (p.oldPrice && p.oldPrice > p.price);
+    const matchesPrice = p.price <= maxPrice;
+
+    return matchesSearch && matchesCategory && matchesDeals && matchesPrice;
   });
+
+  // Sorting logic
+  if (sortBy === "priceAsc") {
+    filteredProducts = [...filteredProducts].sort((a, b) => a.price - b.price);
+  } else if (sortBy === "priceDesc") {
+    filteredProducts = [...filteredProducts].sort((a, b) => b.price - a.price);
+  } else if (sortBy === "rating") {
+    filteredProducts = [...filteredProducts].sort((a, b) => b.rating - a.rating);
+  }
+
+  const hasActiveFilters = searchQuery || selectedCategory !== "all" || onlyDeals || maxPrice < 2000 || sortBy !== "featured";
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setOnlyDeals(false);
+    setMaxPrice(2000);
+    setSortBy("featured");
+  };
 
   return (
     <main>
@@ -143,9 +175,9 @@ function Index() {
         </div>
       </section>
 
-      {/* Main Products Grid */}
+      {/* Main Products Grid with Advanced Filter Bar */}
       <section id="products" className="mx-auto max-w-7xl px-4 py-12">
-        {/* Filter bar info */}
+        {/* Section Heading & Result Summary */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -154,36 +186,80 @@ function Index() {
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {lang === "ar"
-                ? `عرض ${filteredProducts.length} منتج متاح للتوصيل الفوري`
-                : `Showing ${filteredProducts.length} items ready for instant delivery`}
+                ? `عرض ${filteredProducts.length} من أصل ${products.length} منتج متاح`
+                : `Showing ${filteredProducts.length} of ${products.length} products`}
             </p>
           </div>
 
-          {(searchQuery || selectedCategory !== "all") && (
+          {hasActiveFilters && (
             <button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("all");
-              }}
+              onClick={handleResetFilters}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
-              {lang === "ar" ? "مسح التصفية والبحث" : "Clear Filters"}
+              {lang === "ar" ? "إعادة ضبط التصفية" : "Reset Filters"}
             </button>
           )}
         </div>
 
+        {/* Filter and Sort Toolbar (Amazon style) */}
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-3.5 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Deals Only Toggle */}
+            <button
+              onClick={() => setOnlyDeals(!onlyDeals)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-bold transition ${
+                onlyDeals
+                  ? "bg-red-500 text-white shadow-xs"
+                  : "border border-input bg-background text-foreground hover:bg-muted"
+              }`}
+            >
+              <Flame className="h-3.5 w-3.5 text-amber-300" />
+              <span>{lang === "ar" ? "عروض وتخفيضات فقط" : "Deals Only"}</span>
+            </button>
+
+            {/* Price Filter Slider Indicator */}
+            <div className="hidden sm:flex items-center gap-2 border border-input rounded-lg px-3 py-1 bg-background">
+              <span className="text-muted-foreground">{lang === "ar" ? "أقصى سعر:" : "Max Price:"}</span>
+              <span className="font-bold text-foreground">{price(maxPrice)}</span>
+              <input
+                type="range"
+                min={300}
+                max={2000}
+                step={100}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-20 accent-primary cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Sort By Dropdown */}
+          <div className="flex items-center gap-2 ms-auto">
+            <ArrowDownUp className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground font-medium">{lang === "ar" ? "الترتيب حسب:" : "Sort by:"}</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-xs font-bold outline-none cursor-pointer"
+            >
+              <option value="featured">{lang === "ar" ? "الأكثر تميزاً" : "Featured"}</option>
+              <option value="priceAsc">{lang === "ar" ? "السعر: من الأقل للأعلى" : "Price: Low to High"}</option>
+              <option value="priceDesc">{lang === "ar" ? "السعر: من الأعلى للأقل" : "Price: High to Low"}</option>
+              <option value="rating">{lang === "ar" ? "الأعلى تقييماً" : "Highest Rated"}</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Product Cards Grid */}
         {filteredProducts.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-            <p className="text-lg font-semibold">{lang === "ar" ? "لم نجد نتائج مطابقة لبحثك" : "No products matched your search"}</p>
+            <p className="text-lg font-semibold">{lang === "ar" ? "لم نجد نتائج مطابقة لتصفيتك" : "No products matched your filters"}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {lang === "ar" ? "جرب البحث بكلمات أخرى أو اختر قسماً آخر." : "Try different keywords or explore other categories."}
+              {lang === "ar" ? "جرب تخفيف شروط التصفية أو اختر قسماً آخر." : "Try adjusting your price range or keyword search."}
             </p>
             <button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("all");
-              }}
+              onClick={handleResetFilters}
               className="mt-4 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
             >
               {lang === "ar" ? "عرض جميع المنتجات" : "View All Products"}
