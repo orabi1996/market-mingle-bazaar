@@ -10,6 +10,7 @@ import {
   Globe,
   Sparkles,
   MapPin,
+  Package,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -159,6 +160,15 @@ export function Header() {
             className="hidden lg:flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/90 hover:bg-white/20"
           >
             <span>{t.admin}</span>
+          </Link>
+
+          {/* Orders Link */}
+          <Link
+            to="/orders"
+            className="hidden sm:flex items-center gap-1 rounded-lg border border-white/20 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/10"
+          >
+            <Package className="h-3.5 w-3.5 text-gold" />
+            <span>{t.orders}</span>
           </Link>
 
           {/* Shopping Cart */}
