@@ -8,11 +8,12 @@ import {
   RotateCcw,
   CheckCircle2,
   Store,
-  Share2,
-  Heart,
   Plus,
   Minus,
-  ArrowRight,
+  MessageSquare,
+  ThumbsUp,
+  UserCheck,
+  Send,
 } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
@@ -34,17 +35,41 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const initial = Route.useLoaderData();
-  const { lang, t, price, add, products } = useStore();
+  const { lang, t, price, add, products, reviews, addReview, user } = useStore();
   const [qty, setQty] = useState(1);
   const [addedToast, setAddedToast] = useState(false);
 
+  // Review submission state
+  const [newRating, setNewRating] = useState(5);
+  const [reviewerName, setReviewerName] = useState(user?.name || "");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewToast, setReviewToast] = useState(false);
+
   // Fallback to reactive store product if updated
   const p = products.find((x) => x.id === initial?.id) || initial;
+  const productReviews = reviews.filter((r) => r.productId === p.id);
 
   const handleAddToCart = () => {
     add(p.id, qty);
     setAddedToast(true);
     setTimeout(() => setAddedToast(false), 2000);
+  };
+
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewComment.trim()) return;
+
+    addReview({
+      productId: p.id,
+      author: reviewerName.trim() || user?.name || (lang === "ar" ? "عميل معتمد" : "Verified Customer"),
+      rating: newRating,
+      comment: reviewComment.trim(),
+      isVerifiedBuyer: true,
+    });
+
+    setReviewComment("");
+    setReviewToast(true);
+    setTimeout(() => setReviewToast(false), 2500);
   };
 
   return (
@@ -87,9 +112,9 @@ function ProductPage() {
               <Star className="h-4 w-4 fill-gold text-gold" />
               <span>{p.rating}</span>
             </div>
-            <span className="text-muted-foreground">
-              ({p.reviews} {t.reviews})
-            </span>
+            <a href="#reviews" className="text-muted-foreground hover:underline">
+              ({productReviews.length} {t.reviews})
+            </a>
             <span className="text-muted-foreground">•</span>
             <span className="font-semibold text-emerald-600">
               {t.inStock} ({p.stock ?? 30} {lang === "ar" ? "قطعة متبقية" : "available"})
@@ -179,6 +204,184 @@ function ProductPage() {
           </div>
         </div>
       </div>
+
+      {/* Customer Reviews & Ratings Section (Amazon style) */}
+      <section id="reviews" className="mt-16 border-t border-border pt-12">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <MessageSquare className="h-6 w-6 text-gold" />
+              {lang === "ar" ? "تقييمات ومراجعات العملاء" : "Customer Reviews & Ratings"}
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              {lang === "ar"
+                ? `متوسط التقييم العام ${p.rating} من 5 بناءً على ${productReviews.length} مراجعة حقيقية`
+                : `Average customer rating ${p.rating} out of 5 based on ${productReviews.length} verified reviews`}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-10 lg:grid-cols-3">
+          {/* Rating Breakdown & Add Review Form */}
+          <div className="space-y-6">
+            {/* Score Card */}
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-black text-foreground">{p.rating}</span>
+                <span className="text-xs text-muted-foreground">{lang === "ar" ? "من 5 نجوم" : "out of 5"}</span>
+              </div>
+              <div className="flex items-center gap-1 my-2">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    className={`h-5 w-5 ${
+                      s <= Math.round(p.rating)
+                        ? "fill-gold text-gold"
+                        : "text-border"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {lang === "ar"
+                  ? "96% من المتسوقين ينصحون بهذا المنتج لجودته العالية."
+                  : "96% of buyers recommend this product."}
+              </p>
+            </div>
+
+            {/* Add Review Box */}
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <h3 className="text-sm font-bold flex items-center gap-1.5">
+                <Star className="h-4 w-4 text-gold" />
+                {lang === "ar" ? "شارك برأيك وقيم هذا المنتج" : "Write a Customer Review"}
+              </h3>
+
+              {reviewToast && (
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-500/15 p-2.5 text-xs font-bold text-emerald-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {lang === "ar" ? "شكراً لك! تم نشر تقييمك بنجاح." : "Thank you! Review published successfully."}
+                </div>
+              )}
+
+              <form onSubmit={handleAddReview} className="mt-4 space-y-3">
+                {/* Star Rating Picker */}
+                <div>
+                  <label className="text-xs font-medium text-foreground block mb-1">
+                    {lang === "ar" ? "تقييمك بالنجوم:" : "Your Rating:"}
+                  </label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewRating(star)}
+                        className="p-1 hover:scale-110 transition"
+                      >
+                        <Star
+                          className={`h-6 w-6 ${
+                            star <= newRating
+                              ? "fill-gold text-gold"
+                              : "text-border hover:text-gold"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ms-2 text-xs font-bold text-foreground">
+                      {newRating} / 5
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-foreground block mb-1">
+                    {lang === "ar" ? "اسمك / الاسم المستعار:" : "Your Name:"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={reviewerName}
+                    onChange={(e) => setReviewerName(e.target.value)}
+                    placeholder={lang === "ar" ? "مثال: عبدالمحسن التميمي" : "e.g. Alex M."}
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-foreground block mb-1">
+                    {lang === "ar" ? "رأيك وتجربتك مع المنتج:" : "Your Review:"}
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    placeholder={lang === "ar" ? "اكتب تجربتك الصادقة لمساعدة المشترين الآخرين..." : "Write your review..."}
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground shadow hover:opacity-90 flex items-center justify-center gap-1.5"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  {lang === "ar" ? "نشر التقييم الآن" : "Submit Review"}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* List of Verified Reviews */}
+          <div className="lg:col-span-2 space-y-4">
+            {productReviews.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground text-xs">
+                {lang === "ar" ? "كن أول من يكتب تقييماً لهذا المنتج الرائع!" : "Be the first to review this product!"}
+              </div>
+            ) : (
+              productReviews.map((rev) => (
+                <div key={rev.id} className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">
+                        {rev.author.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                          <span>{rev.author}</span>
+                          {rev.isVerifiedBuyer && (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+                              <UserCheck className="h-3 w-3" />
+                              {lang === "ar" ? "مشترٍ موثق" : "Verified Purchase"}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{rev.date}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          className={`h-3.5 w-3.5 ${
+                            s <= rev.rating
+                              ? "fill-gold text-gold"
+                              : "text-border"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-xs text-foreground leading-relaxed">
+                    {rev.comment}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

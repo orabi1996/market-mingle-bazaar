@@ -83,6 +83,64 @@ export type Order = {
   status: "pending" | "processing" | "shipped" | "delivered";
 };
 
+export type Review = {
+  id: string;
+  productId: string;
+  author: string;
+  rating: number;
+  comment: string;
+  date: string;
+  isVerifiedBuyer: boolean;
+};
+
+export const INITIAL_REVIEWS: Review[] = [
+  {
+    id: "rev_1",
+    productId: "1",
+    author: "عمر الغامدي",
+    rating: 5,
+    comment: "سماعة ممتازة جداً، العزل الصوتي خيالي والبطارية تجلس أيام بدون شحن. تستاهل كل ريال!",
+    date: "2026-03-28",
+    isVerifiedBuyer: true,
+  },
+  {
+    id: "rev_2",
+    productId: "1",
+    author: "محمد الشمري",
+    rating: 5,
+    comment: "توصيل سريع خلال 24 ساعة للرياض، وجودة المايك واضحة جداً في الاجتماعات.",
+    date: "2026-04-02",
+    isVerifiedBuyer: true,
+  },
+  {
+    id: "rev_3",
+    productId: "2",
+    author: "نورة السبيعي",
+    rating: 5,
+    comment: "ريحة العود فاخرة وفوحان وثبات يدوم يومين، هدية ممتازة للمناسبات.",
+    date: "2026-03-15",
+    isVerifiedBuyer: true,
+  },
+  {
+    id: "rev_4",
+    productId: "3",
+    author: "خالد الكواري",
+    rating: 4,
+    comment: "ساعة ذكية ممتازة وتطبيقها على الجوال سهل وسريع التزامن وشاشتها واضحة تحت الشمس.",
+    date: "2026-04-10",
+    isVerifiedBuyer: true,
+  },
+  {
+    id: "rev_5",
+    productId: "5",
+    author: "ماجد الدوسري",
+    rating: 5,
+    comment: "ماكينة قهوة احترافية، استخلاص الإسبريسو ممتاز وتبخير الحليب مثل المقاهي تماماً.",
+    date: "2026-04-05",
+    isVerifiedBuyer: true,
+  },
+];
+
 export const INITIAL_STORES: StoreInfo[] = [
   {
     id: "seller_techhub",
@@ -413,6 +471,8 @@ type Ctx = {
   toggleStoreStatus: (storeId: string) => void;
   commissionRate: number;
   setCommissionRate: (rate: number) => void;
+  reviews: Review[];
+  addReview: (review: Omit<Review, "id" | "date">) => void;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -429,10 +489,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [stores, setStores] = useState<StoreInfo[]>(INITIAL_STORES);
   const [commissionRate, setCommissionRateState] = useState<number>(10);
+  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
 
   // Initialize from LocalStorage
   useEffect(() => {
     try {
+      const storedReviews = localStorage.getItem("bax-reviews");
+      if (storedReviews) {
+        const parsed = JSON.parse(storedReviews);
+        if (Array.isArray(parsed) && parsed.length > 0) setReviews(parsed);
+      }
+
       const storedCart = localStorage.getItem("bax-cart") || localStorage.getItem("souqly-cart");
       if (storedCart) setCart(JSON.parse(storedCart));
 
@@ -673,6 +740,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("bax-orders", JSON.stringify(next));
   };
 
+  const saveReviews = (r: Review[]) => {
+    setReviews(r);
+    localStorage.setItem("bax-reviews", JSON.stringify(r));
+  };
+
+  const addReview = (reviewData: Omit<Review, "id" | "date">) => {
+    const newReview: Review = {
+      ...reviewData,
+      id: "rev_" + Date.now(),
+      date: new Date().toISOString().split("T")[0],
+    };
+    const nextReviews = [newReview, ...reviews];
+    saveReviews(nextReviews);
+
+    // Recalculate average rating for product
+    const productReviews = nextReviews.filter((r) => r.productId === reviewData.productId);
+    const avgRating = Number(
+      (productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length).toFixed(1)
+    );
+    updateProduct(reviewData.productId, {
+      rating: avgRating,
+      reviews: productReviews.length + 15,
+    });
+  };
+
   // Currency pricing helper
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
@@ -721,6 +813,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         toggleStoreStatus,
         commissionRate,
         setCommissionRate,
+        reviews,
+        addReview,
       }}
     >
       {children}
