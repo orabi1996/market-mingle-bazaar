@@ -153,6 +153,14 @@ export function Header() {
             <span>{t.sell}</span>
           </Link>
 
+          {/* Admin Link */}
+          <Link
+            to="/admin"
+            className="hidden lg:flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/90 hover:bg-white/20"
+          >
+            <span>{t.admin}</span>
+          </Link>
+
           {/* Shopping Cart */}
           <Link
             to="/cart"

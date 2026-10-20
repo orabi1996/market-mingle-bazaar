@@ -46,6 +46,14 @@ export function AuthModal() {
         storeName: "متجر باكس للتكنولوجيا الفاخرة",
         phone: "+966501234567",
       });
+    } else if (demoRole === "admin") {
+      login({
+        id: "demo_admin",
+        name: "عبدالله العرابي (مشرف المنصة)",
+        email: "admin@bax.market",
+        role: "admin",
+        phone: "+966500000000",
+      });
     } else {
       login({
         id: "demo_buyer",
@@ -161,7 +169,7 @@ export function AuthModal() {
                   className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gold py-1.5 text-xs font-bold text-gold-foreground hover:opacity-90"
                 >
                   <Store className="h-3.5 w-3.5" />
-                  {lang === "ar" ? "دخول كتاجر" : "Demo Seller"}
+                  {lang === "ar" ? "تاجر" : "Seller"}
                 </button>
                 <button
                   type="button"
@@ -169,7 +177,15 @@ export function AuthModal() {
                   className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary py-1.5 text-xs font-bold text-primary-foreground hover:opacity-90"
                 >
                   <ShoppingBag className="h-3.5 w-3.5" />
-                  {lang === "ar" ? "دخول كمشتري" : "Demo Buyer"}
+                  {lang === "ar" ? "مشتري" : "Buyer"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemo("admin")}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-secondary border border-border py-1.5 text-xs font-bold text-foreground hover:bg-muted"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-gold" />
+                  {lang === "ar" ? "مدير" : "Admin"}
                 </button>
               </div>
             </div>

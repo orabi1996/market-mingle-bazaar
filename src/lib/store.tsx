@@ -19,6 +19,20 @@ export type User = {
   phone?: string;
 };
 
+export type StoreInfo = {
+  id: string;
+  name: string;
+  owner: string;
+  email: string;
+  phone: string;
+  category: string;
+  isVerified: boolean;
+  status: "active" | "suspended";
+  productsCount: number;
+  totalSales: number;
+  createdAt: string;
+};
+
 // Approximate rates from SAR (base)
 export const RATES: Record<Currency, number> = {
   SAR: 1,
@@ -68,6 +82,74 @@ export type Order = {
   currency: Currency;
   status: "pending" | "processing" | "shipped" | "delivered";
 };
+
+export const INITIAL_STORES: StoreInfo[] = [
+  {
+    id: "seller_techhub",
+    name: "TechHub Store",
+    owner: "عبدالرحمن الدوسري",
+    email: "techhub@bax.market",
+    phone: "+966501112233",
+    category: "إلكترونيات",
+    isVerified: true,
+    status: "active",
+    productsCount: 18,
+    totalSales: 45200,
+    createdAt: "2026-01-15",
+  },
+  {
+    id: "seller_oud",
+    name: "Oud House",
+    owner: "سلطان الهاجري",
+    email: "oud@bax.market",
+    phone: "+966504445566",
+    category: "عطور",
+    isVerified: true,
+    status: "active",
+    productsCount: 12,
+    totalSales: 28900,
+    createdAt: "2026-02-01",
+  },
+  {
+    id: "seller_milano",
+    name: "Milano Leather",
+    owner: "فيصل الغامدي",
+    email: "milano@bax.market",
+    phone: "+966507778899",
+    category: "أزياء",
+    isVerified: true,
+    status: "active",
+    productsCount: 10,
+    totalSales: 16500,
+    createdAt: "2026-02-18",
+  },
+  {
+    id: "seller_homeplus",
+    name: "Home Plus",
+    owner: "أحمد المنصور",
+    email: "homeplus@bax.market",
+    phone: "+966503332211",
+    category: "المنزل",
+    isVerified: false,
+    status: "active",
+    productsCount: 8,
+    totalSales: 21400,
+    createdAt: "2026-03-05",
+  },
+  {
+    id: "seller_runpro",
+    name: "Run Pro Sports",
+    owner: "طارق العتيبي",
+    email: "runpro@bax.market",
+    phone: "+966508889900",
+    category: "رياضة",
+    isVerified: true,
+    status: "active",
+    productsCount: 15,
+    totalSales: 19800,
+    createdAt: "2026-03-20",
+  },
+];
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
@@ -196,6 +278,7 @@ const T = {
     cart: "عربة التسوق",
     sell: "مركز البائعين",
     sellCta: "بِع على باكس",
+    admin: "إدارة المنصة",
     heroTitle: "كل ما تحتاجه، من آلاف التجار في سوق واحد",
     heroSub: "أكبر منصة تجارة إلكترونية متعددة التجار في الخليج العربي. منتجات أصلية، توصيل سريع، وضمان ذهبي.",
     shop: "تسوق العروض المميزة",
@@ -224,7 +307,6 @@ const T = {
     sellerDashboard: "لوحة تحكم البائع",
     buyer: "مشتري",
     seller: "تاجر معتمد",
-    admin: "إدارة النظام",
     orders: "طلباتي",
     newOrders: "الطلبات الواردة",
     manageInventory: "المخزون والمنتجات",
@@ -249,6 +331,7 @@ const T = {
     cart: "Cart",
     sell: "Seller Central",
     sellCta: "Sell on BAX",
+    admin: "Admin Console",
     heroTitle: "Everything You Need, From Thousands of Sellers",
     heroSub: "The premier multi-vendor e-commerce platform across the Arabian Gulf. Authentic items, rapid delivery & buyer guarantee.",
     shop: "Shop Featured Deals",
@@ -277,7 +360,6 @@ const T = {
     sellerDashboard: "Seller Dashboard",
     buyer: "Buyer",
     seller: "Verified Seller",
-    admin: "System Admin",
     orders: "My Orders",
     newOrders: "Incoming Orders",
     manageInventory: "Products & Stock",
@@ -326,6 +408,11 @@ type Ctx = {
   updateOrderStatus: (orderId: string, status: Order["status"]) => void;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
+  stores: StoreInfo[];
+  toggleStoreVerification: (storeId: string) => void;
+  toggleStoreStatus: (storeId: string) => void;
+  commissionRate: number;
+  setCommissionRate: (rate: number) => void;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -340,6 +427,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [stores, setStores] = useState<StoreInfo[]>(INITIAL_STORES);
+  const [commissionRate, setCommissionRateState] = useState<number>(10);
 
   // Initialize from LocalStorage
   useEffect(() => {
@@ -355,11 +444,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      const storedStores = localStorage.getItem("bax-stores");
+      if (storedStores) {
+        const parsedStores = JSON.parse(storedStores);
+        if (Array.isArray(parsedStores) && parsedStores.length > 0) {
+          setStores(parsedStores);
+        }
+      }
+
+      const storedComm = localStorage.getItem("bax-commission");
+      if (storedComm) setCommissionRateState(Number(storedComm));
+
       const storedUser = localStorage.getItem("bax-user");
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       } else {
-        // Default guest / active user demo
         const defaultUser: User = {
           id: "demo_seller",
           name: "عبدالله العرابي",
@@ -376,7 +475,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (storedOrders) {
         setOrders(JSON.parse(storedOrders));
       } else {
-        // Initial sample orders for demonstration
         const sampleOrders: Order[] = [
           {
             id: "ORD-9421",
@@ -435,7 +533,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Update HTML direction and language
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -500,6 +597,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const updateProduct = (id: string, updates: Partial<Product>) => {
     const next = products.map((p) => (p.id === id ? { ...p, ...updates } : p));
     saveProducts(next);
+  };
+
+  // Store administration operations
+  const saveStores = (newStores: StoreInfo[]) => {
+    setStores(newStores);
+    localStorage.setItem("bax-stores", JSON.stringify(newStores));
+  };
+
+  const toggleStoreVerification = (storeId: string) => {
+    const next = stores.map((s) => (s.id === storeId ? { ...s, isVerified: !s.isVerified } : s));
+    saveStores(next);
+  };
+
+  const toggleStoreStatus = (storeId: string) => {
+    const next = stores.map((s) =>
+      s.id === storeId ? { ...s, status: s.status === "active" ? ("suspended" as const) : ("active" as const) } : s
+    );
+    saveStores(next);
+  };
+
+  const setCommissionRate = (rate: number) => {
+    setCommissionRateState(rate);
+    localStorage.setItem("bax-commission", String(rate));
   };
 
   // User & Auth operations
@@ -596,6 +716,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         updateOrderStatus,
         isAuthModalOpen,
         setIsAuthModalOpen,
+        stores,
+        toggleStoreVerification,
+        toggleStoreStatus,
+        commissionRate,
+        setCommissionRate,
       }}
     >
       {children}
