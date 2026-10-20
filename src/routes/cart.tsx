@@ -16,7 +16,7 @@ export const Route = createFileRoute("/cart")({
 function Cart() {
   const { cart, lang, t, price, remove } = useStore();
   const items = PRODUCTS.filter((p) => cart[p.id]);
-  const total = items.reduce((s, p) => s + p.price * cart[p.id], 0);
+  const total = items.reduce((s, p) => s + p.price * (cart[p.id] ?? 0), 0);
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="mb-6 text-3xl font-bold">{t.cart}</h1>
@@ -29,7 +29,7 @@ function Cart() {
                 <p className="font-medium">{p.name[lang]}</p>
                 <p className="text-sm text-muted-foreground">× {cart[p.id]}</p>
               </div>
-              <span className="font-bold">{price(p.price * cart[p.id])}</span>
+              <span className="font-bold">{price(p.price * (cart[p.id] ?? 0))}</span>
               <button onClick={() => remove(p.id)} className="text-sm text-destructive">{t.remove}</button>
             </div>
           ))}
