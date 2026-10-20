@@ -12,6 +12,9 @@ import {
   MapPin,
   Package,
   Heart,
+  Bell,
+  CheckCheck,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -30,9 +33,14 @@ export function Header() {
     user,
     setIsAuthModalOpen,
     wishlist,
+    notifications,
+    markAllNotificationsRead,
+    clearNotifications,
   } = useStore();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
 
   const categories = [
@@ -186,6 +194,87 @@ export function Header() {
               </span>
             )}
           </Link>
+
+          {/* Notifications Dropdown Toggle */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setNotifOpen(!notifOpen)}
+              className="relative flex items-center justify-center rounded-lg p-1.5 text-white hover:bg-white/10"
+              title={lang === "ar" ? "الإشعارات" : "Notifications"}
+            >
+              <Bell className="h-5 w-5 text-white" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-black text-gold-foreground animate-bounce">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notifications Popover */}
+            {notifOpen && (
+              <div className="absolute end-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-card p-4 text-foreground shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <span className="font-bold text-xs flex items-center gap-1.5">
+                    <Bell className="h-4 w-4 text-gold" />
+                    {lang === "ar" ? "مركز الإشعارات والتنبيهات" : "Notifications"}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={markAllNotificationsRead}
+                      className="text-[11px] text-primary hover:underline font-medium"
+                      title={lang === "ar" ? "تحديد الكل كمقروء" : "Mark read"}
+                    >
+                      <CheckCheck className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={clearNotifications}
+                      className="text-[11px] text-muted-foreground hover:text-destructive"
+                      title={lang === "ar" ? "مسح الكل" : "Clear"}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-2 max-h-72 overflow-y-auto space-y-2">
+                  {notifications.length === 0 ? (
+                    <p className="text-center py-6 text-xs text-muted-foreground">
+                      {lang === "ar" ? "لا توجد إشعارات جديدة حالياً" : "No notifications"}
+                    </p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className={`rounded-xl p-3 text-xs transition border ${
+                          n.read
+                            ? "bg-background border-border/60 opacity-80"
+                            : "bg-primary/5 border-primary/20 font-medium"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-foreground text-xs">{n.title[lang]}</span>
+                          <span className="text-[10px] text-muted-foreground">{n.time}</span>
+                        </div>
+                        <p className="text-muted-foreground text-[11px] mt-1 leading-relaxed">
+                          {n.message[lang]}
+                        </p>
+                        {n.link && (
+                          <Link
+                            to={n.link}
+                            onClick={() => setNotifOpen(false)}
+                            className="inline-block mt-1 text-[11px] font-bold text-primary hover:underline"
+                          >
+                            {lang === "ar" ? "عرض التفاصيل ←" : "View Details →"}
+                          </Link>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Shopping Cart */}
           <Link

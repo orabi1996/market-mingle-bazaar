@@ -123,6 +123,46 @@ export const INITIAL_COUPONS: Coupon[] = [
   },
 ];
 
+export type Notification = {
+  id: string;
+  title: { ar: string; en: string };
+  message: { ar: string; en: string };
+  time: string;
+  read: boolean;
+  type: "order" | "deal" | "system" | "seller";
+  link?: string;
+};
+
+export const INITIAL_NOTIFICATIONS: Notification[] = [
+  {
+    id: "notif_1",
+    title: { ar: "شحنتك في الطريق إليك!", en: "Your shipment is on the way!" },
+    message: { ar: "خرجت شحنة الطلب ORD-9421 مع مندوب التوصيل في الرياض.", en: "Order ORD-9421 is out for delivery." },
+    time: "منذ 15 دقيقة",
+    read: false,
+    type: "order",
+    link: "/orders",
+  },
+  {
+    id: "notif_2",
+    title: { ar: "كوبون خصم حصري لك", en: "Exclusive promo coupon!" },
+    message: { ar: "استخدم كود BAX10 واحصل على خصم 10% على جميع الإلكترونيات.", en: "Use code BAX10 for 10% off." },
+    time: "منذ ساعتين",
+    read: false,
+    type: "deal",
+    link: "/cart",
+  },
+  {
+    id: "notif_3",
+    title: { ar: "تم توثيق متجرك التجاري", en: "Your store is now verified" },
+    message: { ar: "حصل متجرك على شارة التوثيق الذهبية في مركز البائعين.", en: "Your store has received verified badge." },
+    time: "منذ يوم",
+    read: true,
+    type: "seller",
+    link: "/sell",
+  },
+];
+
 export const INITIAL_REVIEWS: Review[] = [
   {
     id: "rev_1",
@@ -518,6 +558,10 @@ type Ctx = {
   applyCoupon: (code: string, currentTotal: number) => { success: boolean; message: string };
   removeCoupon: () => void;
   calculateDiscount: (currentTotal: number) => number;
+  notifications: Notification[];
+  markAllNotificationsRead: () => void;
+  markNotificationRead: (id: string) => void;
+  clearNotifications: () => void;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -537,10 +581,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
 
   // Initialize from LocalStorage
   useEffect(() => {
     try {
+      const storedNotifs = localStorage.getItem("bax-notifications");
+      if (storedNotifs) setNotifications(JSON.parse(storedNotifs));
+
       const storedWishlist = localStorage.getItem("bax-wishlist");
       if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
 
@@ -870,6 +918,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return Math.min(currentTotal, appliedCoupon.discountValue);
   };
 
+  // Notification operations
+  const saveNotifications = (n: Notification[]) => {
+    setNotifications(n);
+    localStorage.setItem("bax-notifications", JSON.stringify(n));
+  };
+
+  const markAllNotificationsRead = () => {
+    const updated = notifications.map((n) => ({ ...n, read: true }));
+    saveNotifications(updated);
+  };
+
+  const markNotificationRead = (id: string) => {
+    const updated = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
+    saveNotifications(updated);
+  };
+
+  const clearNotifications = () => {
+    saveNotifications([]);
+  };
+
   // Currency pricing helper
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
@@ -927,6 +995,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         applyCoupon,
         removeCoupon,
         calculateDiscount,
+        notifications,
+        markAllNotificationsRead,
+        markNotificationRead,
+        clearNotifications,
       }}
     >
       {children}
