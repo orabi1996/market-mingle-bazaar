@@ -46,6 +46,8 @@ function Cart() {
     applyCoupon,
     removeCoupon,
     calculateDiscount,
+    addresses,
+    user,
   } = useStore();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -55,12 +57,13 @@ function Cart() {
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
-  // Checkout form state
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("");
-  const [city, setCity] = useState("الرياض");
-  const [country, setCountry] = useState("المملكة العربية السعودية");
+  // Checkout form state with default address support
+  const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
+  const [customerName, setCustomerName] = useState(user?.name || defaultAddr?.recipientName || "");
+  const [customerPhone, setCustomerPhone] = useState(user?.phone || defaultAddr?.phone || "");
+  const [customerAddress, setCustomerAddress] = useState(defaultAddr ? `${defaultAddr.street}، ${defaultAddr.district}` : "");
+  const [city, setCity] = useState(defaultAddr?.city || "الرياض");
+  const [country, setCountry] = useState(defaultAddr?.country || "المملكة العربية السعودية");
   const [paymentMethod, setPaymentMethod] = useState("مدى / بطاقة بنكية (Mada)");
 
   // Simulated Card Payment Inputs
@@ -381,6 +384,43 @@ function Cart() {
                 <h4 className="text-xs font-bold text-foreground">
                   {lang === "ar" ? "بيانات التوصيل والدفع:" : "Delivery & Payment:"}
                 </h4>
+
+                {/* Saved Address Quick-Selector */}
+                {addresses.length > 0 && (
+                  <div className="rounded-xl border border-border bg-secondary/30 p-2.5">
+                    <div className="flex items-center justify-between text-[11px] mb-2 font-bold text-muted-foreground">
+                      <span>{lang === "ar" ? "📍 شحن سريع إلى عنوان محفوظ:" : "📍 Quick Deliver to:"}</span>
+                      <Link to="/profile" className="text-primary hover:underline font-semibold">
+                        {lang === "ar" ? "إدارة العناوين" : "Manage"}
+                      </Link>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {addresses.map((a) => {
+                        const isCurrent = customerAddress === `${a.street}، ${a.district}`;
+                        return (
+                          <button
+                            key={a.id}
+                            type="button"
+                            onClick={() => {
+                              setCustomerName(a.recipientName);
+                              setCustomerPhone(a.phone);
+                              setCustomerAddress(`${a.street}، ${a.district}`);
+                              setCity(a.city);
+                              setCountry(a.country);
+                            }}
+                            className={`rounded-lg border px-2 py-1 text-[11px] font-bold transition cursor-pointer ${
+                              isCurrent
+                                ? "border-primary bg-primary text-primary-foreground shadow-2xs"
+                                : "border-border bg-card text-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {a.title} ({a.city})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <input

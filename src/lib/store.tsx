@@ -19,6 +19,19 @@ export type User = {
   phone?: string;
 };
 
+export type ShippingAddress = {
+  id: string;
+  title: string;
+  recipientName: string;
+  phone: string;
+  country: string;
+  city: string;
+  district: string;
+  street: string;
+  postalCode?: string;
+  isDefault: boolean;
+};
+
 export type StoreInfo = {
   id: string;
   name: string;
@@ -104,6 +117,33 @@ export type Coupon = {
   minOrderAmount?: number;
   description: { ar: string; en: string };
 };
+
+export const INITIAL_ADDRESSES: ShippingAddress[] = [
+  {
+    id: "addr_1",
+    title: "المنزل - الرياض",
+    recipientName: "سعد بن محمد القحطاني",
+    phone: "+966501234567",
+    country: "المملكة العربية السعودية",
+    city: "الرياض",
+    district: "حي النرجس",
+    street: "طريق عثمان بن عفان، فيلا 18",
+    postalCode: "13324",
+    isDefault: true,
+  },
+  {
+    id: "addr_2",
+    title: "مكتب العمل - دبي",
+    recipientName: "سعد بن محمد القحطاني",
+    phone: "+971509876543",
+    country: "الإمارات العربية المتحدة",
+    city: "دبي",
+    district: "الخليج التجاري (Business Bay)",
+    street: "برج إيريس باي، الطابق 12",
+    postalCode: "00000",
+    isDefault: false,
+  },
+];
 
 export const INITIAL_COUPONS: Coupon[] = [
   {
@@ -602,6 +642,11 @@ type Ctx = {
   markAllNotificationsRead: () => void;
   markNotificationRead: (id: string) => void;
   clearNotifications: () => void;
+  addresses: ShippingAddress[];
+  addAddress: (addr: Omit<ShippingAddress, "id">) => void;
+  deleteAddress: (id: string) => void;
+  setDefaultAddress: (id: string) => void;
+  updateUser: (u: Partial<User>) => void;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -620,6 +665,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [commissionRate, setCommissionRateState] = useState<number>(10);
   const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [addresses, setAddresses] = useState<ShippingAddress[]>(INITIAL_ADDRESSES);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
 
@@ -628,6 +674,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const storedNotifs = localStorage.getItem("bax-notifications");
       if (storedNotifs) setNotifications(JSON.parse(storedNotifs));
+
+      const storedAddresses = localStorage.getItem("bax-addresses");
+      if (storedAddresses) setAddresses(JSON.parse(storedAddresses));
 
       const storedWishlist = localStorage.getItem("bax-wishlist");
       if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
@@ -988,6 +1037,47 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     saveNotifications([]);
   };
 
+  // Address operations
+  const saveAddresses = (newAddrs: ShippingAddress[]) => {
+    setAddresses(newAddrs);
+    localStorage.setItem("bax-addresses", JSON.stringify(newAddrs));
+  };
+
+  const addAddress = (addr: Omit<ShippingAddress, "id">) => {
+    const newAddr: ShippingAddress = {
+      ...addr,
+      id: `addr_${Date.now()}`,
+    };
+    let updated = [newAddr, ...addresses];
+    if (newAddr.isDefault) {
+      updated = updated.map((a) => (a.id === newAddr.id ? a : { ...a, isDefault: false }));
+    }
+    saveAddresses(updated);
+  };
+
+  const deleteAddress = (id: string) => {
+    let updated = addresses.filter((a) => a.id !== id);
+    if (updated.length > 0 && !updated.some((a) => a.isDefault)) {
+      updated[0].isDefault = true;
+    }
+    saveAddresses(updated);
+  };
+
+  const setDefaultAddress = (id: string) => {
+    const updated = addresses.map((a) => ({
+      ...a,
+      isDefault: a.id === id,
+    }));
+    saveAddresses(updated);
+  };
+
+  const updateUser = (data: Partial<User>) => {
+    if (!user) return;
+    const updated = { ...user, ...data };
+    setUser(updated);
+    localStorage.setItem("bax-user", JSON.stringify(updated));
+  };
+
   // Currency pricing helper
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
@@ -1050,6 +1140,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         markAllNotificationsRead,
         markNotificationRead,
         clearNotifications,
+        addresses,
+        addAddress,
+        deleteAddress,
+        setDefaultAddress,
+        updateUser,
       }}
     >
       {children}

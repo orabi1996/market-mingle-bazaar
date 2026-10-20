@@ -15,6 +15,7 @@ import {
   Bell,
   CheckCheck,
   Trash2,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -31,6 +32,7 @@ export function Header() {
     selectedCategory,
     setSelectedCategory,
     user,
+    setUser,
     setIsAuthModalOpen,
     wishlist,
     notifications,
@@ -40,6 +42,7 @@ export function Header() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
 
@@ -136,24 +139,99 @@ export function Header() {
             <span>{lang === "ar" ? "EN" : "عربي"}</span>
           </button>
 
-          {/* User Account / Auth */}
-          <button
-            onClick={() => setIsAuthModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1 hover:bg-white/10 text-start"
-          >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white">
-              {user?.role === "seller" ? <Store className="h-4 w-4 text-gold" /> : <User className="h-4 w-4" />}
-            </div>
-            <div className="hidden md:flex flex-col text-xs leading-tight">
-              <span className="text-[10px] text-white/70">
-                {user ? `${t.hello}، ${user.name.split(" ")[0]}` : t.login}
-              </span>
-              <span className="font-bold text-white flex items-center gap-0.5">
-                {user ? (user.role === "seller" ? t.seller : t.buyer) : t.account}
-                <ChevronDown className="h-3 w-3 opacity-70" />
-              </span>
-            </div>
-          </button>
+          {/* User Account / Auth & Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                if (user) {
+                  setUserMenuOpen(!userMenuOpen);
+                  setNotifOpen(false);
+                } else {
+                  setIsAuthModalOpen(true);
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1 hover:bg-white/10 text-start cursor-pointer"
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white">
+                {user?.role === "seller" ? <Store className="h-4 w-4 text-gold" /> : <User className="h-4 w-4" />}
+              </div>
+              <div className="hidden md:flex flex-col text-xs leading-tight">
+                <span className="text-[10px] text-white/70">
+                  {user ? `${t.hello}، ${user.name.split(" ")[0]}` : t.login}
+                </span>
+                <span className="font-bold text-white flex items-center gap-0.5">
+                  {user ? (user.role === "seller" ? t.seller : t.buyer) : t.account}
+                  <ChevronDown className="h-3 w-3 opacity-70" />
+                </span>
+              </div>
+            </button>
+
+            {/* User Dropdown Menu */}
+            {user && userMenuOpen && (
+              <div className="absolute end-0 top-full mt-2 w-56 rounded-2xl border border-border bg-card p-2 text-foreground shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="px-3 py-2 border-b border-border mb-1">
+                  <p className="font-bold text-xs truncate">{user.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                  <span className="mt-1 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                    {user.role === "seller" ? (lang === "ar" ? "تاجر وشريك 🛡️" : "Merchant") : (lang === "ar" ? "مشتري معتمد" : "Buyer")}
+                  </span>
+                </div>
+
+                <div className="space-y-0.5 text-xs">
+                  <Link
+                    to="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                  >
+                    <User className="h-3.5 w-3.5 text-primary" />
+                    <span>{lang === "ar" ? "حسابي وعناويني" : "Profile & Addresses"}</span>
+                  </Link>
+
+                  <Link
+                    to="/orders"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                  >
+                    <Package className="h-3.5 w-3.5 text-gold" />
+                    <span>{lang === "ar" ? "طلباتي وشحناتي" : "My Orders"}</span>
+                  </Link>
+
+                  <Link
+                    to="/wishlist"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                  >
+                    <Heart className="h-3.5 w-3.5 text-red-500" />
+                    <span>{lang === "ar" ? "قائمة أمنياتي" : "My Wishlist"}</span>
+                  </Link>
+
+                  {user.role === "seller" && (
+                    <Link
+                      to="/sell"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-gold hover:bg-muted transition"
+                    >
+                      <Store className="h-3.5 w-3.5" />
+                      <span>{lang === "ar" ? "مركز بائعي باكس" : "Seller Central"}</span>
+                    </Link>
+                  )}
+
+                  <div className="pt-1 border-t border-border mt-1">
+                    <button
+                      onClick={() => {
+                        setUser(null);
+                        setUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 rounded-xl px-3 py-2 font-bold text-destructive hover:bg-destructive/10 transition cursor-pointer"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>{lang === "ar" ? "تسجيل الخروج" : "Log Out"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Seller Central Link */}
           <Link
