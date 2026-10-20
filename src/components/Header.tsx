@@ -11,6 +11,7 @@ import {
   Sparkles,
   MapPin,
   Package,
+  Heart,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -28,6 +29,7 @@ export function Header() {
     setSelectedCategory,
     user,
     setIsAuthModalOpen,
+    wishlist,
   } = useStore();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -169,6 +171,20 @@ export function Header() {
           >
             <Package className="h-3.5 w-3.5 text-gold" />
             <span>{t.orders}</span>
+          </Link>
+
+          {/* Wishlist Link */}
+          <Link
+            to="/wishlist"
+            className="relative flex items-center justify-center rounded-lg p-1.5 text-white hover:bg-white/10"
+            title={t.wishlist}
+          >
+            <Heart className="h-5 w-5 text-white" />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                {wishlist.length}
+              </span>
+            )}
           </Link>
 
           {/* Shopping Cart */}

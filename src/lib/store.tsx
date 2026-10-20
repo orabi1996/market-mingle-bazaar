@@ -370,6 +370,10 @@ const T = {
     manageInventory: "المخزون والمنتجات",
     addNewProduct: "إضافة منتج جديد",
     saveProduct: "نشر المنتج فوراً في المتجر",
+    wishlist: "المفضلة",
+    emptyWishlist: "قائمة أمنياتك فارغة",
+    addToWishlist: "أضف للمفضلة",
+    inWishlist: "في المفضلة",
     features: {
       fastDelivery: "توصيل سريع وآمن",
       fastDeliveryDesc: "شحن لجميع مدن الخليج خلال 24 - 48 ساعة",
@@ -423,6 +427,10 @@ const T = {
     manageInventory: "Products & Stock",
     addNewProduct: "Add New Product",
     saveProduct: "Publish Product to Marketplace",
+    wishlist: "Wishlist",
+    emptyWishlist: "Your wishlist is empty",
+    addToWishlist: "Add to Wishlist",
+    inWishlist: "Saved in Wishlist",
     features: {
       fastDelivery: "Fast & Safe Delivery",
       fastDeliveryDesc: "Express shipping across the Gulf within 24 - 48 hrs",
@@ -473,6 +481,9 @@ type Ctx = {
   setCommissionRate: (rate: number) => void;
   reviews: Review[];
   addReview: (review: Omit<Review, "id" | "date">) => void;
+  wishlist: string[];
+  toggleWishlist: (productId: string) => void;
+  isInWishlist: (productId: string) => boolean;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -490,10 +501,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [stores, setStores] = useState<StoreInfo[]>(INITIAL_STORES);
   const [commissionRate, setCommissionRateState] = useState<number>(10);
   const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   // Initialize from LocalStorage
   useEffect(() => {
     try {
+      const storedWishlist = localStorage.getItem("bax-wishlist");
+      if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
+
       const storedReviews = localStorage.getItem("bax-reviews");
       if (storedReviews) {
         const parsed = JSON.parse(storedReviews);
@@ -765,6 +780,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const saveWishlist = (w: string[]) => {
+    setWishlist(w);
+    localStorage.setItem("bax-wishlist", JSON.stringify(w));
+  };
+
+  const toggleWishlist = (productId: string) => {
+    const next = wishlist.includes(productId)
+      ? wishlist.filter((id) => id !== productId)
+      : [...wishlist, productId];
+    saveWishlist(next);
+  };
+
+  const isInWishlist = (productId: string) => wishlist.includes(productId);
+
   // Currency pricing helper
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
@@ -815,6 +844,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setCommissionRate,
         reviews,
         addReview,
+        wishlist,
+        toggleWishlist,
+        isInWishlist,
       }}
     >
       {children}

@@ -14,6 +14,7 @@ import {
   ThumbsUp,
   UserCheck,
   Send,
+  Heart,
 } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
@@ -35,7 +36,8 @@ export const Route = createFileRoute("/product/$id")({
 
 function ProductPage() {
   const initial = Route.useLoaderData();
-  const { lang, t, price, add, products, reviews, addReview, user } = useStore();
+  const { lang, t, price, add, products, reviews, addReview, user, wishlist, toggleWishlist } = useStore();
+  const isFav = wishlist.includes(initial?.id || "");
   const [qty, setQty] = useState(1);
   const [addedToast, setAddedToast] = useState(false);
 
@@ -177,6 +179,20 @@ function ProductPage() {
               className="flex h-12 flex-1 w-full items-center justify-center gap-2 rounded-xl bg-gold font-bold text-gold-foreground shadow-md hover:opacity-90 transition text-sm"
             >
               {t.add}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => toggleWishlist(p.id)}
+              className={`flex h-12 items-center justify-center gap-1.5 rounded-xl border px-4 text-xs font-bold transition ${
+                isFav
+                  ? "border-red-500 bg-red-50 text-red-600"
+                  : "border-input bg-card text-foreground hover:bg-muted"
+              }`}
+              title={isFav ? t.inWishlist : t.addToWishlist}
+            >
+              <Heart className={`h-4 w-4 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
+              <span className="hidden sm:inline">{isFav ? t.inWishlist : t.addToWishlist}</span>
             </button>
           </div>
 
