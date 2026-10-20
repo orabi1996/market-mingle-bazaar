@@ -93,6 +93,36 @@ export type Review = {
   isVerifiedBuyer: boolean;
 };
 
+export type Coupon = {
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderAmount?: number;
+  description: { ar: string; en: string };
+};
+
+export const INITIAL_COUPONS: Coupon[] = [
+  {
+    code: "BAX10",
+    discountType: "percentage",
+    discountValue: 10,
+    description: { ar: "خصم 10% على إجمالي الطلب", en: "10% off entire order" },
+  },
+  {
+    code: "GULF50",
+    discountType: "fixed",
+    discountValue: 50,
+    minOrderAmount: 300,
+    description: { ar: "خصم 50 ر.س للطلبات أكثر من 300 ر.س", en: "50 SAR off orders above 300 SAR" },
+  },
+  {
+    code: "WELCOME",
+    discountType: "percentage",
+    discountValue: 15,
+    description: { ar: "خصم 15% ترحيبي لطلبك الأول", en: "15% welcome discount" },
+  },
+];
+
 export const INITIAL_REVIEWS: Review[] = [
   {
     id: "rev_1",
@@ -484,6 +514,10 @@ type Ctx = {
   wishlist: string[];
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
+  appliedCoupon: Coupon | null;
+  applyCoupon: (code: string, currentTotal: number) => { success: boolean; message: string };
+  removeCoupon: () => void;
+  calculateDiscount: (currentTotal: number) => number;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -502,6 +536,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [commissionRate, setCommissionRateState] = useState<number>(10);
   const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
   // Initialize from LocalStorage
   useEffect(() => {
@@ -794,6 +829,47 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const isInWishlist = (productId: string) => wishlist.includes(productId);
 
+  // Coupon operations
+  const applyCoupon = (code: string, currentTotal: number): { success: boolean; message: string } => {
+    const cleanCode = code.trim().toUpperCase();
+    const found = INITIAL_COUPONS.find((c) => c.code.toUpperCase() === cleanCode);
+    if (!found) {
+      return {
+        success: false,
+        message: lang === "ar" ? "رمز الكوبون غير صحيح أو منتهي الصلاحية" : "Invalid coupon code",
+      };
+    }
+    if (found.minOrderAmount && currentTotal < found.minOrderAmount) {
+      return {
+        success: false,
+        message:
+          lang === "ar"
+            ? `الحد الأدنى لتطبيق هذا الكوبون هو ${price(found.minOrderAmount)}`
+            : `Minimum order amount for this coupon is ${price(found.minOrderAmount)}`,
+      };
+    }
+    setAppliedCoupon(found);
+    return {
+      success: true,
+      message:
+        lang === "ar"
+          ? `تم تطبيق الكوبون (${found.code}): ${found.description.ar}`
+          : `Coupon applied (${found.code}): ${found.description.en}`,
+    };
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
+
+  const calculateDiscount = (currentTotal: number): number => {
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.discountType === "percentage") {
+      return Math.round((currentTotal * appliedCoupon.discountValue) / 100);
+    }
+    return Math.min(currentTotal, appliedCoupon.discountValue);
+  };
+
   // Currency pricing helper
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
@@ -847,6 +923,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         wishlist,
         toggleWishlist,
         isInWishlist,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon,
+        calculateDiscount,
       }}
     >
       {children}

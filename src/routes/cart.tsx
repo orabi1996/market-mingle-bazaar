@@ -12,6 +12,9 @@ import {
   CreditCard,
   Truck,
   Sparkles,
+  Tag,
+  X,
+  Lock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/cart")({
@@ -39,10 +42,18 @@ function Cart() {
     clearCart,
     createOrder,
     currency,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
+    calculateDiscount,
   } = useStore();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [completedOrderNumber, setCompletedOrderNumber] = useState<string | null>(null);
+
+  // Promo code state
+  const [couponInput, setCouponInput] = useState("");
+  const [couponFeedback, setCouponFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
   // Checkout form state
   const [customerName, setCustomerName] = useState("");
@@ -52,10 +63,29 @@ function Cart() {
   const [country, setCountry] = useState("المملكة العربية السعودية");
   const [paymentMethod, setPaymentMethod] = useState("مدى / بطاقة بنكية (Mada)");
 
-  const cartProductIds = Object.keys(cart);
+  // Simulated Card Payment Inputs
+  const [cardNumber, setCardNumber] = useState("4111 •••• •••• 9821");
+  const [cardExpiry, setCardExpiry] = useState("12/28");
+  const [cardCvv, setCardCvv] = useState("789");
+
   const items = products.filter((p) => cart[p.id]);
-  const total = items.reduce((s, p) => s + p.price * (cart[p.id] ?? 0), 0);
-  const isFreeShipping = total >= 200;
+  const subtotal = items.reduce((s, p) => s + p.price * (cart[p.id] ?? 0), 0);
+  const discountAmount = calculateDiscount(subtotal);
+  const isFreeShipping = subtotal >= 200;
+  const shippingFee = isFreeShipping ? 0 : 25;
+  const finalTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+    const res = applyCoupon(couponInput, subtotal);
+    if (res.success) {
+      setCouponFeedback({ type: "success", msg: res.message });
+      setCouponInput("");
+    } else {
+      setCouponFeedback({ type: "error", msg: res.message });
+    }
+  };
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,9 +107,12 @@ function Cart() {
       customerAddress,
       city,
       country,
-      paymentMethod,
+      paymentMethod:
+        appliedCoupon
+          ? `${paymentMethod} (كوبون: ${appliedCoupon.code} - خصم ${price(discountAmount)})`
+          : paymentMethod,
       items: orderItems,
-      total,
+      total: finalTotal,
       currency,
     });
 
@@ -97,9 +130,7 @@ function Cart() {
           {lang === "ar" ? "تم تأكيد طلبك بنجاح!" : "Order Confirmed Successfully!"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {lang === "ar"
-            ? `رقم الطلب الخاص بك: `
-            : `Your Order Reference: `}
+          {lang === "ar" ? `رقم الطلب الخاص بك: ` : `Your Order Reference: `}
           <span className="font-mono font-bold text-foreground">{completedOrderNumber}</span>
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -110,16 +141,17 @@ function Cart() {
 
         <div className="mt-8 flex justify-center gap-4">
           <Link
-            to="/"
-            className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:opacity-90"
+            to="/orders"
+            className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 flex items-center gap-2"
           >
-            {lang === "ar" ? "متابعة التسوق" : "Continue Shopping"}
+            <Truck className="h-4 w-4 text-gold" />
+            {lang === "ar" ? "تتبع حالة الشحنة مباشرة" : "Track Shipment Live"}
           </Link>
           <Link
-            to="/sell"
+            to="/"
             className="rounded-xl border border-input bg-card px-6 py-3 text-sm font-bold text-foreground hover:bg-muted"
           >
-            {lang === "ar" ? "معاينة الطلب في لوحة التاجر" : "View in Seller Dashboard"}
+            {lang === "ar" ? "متابعة التسوق" : "Continue Shopping"}
           </Link>
         </div>
       </main>
@@ -155,12 +187,14 @@ function Cart() {
               <div className="flex items-center gap-2 font-bold">
                 <Truck className="h-4 w-4 text-gold" />
                 {isFreeShipping ? (
-                  <span className="text-emerald-600">{lang === "ar" ? "مبارك! طلبك مؤهل للشحن المجاني السريع." : "Congrats! Your order qualifies for free delivery."}</span>
+                  <span className="text-emerald-600">
+                    {lang === "ar" ? "مبارك! طلبك مؤهل للشحن المجاني السريع." : "Congrats! Your order qualifies for free delivery."}
+                  </span>
                 ) : (
                   <span>
                     {lang === "ar"
-                      ? `أضف ${price(Math.max(0, 200 - total))} إضافية لتحصل على الشحن المجاني`
-                      : `Add ${price(Math.max(0, 200 - total))} more for free shipping`}
+                      ? `أضف ${price(Math.max(0, 200 - subtotal))} إضافية لتحصل على الشحن المجاني`
+                      : `Add ${price(Math.max(0, 200 - subtotal))} more for free shipping`}
                   </span>
                 )}
               </div>
@@ -231,17 +265,92 @@ function Cart() {
                 </div>
               );
             })}
+
+            {/* Promo Code Input Box */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mb-2">
+                <Tag className="h-4 w-4 text-gold" />
+                {lang === "ar" ? "هل لديك كوبون خصم أو قسيمة شراء؟" : "Have a promo coupon code?"}
+              </span>
+
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <div>
+                      <span className="font-mono font-bold text-emerald-700">{appliedCoupon.code}</span>
+                      <span className="ms-2 text-emerald-600 font-medium">({appliedCoupon.description[lang]})</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={removeCoupon}
+                    className="p-1 text-muted-foreground hover:text-destructive"
+                    title={lang === "ar" ? "إلغاء الكوبون" : "Remove"}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    placeholder={lang === "ar" ? "أدخل الكود (مثال: BAX10 أو GULF50)..." : "e.g. BAX10..."}
+                    className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono uppercase outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
+                  >
+                    {lang === "ar" ? "تطبيق الكوبون" : "Apply"}
+                  </button>
+                </form>
+              )}
+
+              {couponFeedback && !appliedCoupon && (
+                <p className="mt-2 text-xs font-semibold text-destructive">{couponFeedback.msg}</p>
+              )}
+
+              <div className="mt-2.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                <span>{lang === "ar" ? "كوبونات تجريبية متاحة:" : "Available codes:"}</span>
+                <button
+                  type="button"
+                  onClick={() => applyCoupon("BAX10", subtotal)}
+                  className="rounded bg-secondary px-1.5 py-0.5 font-mono font-bold text-foreground hover:bg-muted"
+                >
+                  BAX10 (10%)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyCoupon("GULF50", subtotal)}
+                  className="rounded bg-secondary px-1.5 py-0.5 font-mono font-bold text-foreground hover:bg-muted"
+                >
+                  GULF50 (50 ر.س)
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Checkout & Summary Sidebar */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-xs h-fit">
-            <h3 className="text-base font-bold pb-3 border-b border-border">{lang === "ar" ? "ملخص الطلب" : "Order Summary"}</h3>
+            <h3 className="text-base font-bold pb-3 border-b border-border">
+              {lang === "ar" ? "ملخص الفاتورة" : "Order Summary"}
+            </h3>
 
             <div className="mt-4 space-y-2.5 text-xs">
               <div className="flex justify-between text-muted-foreground">
                 <span>{t.subtotal}</span>
-                <span className="font-semibold text-foreground">{price(total)}</span>
+                <span className="font-semibold text-foreground">{price(subtotal)}</span>
               </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between font-bold text-emerald-600">
+                  <span>{lang === "ar" ? `خصم الكوبون (${appliedCoupon?.code})` : `Coupon Discount (${appliedCoupon?.code})`}</span>
+                  <span>- {price(discountAmount)}</span>
+                </div>
+              )}
+
               <div className="flex justify-between text-muted-foreground">
                 <span>{lang === "ar" ? "رسوم الشحن والتوصيل" : "Shipping & Delivery"}</span>
                 <span className="font-semibold text-foreground">
@@ -255,7 +364,7 @@ function Cart() {
 
               <div className="pt-3 border-t border-border flex justify-between text-base font-black text-foreground">
                 <span>{t.total}</span>
-                <span className="text-primary">{price(total + (isFreeShipping ? 0 : 25))}</span>
+                <span className="text-primary">{price(finalTotal)}</span>
               </div>
             </div>
 
@@ -326,20 +435,56 @@ function Cart() {
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none"
+                    className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none font-medium"
                   >
-                    <option value="بطاقة مدى (Mada)">مدى (Mada)</option>
+                    <option value="مدى / بطاقة بنكية (Mada)">مدى (Mada)</option>
                     <option value="Apple Pay">Apple Pay</option>
-                    <option value="فيزا / ماستركارد">Visa / Mastercard</option>
+                    <option value="فيزا / ماستركارد">فيزا / ماستركارد</option>
                     <option value="الدفع عند الاستلام">الدفع عند الاستلام</option>
                   </select>
                 </div>
 
+                {/* Simulated Interactive Card Input for Mada / Visa */}
+                {(paymentMethod.includes("مدى") || paymentMethod.includes("فيزا")) && (
+                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-2 mt-2 text-xs">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-primary">
+                      <span>{paymentMethod.includes("مدى") ? "💳 بوابة دفع مدى Mada" : "💳 بطاقة ائتمانية"}</span>
+                      <Lock className="h-3 w-3" />
+                    </div>
+                    <input
+                      type="text"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      placeholder="رقم البطاقة"
+                      className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono outline-none"
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={cardExpiry}
+                        onChange={(e) => setCardExpiry(e.target.value)}
+                        placeholder="MM/YY"
+                        className="rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono outline-none text-center"
+                      />
+                      <input
+                        type="password"
+                        value={cardCvv}
+                        onChange={(e) => setCardCvv(e.target.value)}
+                        placeholder="CVV"
+                        className="rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono outline-none text-center"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="mt-2 w-full rounded-xl bg-primary py-3 text-xs font-bold text-primary-foreground shadow hover:opacity-90"
+                  className="mt-2 w-full rounded-xl bg-primary py-3 text-xs font-bold text-primary-foreground shadow hover:opacity-90 flex items-center justify-center gap-1.5"
                 >
-                  {lang === "ar" ? "تأكيد الطلب وشراء الآن" : "Confirm & Place Order"}
+                  <Lock className="h-3.5 w-3.5 text-gold" />
+                  {lang === "ar"
+                    ? `تأكيد ودفع ${price(finalTotal)} بأمان`
+                    : `Confirm & Pay ${price(finalTotal)}`}
                 </button>
               </form>
             )}
