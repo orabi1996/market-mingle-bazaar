@@ -8,62 +8,603 @@ import p6 from "@/assets/p6.jpg";
 
 export type Lang = "ar" | "en";
 export type Currency = "SAR" | "AED" | "KWD" | "QAR" | "BHD" | "OMR";
+export type UserRole = "buyer" | "seller" | "admin";
 
-// Approximate rates from SAR (demo only)
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  storeName?: string;
+  phone?: string;
+};
+
+// Approximate rates from SAR (base)
 export const RATES: Record<Currency, number> = {
-  SAR: 1, AED: 0.98, KWD: 0.082, QAR: 0.97, BHD: 0.1, OMR: 0.103,
+  SAR: 1,
+  AED: 0.98,
+  KWD: 0.082,
+  QAR: 0.97,
+  BHD: 0.1,
+  OMR: 0.103,
 };
 
 export type Product = {
-  id: string; name: { ar: string; en: string }; category: { ar: string; en: string };
-  price: number; oldPrice?: number; rating: number; reviews: number; image: string;
-  seller: string; desc: { ar: string; en: string };
+  id: string;
+  name: { ar: string; en: string };
+  category: { ar: string; en: string };
+  price: number;
+  oldPrice?: number;
+  rating: number;
+  reviews: number;
+  image: string;
+  seller: string;
+  sellerId?: string;
+  stock?: number;
+  desc: { ar: string; en: string };
 };
 
-export const PRODUCTS: Product[] = [
-  { id: "1", name: { ar: "سماعة لاسلكية بعزل ضوضاء", en: "Noise-cancelling wireless headphones" }, category: { ar: "إلكترونيات", en: "Electronics" }, price: 899, oldPrice: 1199, rating: 4.7, reviews: 1284, image: p1, seller: "TechHub", desc: { ar: "صوت نقي وبطارية تدوم 40 ساعة.", en: "Crystal sound with 40-hour battery." } },
-  { id: "2", name: { ar: "عطر عود فاخر 100 مل", en: "Luxury oud perfume 100ml" }, category: { ar: "عطور", en: "Perfumes" }, price: 450, rating: 4.9, reviews: 860, image: p2, seller: "Oud House", desc: { ar: "عود طبيعي بثبات عالٍ.", en: "Natural oud, long-lasting." } },
-  { id: "3", name: { ar: "ساعة ذكية رياضية", en: "Sport smartwatch" }, category: { ar: "إلكترونيات", en: "Electronics" }, price: 699, oldPrice: 849, rating: 4.5, reviews: 532, image: p3, seller: "TechHub", desc: { ar: "تتبع النبض والنوم والخطوات.", en: "Tracks heart rate, sleep and steps." } },
-  { id: "4", name: { ar: "حقيبة جلد طبيعي", en: "Genuine leather handbag" }, category: { ar: "أزياء", en: "Fashion" }, price: 520, rating: 4.6, reviews: 214, image: p4, seller: "Leather Co", desc: { ar: "جلد إيطالي مصنوع يدويًا.", en: "Handmade Italian leather." } },
-  { id: "5", name: { ar: "ماكينة إسبريسو", en: "Espresso machine" }, category: { ar: "المنزل", en: "Home" }, price: 1350, oldPrice: 1600, rating: 4.8, reviews: 391, image: p5, seller: "Home Plus", desc: { ar: "ضغط 20 بار وبخار للحليب.", en: "20-bar pressure with milk steamer." } },
-  { id: "6", name: { ar: "حذاء جري خفيف", en: "Lightweight running shoes" }, category: { ar: "رياضة", en: "Sports" }, price: 380, rating: 4.4, reviews: 978, image: p6, seller: "Run Pro", desc: { ar: "نعل مريح للمسافات الطويلة.", en: "Comfortable sole for long runs." } },
+export type OrderItem = {
+  productId: string;
+  name: { ar: string; en: string };
+  quantity: number;
+  price: number;
+  image: string;
+  seller: string;
+};
+
+export type Order = {
+  id: string;
+  createdAt: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  city: string;
+  country: string;
+  paymentMethod: string;
+  items: OrderItem[];
+  total: number;
+  currency: Currency;
+  status: "pending" | "processing" | "shipped" | "delivered";
+};
+
+export const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: "1",
+    name: { ar: "سماعة رأس لاسلكية فائقة العزل الصوتي", en: "Ultra Noise-Cancelling Wireless Headphones" },
+    category: { ar: "إلكترونيات", en: "Electronics" },
+    price: 899,
+    oldPrice: 1199,
+    rating: 4.8,
+    reviews: 1420,
+    image: p1,
+    seller: "TechHub Store",
+    sellerId: "seller_techhub",
+    stock: 45,
+    desc: {
+      ar: "سماعة لاسلكية بتقنية عزل الضوضاء النشط المتطور، تدوم البطارية حتى 40 ساعة متواصلة مع شحن فائق السرعة وميكروفون نقي للمكالمات.",
+      en: "Wireless headphones with advanced active noise cancellation, 40-hour battery life with fast charge and crystal clear microphone.",
+    },
+  },
+  {
+    id: "2",
+    name: { ar: "عطر مروكي ملكي فاخر 100 مل", en: "Royal Luxury Maroki Oud Perfume 100ml" },
+    category: { ar: "عطور", en: "Perfumes" },
+    price: 450,
+    rating: 4.9,
+    reviews: 860,
+    image: p2,
+    seller: "Oud House",
+    sellerId: "seller_oud",
+    stock: 28,
+    desc: {
+      ar: "عطر عود مروكي طبيعي بيور مع لمسات العنبر والمسك، ثبات استثنائي يدوم لأكثر من 48 ساعة للمناسبات الفاخرة.",
+      en: "Pure natural Maroki oud perfume with amber and musk notes. Exceptional 48-hour longevity for special occasions.",
+    },
+  },
+  {
+    id: "3",
+    name: { ar: "ساعة ذكية رياضية بشاشة AMOLED المقاومة للماء", en: "Pro Sports AMOLED Smartwatch Waterproof" },
+    category: { ar: "إلكترونيات", en: "Electronics" },
+    price: 699,
+    oldPrice: 849,
+    rating: 4.6,
+    reviews: 730,
+    image: p3,
+    seller: "TechHub Store",
+    sellerId: "seller_techhub",
+    stock: 35,
+    desc: {
+      ar: "تتبع دقيق لنبضات القلب، الأكسجين، جودة النوم، وأكثر من 100 وضع رياضي مختلف مع بطارية تدوم أسبوعين.",
+      en: "Precision heart rate tracking, SpO2, sleep monitor and 100+ sport modes with 14-day battery life.",
+    },
+  },
+  {
+    id: "4",
+    name: { ar: "حقيبة كتف جلد طبيعي إيطالي يدوية الصنع", en: "Handmade Italian Genuine Leather Shoulder Bag" },
+    category: { ar: "أزياء", en: "Fashion" },
+    price: 520,
+    rating: 4.7,
+    reviews: 312,
+    image: p4,
+    seller: "Milano Leather",
+    sellerId: "seller_milano",
+    stock: 15,
+    desc: {
+      ar: "مصنوعة من جلد البقر الإيطالي الفاخر يدويًا بالكامل، عملية وأنيقة تناسب اللقاءات الرسمية والاستخدام اليومي.",
+      en: "Handcrafted from premium Italian full-grain leather, elegant design suitable for business and daily wear.",
+    },
+  },
+  {
+    id: "5",
+    name: { ar: "ماكينة قهوة إسبريسو احترافية 20 بار", en: "Professional 20-Bar Espresso Machine" },
+    category: { ar: "المنزل", en: "Home" },
+    price: 1350,
+    oldPrice: 1600,
+    rating: 4.8,
+    reviews: 415,
+    image: p5,
+    seller: "Home Plus",
+    sellerId: "seller_homeplus",
+    stock: 12,
+    desc: {
+      ar: "مضخة إيطالية بقوة 20 بار لاستخلاص مثالي للقهوة، مزودة بعصا تبخير الحليب لصنع الكابتشينو واللاتيه باحترافية تامة.",
+      en: "20-bar Italian pump for optimal espresso extraction, equipped with commercial steam wand for rich cappuccino foam.",
+    },
+  },
+  {
+    id: "6",
+    name: { ar: "حذاء رياضي خفيف ومبطن لسباقات الجري", en: "Ultra-Light Cushioned Running Shoes" },
+    category: { ar: "رياضة", en: "Sports" },
+    price: 380,
+    rating: 4.5,
+    reviews: 1040,
+    image: p6,
+    seller: "Run Pro Sports",
+    sellerId: "seller_runpro",
+    stock: 60,
+    desc: {
+      ar: "نعل هوائي مرن يمتص الصدمات مع نسيج شبكي يسمح بمرور الهواء، مريح جداً للجري والتمارين اليومية.",
+      en: "Flexible responsive air cushioning sole with breathable mesh upper, engineered for marathon runners and fitness.",
+    },
+  },
 ];
 
+export const PRODUCTS = INITIAL_PRODUCTS;
+
+export function getProductById(id: string): Product | undefined {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("bax-products");
+      if (stored) {
+        const custom: Product[] = JSON.parse(stored);
+        const found = custom.find((p) => p.id === id);
+        if (found) return found;
+      }
+    } catch {}
+  }
+  return INITIAL_PRODUCTS.find((p) => p.id === id);
+}
+
 const T = {
-  ar: { search: "ابحث في سوقلي...", cart: "السلة", sell: "بِع على سوقلي", heroTitle: "كل اللي تحتاجه، في سوق واحد", heroSub: "آلاف المنتجات من تجار موثوقين في الخليج، بتوصيل سريع.", shop: "تسوق الآن", deals: "عروض اليوم", add: "أضف للسلة", by: "البائع", empty: "سلتك فاضية", total: "الإجمالي", checkout: "إتمام الشراء", reviews: "تقييم", back: "رجوع للمتجر", remove: "حذف" },
-  en: { search: "Search Souqly...", cart: "Cart", sell: "Sell on Souqly", heroTitle: "Everything you need, in one souq", heroSub: "Thousands of products from trusted Gulf sellers, delivered fast.", shop: "Shop now", deals: "Today's deals", add: "Add to cart", by: "Sold by", empty: "Your cart is empty", total: "Total", checkout: "Checkout", reviews: "reviews", back: "Back to store", remove: "Remove" },
+  ar: {
+    brandName: "باكس",
+    brandTag: "سوقك الخليجي الشامل",
+    search: "ابحث في ملايين المنتجات، الماركات، والتجار على باكس...",
+    searchButton: "بحث",
+    cart: "عربة التسوق",
+    sell: "مركز البائعين",
+    sellCta: "بِع على باكس",
+    heroTitle: "كل ما تحتاجه، من آلاف التجار في سوق واحد",
+    heroSub: "أكبر منصة تجارة إلكترونية متعددة التجار في الخليج العربي. منتجات أصلية، توصيل سريع، وضمان ذهبي.",
+    shop: "تسوق العروض المميزة",
+    deals: "عروض وصفقات اليوم المختارة",
+    add: "أضف للسلة",
+    addedToCart: "تمت إضافة المنتج إلى سلتك!",
+    by: "البائع",
+    empty: "سلة التسوق فارغة حالياً",
+    startShopping: "تصفح المنتجات الآن",
+    total: "الإجمالي",
+    subtotal: "المجموع الفرعي",
+    checkout: "متابعة إتمام الطلب",
+    reviews: "تقييم",
+    back: "العودة للمتجر",
+    remove: "حذف",
+    quantity: "الكمية",
+    inStock: "متوفر بالمخزون",
+    outOfStock: "نفذت الكمية",
+    freeShipping: "شحن مجاني للطلبات فوق 200 ر.س",
+    categories: "الأقسام",
+    allCategories: "جميع الأقسام",
+    login: "تسجيل الدخول",
+    account: "حسابي",
+    hello: "مرحباً",
+    logout: "تسجيل الخروج",
+    sellerDashboard: "لوحة تحكم البائع",
+    buyer: "مشتري",
+    seller: "تاجر معتمد",
+    admin: "إدارة النظام",
+    orders: "طلباتي",
+    newOrders: "الطلبات الواردة",
+    manageInventory: "المخزون والمنتجات",
+    addNewProduct: "إضافة منتج جديد",
+    saveProduct: "نشر المنتج فوراً في المتجر",
+    features: {
+      fastDelivery: "توصيل سريع وآمن",
+      fastDeliveryDesc: "شحن لجميع مدن الخليج خلال 24 - 48 ساعة",
+      genuine: "منتجات أصلية 100%",
+      genuineDesc: "ضمان استرداد الأموال وفحص جودة صارم",
+      securePay: "دفع إلكتروني موثوق",
+      securePayDesc: "مدى، فيزا، ماستركارد، Apple Pay والدفع عند الاستلام",
+      support: "خدمة عملاء على مدار الساعة",
+      supportDesc: "فريق دعم مخصص لخدمة المشترين والتجار",
+    },
+  },
+  en: {
+    brandName: "BAX",
+    brandTag: "Gulf's Premier Marketplace",
+    search: "Search millions of products, brands and sellers on BAX...",
+    searchButton: "Search",
+    cart: "Cart",
+    sell: "Seller Central",
+    sellCta: "Sell on BAX",
+    heroTitle: "Everything You Need, From Thousands of Sellers",
+    heroSub: "The premier multi-vendor e-commerce platform across the Arabian Gulf. Authentic items, rapid delivery & buyer guarantee.",
+    shop: "Shop Featured Deals",
+    deals: "Today's Top Deals & Offers",
+    add: "Add to Cart",
+    addedToCart: "Added to your shopping cart!",
+    by: "Sold by",
+    empty: "Your shopping cart is empty",
+    startShopping: "Browse Products Now",
+    total: "Total",
+    subtotal: "Subtotal",
+    checkout: "Proceed to Checkout",
+    reviews: "reviews",
+    back: "Back to store",
+    remove: "Remove",
+    quantity: "Qty",
+    inStock: "In Stock",
+    outOfStock: "Out of Stock",
+    freeShipping: "Free shipping on orders above 200 SAR",
+    categories: "Categories",
+    allCategories: "All Departments",
+    login: "Sign In",
+    account: "My Account",
+    hello: "Hello",
+    logout: "Sign Out",
+    sellerDashboard: "Seller Dashboard",
+    buyer: "Buyer",
+    seller: "Verified Seller",
+    admin: "System Admin",
+    orders: "My Orders",
+    newOrders: "Incoming Orders",
+    manageInventory: "Products & Stock",
+    addNewProduct: "Add New Product",
+    saveProduct: "Publish Product to Marketplace",
+    features: {
+      fastDelivery: "Fast & Safe Delivery",
+      fastDeliveryDesc: "Express shipping across the Gulf within 24 - 48 hrs",
+      genuine: "100% Authentic Guarantee",
+      genuineDesc: "Money-back guarantee & strict quality inspection",
+      securePay: "Secure Seamless Payments",
+      securePayDesc: "Mada, Visa, Mastercard, Apple Pay & Cash on Delivery",
+      support: "24/7 Dedicated Support",
+      supportDesc: "Specialized assistance for both buyers and merchants",
+    },
+  },
 };
 
 type Ctx = {
-  lang: Lang; setLang: (l: Lang) => void; currency: Currency; setCurrency: (c: Currency) => void;
-  t: typeof T.ar; cart: Record<string, number>; add: (id: string) => void; remove: (id: string) => void;
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  currency: Currency;
+  setCurrency: (c: Currency) => void;
+  t: typeof T.ar;
+  cart: Record<string, number>;
+  add: (id: string, qty?: number) => void;
+  decrease: (id: string) => void;
+  remove: (id: string) => void;
+  clearCart: () => void;
   price: (sar: number) => string;
+  products: Product[];
+  addProduct: (product: Omit<Product, "id">) => Product;
+  deleteProduct: (id: string) => void;
+  updateProduct: (id: string, updates: Partial<Product>) => void;
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  selectedCategory: string;
+  setSelectedCategory: (c: string) => void;
+  user: User | null;
+  login: (user: User) => void;
+  logout: () => void;
+  switchRole: (role: UserRole) => void;
+  registerSeller: (storeName: string, sellerName: string, phone: string) => void;
+  orders: Order[];
+  createOrder: (orderData: Omit<Order, "id" | "createdAt" | "status">) => Order;
+  updateOrderStatus: (orderId: string, status: Order["status"]) => void;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
 };
+
 const StoreCtx = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("ar");
   const [currency, setCurrency] = useState<Currency>("SAR");
   const [cart, setCart] = useState<Record<string, number>>({});
+  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [user, setUser] = useState<User | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Initialize from LocalStorage
   useEffect(() => {
-    try { setCart(JSON.parse(localStorage.getItem("souqly-cart") || "{}")); } catch {}
+    try {
+      const storedCart = localStorage.getItem("bax-cart") || localStorage.getItem("souqly-cart");
+      if (storedCart) setCart(JSON.parse(storedCart));
+
+      const storedProducts = localStorage.getItem("bax-products");
+      if (storedProducts) {
+        const parsed = JSON.parse(storedProducts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProducts(parsed);
+        }
+      }
+
+      const storedUser = localStorage.getItem("bax-user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        // Default guest / active user demo
+        const defaultUser: User = {
+          id: "demo_seller",
+          name: "عبدالله العرابي",
+          email: "orabi@bax.market",
+          role: "seller",
+          storeName: "متجر باكس للتكنولوجيا",
+          phone: "+966501234567",
+        };
+        setUser(defaultUser);
+        localStorage.setItem("bax-user", JSON.stringify(defaultUser));
+      }
+
+      const storedOrders = localStorage.getItem("bax-orders");
+      if (storedOrders) {
+        setOrders(JSON.parse(storedOrders));
+      } else {
+        // Initial sample orders for demonstration
+        const sampleOrders: Order[] = [
+          {
+            id: "ORD-9421",
+            createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+            customerName: "سعد الشمري",
+            customerEmail: "saad@example.com",
+            customerPhone: "+966551239874",
+            customerAddress: "حي النرجس، شارع أنس بن مالك",
+            city: "الرياض",
+            country: "المملكة العربية السعودية",
+            paymentMethod: "بطاقة مدى (Mada)",
+            items: [
+              {
+                productId: "1",
+                name: { ar: "سماعة رأس لاسلكية فائقة العزل الصوتي", en: "Ultra Noise-Cancelling Headphones" },
+                quantity: 1,
+                price: 899,
+                image: p1,
+                seller: "TechHub Store",
+              },
+            ],
+            total: 899,
+            currency: "SAR",
+            status: "processing",
+          },
+          {
+            id: "ORD-9420",
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            customerName: "فاطمة الكعبي",
+            customerEmail: "fatima@example.com",
+            customerPhone: "+971509876543",
+            customerAddress: "الجميرا، فيلا 24",
+            city: "دبي",
+            country: "الإمارات العربية المتحدة",
+            paymentMethod: "Apple Pay",
+            items: [
+              {
+                productId: "2",
+                name: { ar: "عطر مروكي ملكي فاخر 100 مل", en: "Royal Luxury Maroki Oud Perfume" },
+                quantity: 2,
+                price: 450,
+                image: p2,
+                seller: "Oud House",
+              },
+            ],
+            total: 900,
+            currency: "AED",
+            status: "shipped",
+          },
+        ];
+        setOrders(sampleOrders);
+        localStorage.setItem("bax-orders", JSON.stringify(sampleOrders));
+      }
+    } catch (e) {
+      console.warn("Storage load warning:", e);
+    }
   }, []);
+
+  // Update HTML direction and language
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
-  const save = (c: Record<string, number>) => { setCart(c); localStorage.setItem("souqly-cart", JSON.stringify(c)); };
-  const add = (id: string) => save({ ...cart, [id]: (cart[id] || 0) + 1 });
-  const remove = (id: string) => { const c = { ...cart }; delete c[id]; save(c); };
-  const price = (sar: number) => {
-    const v = sar * RATES[currency];
-    return new Intl.NumberFormat(lang === "ar" ? "ar-SA" : "en-US", { style: "currency", currency, maximumFractionDigits: currency === "KWD" || currency === "BHD" || currency === "OMR" ? 3 : 0 }).format(v);
+
+  // Cart operations
+  const saveCart = (c: Record<string, number>) => {
+    setCart(c);
+    localStorage.setItem("bax-cart", JSON.stringify(c));
   };
-  return <StoreCtx.Provider value={{ lang, setLang, currency, setCurrency, t: T[lang], cart, add, remove, price }}>{children}</StoreCtx.Provider>;
+
+  const add = (id: string, qty = 1) => {
+    const next = { ...cart, [id]: (cart[id] || 0) + qty };
+    saveCart(next);
+  };
+
+  const decrease = (id: string) => {
+    if (!cart[id]) return;
+    const next = { ...cart };
+    if (next[id] <= 1) {
+      delete next[id];
+    } else {
+      next[id] -= 1;
+    }
+    saveCart(next);
+  };
+
+  const remove = (id: string) => {
+    const next = { ...cart };
+    delete next[id];
+    saveCart(next);
+  };
+
+  const clearCart = () => {
+    saveCart({});
+  };
+
+  // Products operations
+  const saveProducts = (newProducts: Product[]) => {
+    setProducts(newProducts);
+    localStorage.setItem("bax-products", JSON.stringify(newProducts));
+  };
+
+  const addProduct = (productData: Omit<Product, "id">): Product => {
+    const newProduct: Product = {
+      ...productData,
+      id: "prod_" + Date.now().toString(),
+      rating: 5.0,
+      reviews: 1,
+      stock: productData.stock ?? 25,
+    };
+    const next = [newProduct, ...products];
+    saveProducts(next);
+    return newProduct;
+  };
+
+  const deleteProduct = (id: string) => {
+    const next = products.filter((p) => p.id !== id);
+    saveProducts(next);
+  };
+
+  const updateProduct = (id: string, updates: Partial<Product>) => {
+    const next = products.map((p) => (p.id === id ? { ...p, ...updates } : p));
+    saveProducts(next);
+  };
+
+  // User & Auth operations
+  const login = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem("bax-user", JSON.stringify(newUser));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("bax-user");
+  };
+
+  const switchRole = (role: UserRole) => {
+    if (!user) return;
+    const updated: User = { ...user, role };
+    setUser(updated);
+    localStorage.setItem("bax-user", JSON.stringify(updated));
+  };
+
+  const registerSeller = (storeName: string, sellerName: string, phone: string) => {
+    const updated: User = {
+      id: user?.id || "seller_" + Date.now(),
+      name: sellerName || user?.name || "تاجر باكس",
+      email: user?.email || "seller@bax.market",
+      role: "seller",
+      storeName,
+      phone,
+    };
+    login(updated);
+  };
+
+  // Orders operations
+  const createOrder = (orderData: Omit<Order, "id" | "createdAt" | "status">): Order => {
+    const newOrder: Order = {
+      ...orderData,
+      id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+      createdAt: new Date().toISOString(),
+      status: "pending",
+    };
+    const next = [newOrder, ...orders];
+    setOrders(next);
+    localStorage.setItem("bax-orders", JSON.stringify(next));
+    clearCart();
+    return newOrder;
+  };
+
+  const updateOrderStatus = (orderId: string, status: Order["status"]) => {
+    const next = orders.map((o) => (o.id === orderId ? { ...o, status } : o));
+    setOrders(next);
+    localStorage.setItem("bax-orders", JSON.stringify(next));
+  };
+
+  // Currency pricing helper
+  const price = (sar: number) => {
+    const v = sar * (RATES[currency] || 1);
+    const fractionDigits = currency === "KWD" || currency === "BHD" || currency === "OMR" ? 3 : 0;
+    return new Intl.NumberFormat(lang === "ar" ? "ar-SA" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: fractionDigits,
+    }).format(v);
+  };
+
+  return (
+    <StoreCtx.Provider
+      value={{
+        lang,
+        setLang,
+        currency,
+        setCurrency,
+        t: T[lang],
+        cart,
+        add,
+        decrease,
+        remove,
+        clearCart,
+        price,
+        products,
+        addProduct,
+        deleteProduct,
+        updateProduct,
+        searchQuery,
+        setSearchQuery,
+        selectedCategory,
+        setSelectedCategory,
+        user,
+        login,
+        logout,
+        switchRole,
+        registerSeller,
+        orders,
+        createOrder,
+        updateOrderStatus,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+      }}
+    >
+      {children}
+    </StoreCtx.Provider>
+  );
 }
 
 export const useStore = () => {
   const c = useContext(StoreCtx);
-  if (!c) throw new Error("useStore outside provider");
+  if (!c) throw new Error("useStore must be used within StoreProvider");
   return c;
 };

@@ -1,38 +1,747 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useStore } from "@/lib/store";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useStore, type Product, type Order } from "@/lib/store";
+import { useState } from "react";
+import {
+  Store,
+  PlusCircle,
+  Package,
+  ShoppingBag,
+  TrendingUp,
+  DollarSign,
+  CheckCircle2,
+  Trash2,
+  Edit3,
+  Truck,
+  Clock,
+  ArrowRight,
+  ExternalLink,
+  ShieldCheck,
+} from "lucide-react";
+import p1 from "@/assets/p1.jpg";
+import p2 from "@/assets/p2.jpg";
+import p3 from "@/assets/p3.jpg";
+import p4 from "@/assets/p4.jpg";
+import p5 from "@/assets/p5.jpg";
+import p6 from "@/assets/p6.jpg";
 
 export const Route = createFileRoute("/sell")({
   head: () => ({
     meta: [
-      { title: "بِع على سوقلي | Souqly Sellers" },
-      { name: "description", content: "افتح متجرك على سوقلي ووصّل منتجاتك لعملاء الخليج كله." },
-      { property: "og:title", content: "بِع على سوقلي" },
-      { property: "og:description", content: "افتح متجرك على سوقلي ووصّل منتجاتك لعملاء الخليج." },
+      { title: "مركز البائعين | BAX Seller Central" },
+      { name: "description", content: "افتح متجرك وأدر مبيعاتك ومنتجاتك وطلباتك على منصة باكس." },
+      { property: "og:title", content: "مركز بائعي باكس | BAX Seller Central" },
+      { property: "og:description", content: "لوحة تحكم البائع وإدارة المنتجات والطلبات على باكس." },
     ],
   }),
-  component: Sell,
+  component: SellerCenter,
 });
 
-const STEPS = {
-  ar: [["سجّل متجرك", "بياناتك وبيانات نشاطك التجاري"], ["أضف منتجاتك", "صور وأسعار ومخزون"], ["استقبل الطلبات", "واشحن بنفسك أو نشحن عنك"], ["استلم أرباحك", "تحويل دوري لحسابك البنكي"]],
-  en: [["Register your store", "Your business details"], ["List products", "Photos, prices and stock"], ["Get orders", "Ship yourself or let us ship"], ["Get paid", "Regular payouts to your bank"]],
-};
+const DEFAULT_PRESET_IMAGES = [
+  { label: "سماعات / أجهزة", src: p1 },
+  { label: "عطور وفاخرات", src: p2 },
+  { label: "ساعات ذكية", src: p3 },
+  { label: "حقائب وجلديات", src: p4 },
+  { label: "مكائن قهوة والمنزل", src: p5 },
+  { label: "أحذية ورياضة", src: p6 },
+];
 
-function Sell() {
-  const { lang, t } = useStore();
-  return (
-    <main className="mx-auto max-w-5xl px-4 py-16">
-      <h1 className="text-4xl font-bold">{t.sell}</h1>
-      <p className="mt-3 text-muted-foreground">{lang === "ar" ? "لوحة التاجر قادمة في المرحلة الجاية." : "The seller dashboard is coming in the next phase."}</p>
-      <div className="mt-10 grid gap-4 md:grid-cols-4">
-        {STEPS[lang].map(([h, d], i) => (
-          <div key={h} className="rounded-xl bg-card p-5 shadow-card">
-            <span className="text-3xl font-bold text-gold">{i + 1}</span>
-            <h3 className="mt-2 font-semibold">{h}</h3>
-            <p className="text-sm text-muted-foreground">{d}</p>
+function SellerCenter() {
+  const {
+    lang,
+    t,
+    user,
+    products,
+    addProduct,
+    deleteProduct,
+    updateProduct,
+    orders,
+    updateOrderStatus,
+    price,
+    registerSeller,
+    switchRole,
+  } = useStore();
+
+  const [activeTab, setActiveTab] = useState<"inventory" | "newProduct" | "orders">("inventory");
+
+  // Registration Form States for new sellers
+  const [storeNameInput, setStoreNameInput] = useState("");
+  const [sellerNameInput, setSellerNameInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
+
+  // New Product Form States
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [categoryAr, setCategoryAr] = useState("إلكترونيات");
+  const [categoryEn, setCategoryEn] = useState("Electronics");
+  const [productPrice, setProductPrice] = useState(299);
+  const [oldPrice, setOldPrice] = useState<number | undefined>(399);
+  const [stock, setStock] = useState(50);
+  const [selectedImage, setSelectedImage] = useState(p1);
+  const [customImageUrl, setCustomImageUrl] = useState("");
+  const [descAr, setDescAr] = useState("");
+  const [descEn, setDescEn] = useState("");
+  const [successToast, setSuccessToast] = useState(false);
+
+  const isSeller = user?.role === "seller";
+
+  const handleRegisterSeller = (e: React.FormEvent) => {
+    e.preventDefault();
+    registerSeller(
+      storeNameInput || (lang === "ar" ? "متجر باكس الرسمي" : "BAX Official Store"),
+      sellerNameInput || (lang === "ar" ? "تاجر باكس" : "BAX Seller"),
+      phoneInput || "+966500000000"
+    );
+  };
+
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nameAr.trim()) return;
+
+    addProduct({
+      name: {
+        ar: nameAr,
+        en: nameEn || nameAr,
+      },
+      category: {
+        ar: categoryAr,
+        en: categoryEn,
+      },
+      price: Number(productPrice),
+      oldPrice: oldPrice ? Number(oldPrice) : undefined,
+      rating: 5.0,
+      reviews: 1,
+      image: customImageUrl.trim() ? customImageUrl.trim() : selectedImage,
+      seller: user?.storeName || (lang === "ar" ? "متجر معتمد" : "Verified Store"),
+      sellerId: user?.id,
+      stock: Number(stock),
+      desc: {
+        ar: descAr || nameAr,
+        en: descEn || nameEn || nameAr,
+      },
+    });
+
+    // Reset Form
+    setNameAr("");
+    setNameEn("");
+    setDescAr("");
+    setDescEn("");
+    setCustomImageUrl("");
+    setSuccessToast(true);
+    setTimeout(() => {
+      setSuccessToast(false);
+      setActiveTab("inventory");
+    }, 1500);
+  };
+
+  // Metrics calculations
+  const sellerProducts = products;
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.status !== "pending" ? o.total : 0), 0) + 14250;
+  const totalOrdersCount = orders.length + 28;
+
+  if (!isSeller) {
+    // Non-seller view: Landing Page to Join as Seller
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-12">
+        <div className="rounded-3xl bg-linear-to-r from-primary to-primary/90 p-8 md:p-14 text-white shadow-xl relative overflow-hidden">
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-4">
+              <ShieldCheck className="h-4 w-4" />
+              {lang === "ar" ? "برنامج تجار باكس المعتمدين" : "BAX Verified Sellers Program"}
+            </div>
+            <h1 className="text-3xl font-black md:text-5xl leading-tight">
+              {lang === "ar"
+                ? "ابدأ البيع على باكس، ووصّل منتجاتك لملايين العملاء في الخليج"
+                : "Sell on BAX and Reach Millions of Shoppers Across the Gulf"}
+            </h1>
+            <p className="mt-4 text-white/80 text-sm md:text-base leading-relaxed">
+              {lang === "ar"
+                ? "منصة متطورة تجمع بين قوة أمازون وسهولة الاستخدام. عمولات منخفضة، لوحة تحكم فورية لإدارة المخزون، وربط مباشر مع شبكات الشحن والتحصيل."
+                : "Advanced multi-vendor marketplace infrastructure. Low commission, real-time inventory management, and integrated payments."}
+            </p>
           </div>
-        ))}
+        </div>
+
+        {/* Quick Registration Form */}
+        <div className="mt-10 rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Store className="h-6 w-6 text-gold" />
+            {lang === "ar" ? "سجّل متجرك التجاري الآن في دقيقة" : "Register Your Store in One Minute"}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {lang === "ar"
+              ? "أدخل بيانات نشاطك لفتح لوحة تحكم التاجر والبدء في رفع منتجاتك للبيع فوراً."
+              : "Enter your store details to unlock your Seller Dashboard and start listing products immediately."}
+          </p>
+
+          <form onSubmit={handleRegisterSeller} className="mt-6 grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="text-xs font-semibold text-foreground">
+                {lang === "ar" ? "اسم المتجر / البراند" : "Store / Brand Name"}
+              </label>
+              <input
+                type="text"
+                required
+                value={storeNameInput}
+                onChange={(e) => setStoreNameInput(e.target.value)}
+                placeholder={lang === "ar" ? "مثال: متجر النخبة للإلكترونيات" : "e.g. Apex Electronics"}
+                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-foreground">
+                {lang === "ar" ? "اسم مالك المتجر / المسؤول" : "Owner / Manager Name"}
+              </label>
+              <input
+                type="text"
+                required
+                value={sellerNameInput}
+                onChange={(e) => setSellerNameInput(e.target.value)}
+                placeholder={lang === "ar" ? "مثال: عبدالله العرابي" : "e.g. Abdullah Orabi"}
+                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-foreground">
+                {lang === "ar" ? "رقم الجوال أو الواتساب التجاري" : "Business Phone / WhatsApp"}
+              </label>
+              <input
+                type="tel"
+                required
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+                placeholder="+966 50 123 4567"
+                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="md:col-span-3 pt-2">
+              <button
+                type="submit"
+                className="w-full md:w-auto rounded-xl bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow hover:opacity-90 flex items-center justify-center gap-2"
+              >
+                <Store className="h-4 w-4 text-gold" />
+                {lang === "ar" ? "افتتاح المتجر والدخول للوحة التحكم" : "Launch Store & Open Dashboard"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Benefits Grid */}
+        <div className="mt-12 grid gap-6 md:grid-cols-4">
+          <div className="rounded-xl border border-border bg-card p-5">
+            <DollarSign className="h-8 w-8 text-gold" />
+            <h3 className="mt-3 font-bold">{lang === "ar" ? "عمولة تنافسية" : "Low Commissions"}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === "ar" ? "تحصيل يومي وأسبوعي مباشر لأرباحك في حسابك البنكي." : "Direct regular payouts to your bank."}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5">
+            <Truck className="h-8 w-8 text-gold" />
+            <h3 className="mt-3 font-bold">{lang === "ar" ? "شحن لوجستي موحد" : "Fulfillment by BAX"}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === "ar" ? "اشحن بنفسك أو دع أسطول باكس يتولى التوصيل لباب العميل." : "Ship yourself or let our Gulf network deliver."}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5">
+            <TrendingUp className="h-8 w-8 text-gold" />
+            <h3 className="mt-3 font-bold">{lang === "ar" ? "لوحة تحكم ذكية" : "Smart Dashboard"}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === "ar" ? "إحصائيات المبيعات، ومراقبة المخزون، وتحليلات الزوار." : "Real-time sales, inventory, and order analytics."}
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5">
+            <ShieldCheck className="h-8 w-8 text-gold" />
+            <h3 className="mt-3 font-bold">{lang === "ar" ? "حماية وشفافية" : "Seller Protection"}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {lang === "ar" ? "حماية كاملة من الاحتيال وسياسة إرجاع عادلة ومدروسة." : "Fraud protection & clear dispute resolution."}
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Active Seller Dashboard
+  return (
+    <main className="mx-auto max-w-7xl px-4 py-8">
+      {/* Top Banner: Store Status & Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card border border-border p-5 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold/20 text-gold">
+            <Store className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold">{user?.storeName || (lang === "ar" ? "متجر باكس" : "BAX Store")}</h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                {lang === "ar" ? "بائع موثق" : "Verified Seller"}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {lang === "ar" ? "التاجر:" : "Owner:"} <span className="font-semibold text-foreground">{user?.name}</span> • {user?.email}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => switchRole("buyer")}
+            className="rounded-lg border border-input bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted"
+          >
+            {lang === "ar" ? "معاينة كمتسوق (مشتري)" : "Switch to Buyer View"}
+          </button>
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:opacity-90"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            {lang === "ar" ? "زيارة المتجر الرئيسي" : "Visit Marketplace"}
+          </Link>
+        </div>
       </div>
+
+      {/* KPI Stats Cards (Amazon Seller Central style) */}
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{lang === "ar" ? "إجمالي المبيعات" : "Total Revenue"}</span>
+            <DollarSign className="h-4 w-4 text-gold" />
+          </div>
+          <div className="mt-2 text-2xl font-black">{price(totalRevenue)}</div>
+          <span className="text-[11px] font-semibold text-emerald-600">↑ +18.4% {lang === "ar" ? "هذا الشهر" : "this month"}</span>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{lang === "ar" ? "عدد الطلبات" : "Total Orders"}</span>
+            <ShoppingBag className="h-4 w-4 text-primary" />
+          </div>
+          <div className="mt-2 text-2xl font-black">{totalOrdersCount}</div>
+          <span className="text-[11px] font-semibold text-emerald-600">↑ 4 {lang === "ar" ? "طلبات جديدة اليوم" : "new today"}</span>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{lang === "ar" ? "المنتجات المعروضة" : "Active Products"}</span>
+            <Package className="h-4 w-4 text-blue-500" />
+          </div>
+          <div className="mt-2 text-2xl font-black">{sellerProducts.length}</div>
+          <span className="text-[11px] font-medium text-muted-foreground">{lang === "ar" ? "جميعها جاهزة للبيع" : "Live in store"}</span>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{lang === "ar" ? "تقييم المتجر" : "Store Rating"}</span>
+            <span className="text-gold font-bold">★ 4.9</span>
+          </div>
+          <div className="mt-2 text-2xl font-black">4.9 / 5.0</div>
+          <span className="text-[11px] font-medium text-muted-foreground">{lang === "ar" ? "بناءً على 1,280 تقييم" : "from 1,280 reviews"}</span>
+        </div>
+      </div>
+
+      {/* Tabs Navigation */}
+      <div className="mt-8 flex border-b border-border">
+        <button
+          onClick={() => setActiveTab("inventory")}
+          className={`flex items-center gap-2 pb-3 px-4 text-sm font-bold border-b-2 transition ${
+            activeTab === "inventory"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Package className="h-4 w-4" />
+          {lang === "ar" ? "إدارة المنتجات والمخزون" : "Products & Inventory"} ({sellerProducts.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("newProduct")}
+          className={`flex items-center gap-2 pb-3 px-4 text-sm font-bold border-b-2 transition ${
+            activeTab === "newProduct"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <PlusCircle className="h-4 w-4 text-gold" />
+          {lang === "ar" ? "إضافة منتج جديد" : "Add New Product"}
+        </button>
+
+        <button
+          onClick={() => setActiveTab("orders")}
+          className={`flex items-center gap-2 pb-3 px-4 text-sm font-bold border-b-2 transition ${
+            activeTab === "orders"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <ShoppingBag className="h-4 w-4" />
+          {lang === "ar" ? "الطلبات الواردة" : "Incoming Orders"} ({orders.length})
+        </button>
+      </div>
+
+      {/* Tab 1: Products and Inventory */}
+      {activeTab === "inventory" && (
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold">{lang === "ar" ? "قائمة المنتجات النشطة بالمتجر" : "Live Product Listings"}</h2>
+            <button
+              onClick={() => setActiveTab("newProduct")}
+              className="flex items-center gap-1.5 rounded-lg bg-gold px-3.5 py-1.5 text-xs font-bold text-gold-foreground hover:opacity-90"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              {lang === "ar" ? "إضافة منتج الآن" : "Add Product Now"}
+            </button>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-border bg-card">
+            <table className="w-full text-start text-sm">
+              <thead className="bg-muted/50 text-xs font-bold text-muted-foreground border-b border-border">
+                <tr>
+                  <th className="p-3 text-start">{lang === "ar" ? "المنتج" : "Product"}</th>
+                  <th className="p-3 text-start">{lang === "ar" ? "القسم" : "Category"}</th>
+                  <th className="p-3 text-start">{lang === "ar" ? "السعر" : "Price"}</th>
+                  <th className="p-3 text-start">{lang === "ar" ? "المخزون" : "Stock"}</th>
+                  <th className="p-3 text-start">{lang === "ar" ? "التقييم" : "Rating"}</th>
+                  <th className="p-3 text-end">{lang === "ar" ? "إجراءات" : "Actions"}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {sellerProducts.map((p) => (
+                  <tr key={p.id} className="hover:bg-muted/30 transition">
+                    <td className="p-3">
+                      <div className="flex items-center gap-3">
+                        <img src={p.image} alt={p.name[lang]} className="h-12 w-12 rounded-lg object-cover bg-secondary shrink-0" />
+                        <div>
+                          <Link to="/product/$id" params={{ id: p.id }} className="font-semibold hover:text-primary line-clamp-1">
+                            {p.name[lang]}
+                          </Link>
+                          <span className="text-[11px] text-muted-foreground">{lang === "ar" ? "البائع:" : "By:"} {p.seller}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-3 text-xs text-muted-foreground font-medium">{p.category[lang]}</td>
+                    <td className="p-3 font-bold text-foreground">
+                      {price(p.price)}
+                      {p.oldPrice && (
+                        <span className="ms-1.5 text-xs text-muted-foreground line-through">{price(p.oldPrice)}</span>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600">
+                        {p.stock ?? 30} {lang === "ar" ? "قطعة" : "pcs"}
+                      </span>
+                    </td>
+                    <td className="p-3 text-xs font-bold text-gold">★ {p.rating} ({p.reviews})</td>
+                    <td className="p-3 text-end">
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            const newPrice = prompt(lang === "ar" ? "أدخل السعر الجديد (ر.س):" : "Enter new price (SAR):", String(p.price));
+                            if (newPrice && !isNaN(Number(newPrice))) {
+                              updateProduct(p.id, { price: Number(newPrice) });
+                            }
+                          }}
+                          className="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          title={lang === "ar" ? "تعديل السعر" : "Edit Price"}
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(lang === "ar" ? "هل أنت متأكد من حذف هذا المنتج؟" : "Delete this product?")) {
+                              deleteProduct(p.id);
+                            }
+                          }}
+                          className="rounded-md border border-destructive/20 p-1.5 text-destructive hover:bg-destructive/10"
+                          title={lang === "ar" ? "حذف المنتج" : "Delete"}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 2: Add New Product Form */}
+      {activeTab === "newProduct" && (
+        <div className="mt-6 max-w-3xl rounded-2xl border border-border bg-card p-6 md:p-8 shadow-xs">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <PlusCircle className="h-5 w-5 text-gold" />
+            {lang === "ar" ? "إضافة منتج جديد ونشره فوراً في المتجر" : "List New Product on BAX"}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            {lang === "ar"
+              ? "سيظهر المنتج فور إضافته لجميع المتسوقين ويمكن إضافته للسلة والشراء مباشرة."
+              : "Product will go live immediately on the store for shoppers to browse and order."}
+          </p>
+
+          {successToast && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-500/15 p-3 text-sm font-bold text-emerald-600">
+              <CheckCircle2 className="h-5 w-5" />
+              {lang === "ar" ? "تم نشر المنتج بنجاح في متجر باكس!" : "Product published successfully to BAX!"}
+            </div>
+          )}
+
+          <form onSubmit={handleCreateProduct} className="mt-6 space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "اسم المنتج بالعربية *" : "Product Name (Arabic) *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={nameAr}
+                  onChange={(e) => setNameAr(e.target.value)}
+                  placeholder={lang === "ar" ? "مثال: هاتف ذكي برو ماكس 256 جيجا" : "Arabic title"}
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "اسم المنتج بالإنجليزية" : "Product Name (English)"}
+                </label>
+                <input
+                  type="text"
+                  value={nameEn}
+                  onChange={(e) => setNameEn(e.target.value)}
+                  placeholder="e.g. Pro Max Smartphone 256GB"
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "القسم / التصنيف" : "Category"}
+                </label>
+                <select
+                  value={categoryAr}
+                  onChange={(e) => {
+                    setCategoryAr(e.target.value);
+                    const map: Record<string, string> = {
+                      إلكترونيات: "Electronics",
+                      عطور: "Perfumes",
+                      أزياء: "Fashion",
+                      المنزل: "Home",
+                      رياضة: "Sports",
+                    };
+                    setCategoryEn(map[e.target.value] || "General");
+                  }}
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="إلكترونيات">{lang === "ar" ? "إلكترونيات" : "Electronics"}</option>
+                  <option value="عطور">{lang === "ar" ? "عطور وجمال" : "Perfumes"}</option>
+                  <option value="أزياء">{lang === "ar" ? "أزياء وموضة" : "Fashion"}</option>
+                  <option value="المنزل">{lang === "ar" ? "المنزل والمطبخ" : "Home"}</option>
+                  <option value="رياضة">{lang === "ar" ? "رياضة ولياقة" : "Sports"}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "سعر البيع (ر.س) *" : "Price (SAR) *"}
+                </label>
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  value={productPrice}
+                  onChange={(e) => setProductPrice(Number(e.target.value))}
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "السعر قبل الخصم (اختياري)" : "Original Price (Optional)"}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={oldPrice || ""}
+                  onChange={(e) => setOldPrice(e.target.value ? Number(e.target.value) : undefined)}
+                  placeholder="399"
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "الكمية في المخزون" : "Stock Quantity"}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={stock}
+                  onChange={(e) => setStock(Number(e.target.value))}
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground">
+                  {lang === "ar" ? "رابط صورة خارجية مخصصة (اختياري)" : "Custom Image URL (Optional)"}
+                </label>
+                <input
+                  type="url"
+                  value={customImageUrl}
+                  onChange={(e) => setCustomImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            {/* Quick Preset Image Picker */}
+            <div>
+              <label className="text-xs font-semibold text-foreground">
+                {lang === "ar" ? "أو اختر صورة جاهزة للمنتج من المعرض:" : "Or select a preset product image:"}
+              </label>
+              <div className="mt-2 grid grid-cols-6 gap-2">
+                {DEFAULT_PRESET_IMAGES.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setSelectedImage(img.src);
+                      setCustomImageUrl("");
+                    }}
+                    className={`relative aspect-square overflow-hidden rounded-lg border-2 transition ${
+                      selectedImage === img.src && !customImageUrl ? "border-primary ring-2 ring-primary" : "border-border opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={img.src} alt={img.label} className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-foreground">
+                {lang === "ar" ? "وصف ومميزات المنتج بالعربية" : "Product Description"}
+              </label>
+              <textarea
+                rows={3}
+                value={descAr}
+                onChange={(e) => setDescAr(e.target.value)}
+                placeholder={lang === "ar" ? "اذكر مميزات المنتج، الضمان، وطريقة الاستخدام..." : "Description..."}
+                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-sm hover:opacity-90 flex items-center justify-center gap-2"
+            >
+              <PlusCircle className="h-4 w-4 text-gold" />
+              {t.saveProduct}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Tab 3: Incoming Orders */}
+      {activeTab === "orders" && (
+        <div className="mt-6">
+          <h2 className="text-lg font-bold mb-4">{lang === "ar" ? "سجل طلبات العملاء" : "Customer Orders"}</h2>
+          {orders.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
+              {lang === "ar" ? "لا توجد طلبات جديدة حالياً." : "No customer orders yet."}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((o) => (
+                <div key={o.id} className="rounded-xl border border-border bg-card p-5 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono font-bold text-primary">{o.id}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(o.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                          o.status === "delivered"
+                            ? "bg-emerald-500/15 text-emerald-600"
+                            : o.status === "shipped"
+                            ? "bg-blue-500/15 text-blue-600"
+                            : o.status === "processing"
+                            ? "bg-amber-500/15 text-amber-600"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <Clock className="h-3 w-3" />
+                        {o.status === "delivered"
+                          ? lang === "ar" ? "تم التوصيل" : "Delivered"
+                          : o.status === "shipped"
+                          ? lang === "ar" ? "تم الشحن" : "Shipped"
+                          : o.status === "processing"
+                          ? lang === "ar" ? "قيد التجهيز" : "Processing"
+                          : lang === "ar" ? "جديد" : "Pending"}
+                      </span>
+
+                      {/* Status changer buttons */}
+                      <select
+                        value={o.status}
+                        onChange={(e) => updateOrderStatus(o.id, e.target.value as Order["status"])}
+                        className="rounded-md border border-input bg-background px-2 py-1 text-xs outline-none cursor-pointer"
+                      >
+                        <option value="pending">{lang === "ar" ? "جديد" : "Pending"}</option>
+                        <option value="processing">{lang === "ar" ? "قيد التجهيز" : "Processing"}</option>
+                        <option value="shipped">{lang === "ar" ? "تم الشحن" : "Shipped"}</option>
+                        <option value="delivered">{lang === "ar" ? "تم التسليم" : "Delivered"}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <div>
+                      <span className="text-xs font-semibold text-muted-foreground">{lang === "ar" ? "بيانات المشتري والشحن:" : "Customer & Address:"}</span>
+                      <p className="font-semibold text-sm mt-0.5">{o.customerName} ({o.customerPhone})</p>
+                      <p className="text-xs text-muted-foreground">{o.customerAddress} - {o.city}، {o.country}</p>
+                      <p className="text-xs text-muted-foreground mt-1">💳 {o.paymentMethod}</p>
+                    </div>
+
+                    <div>
+                      <span className="text-xs font-semibold text-muted-foreground">{lang === "ar" ? "المنتجات المطلوبة:" : "Items Ordered:"}</span>
+                      <div className="mt-1 space-y-1">
+                        {o.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <span className="text-foreground line-clamp-1">{item.name[lang] || item.name.ar} × {item.quantity}</span>
+                            <span className="font-bold">{price(item.price * item.quantity)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-2 border-t border-border pt-1.5 flex justify-between font-bold text-sm">
+                        <span>{t.total}:</span>
+                        <span className="text-primary">{price(o.total)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 }

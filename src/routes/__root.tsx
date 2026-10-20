@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { StoreProvider } from "@/lib/store";
 import { Header } from "@/components/Header";
+import { AuthModal } from "@/components/AuthModal";
 
 function NotFoundComponent() {
   return (
@@ -22,14 +23,14 @@ function NotFoundComponent() {
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          الصفحة المطلوبة غير موجودة أو تم نقلها.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            العودة للرئيسية
           </Link>
         </div>
       </div>
@@ -48,10 +49,10 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          حدث خطأ أثناء تحميل الصفحة
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          نعتذر عن ذلك، يرجى المحاولة مرة أخرى أو العودة للصفحة الرئيسية.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -61,13 +62,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            إعادة المحاولة
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            الرئيسية
           </a>
         </div>
       </div>
@@ -118,7 +119,49 @@ function RootComponent() {
       <StoreProvider>
         <Header />
         <Outlet />
-        <footer className="mt-16 bg-primary py-8 text-center text-sm text-primary-foreground">© 2026 Souqly</footer>
+        <AuthModal />
+        <footer className="mt-20 border-t border-border bg-primary text-primary-foreground py-12">
+          <div className="mx-auto max-w-7xl px-4 grid gap-8 md:grid-cols-4 text-xs">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold text-primary font-black text-sm">B</span>
+                <span className="font-display text-lg font-black tracking-tight text-white">BAX<span className="text-gold">.market</span></span>
+              </div>
+              <p className="text-white/70 leading-relaxed">
+                سوق التجارة الإلكترونية الشامل للخليج العربي. يجمع بين كبرى المتاجر والتجار المعتمدين والمشترين في بيئة آمنة وتوصيل فائق السرعة.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-3 text-sm">تسوق مع باكس</h4>
+              <ul className="space-y-2 text-white/75">
+                <li><Link to="/" className="hover:text-gold">جميع الأقسام والتصنيفات</Link></li>
+                <li><Link to="/" className="hover:text-gold">عروض وصفقات اليوم</Link></li>
+                <li><Link to="/cart" className="hover:text-gold">عربة التسوق والطلبات</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-3 text-sm">خدمات التجار والأعمال</h4>
+              <ul className="space-y-2 text-white/75">
+                <li><Link to="/sell" className="hover:text-gold">مركز بائعي باكس (Seller Central)</Link></li>
+                <li><Link to="/sell" className="hover:text-gold">لوحة تحكم المخزون والمنتجات</Link></li>
+                <li><Link to="/sell" className="hover:text-gold">الشحن اللوجستي والتحصيل</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white mb-3 text-sm">الضمان وحماية المشتري</h4>
+              <p className="text-white/70 leading-relaxed mb-3">
+                جميع المنتجات معتمدة وتخضع لفحص الجودة، مع ضمان استرجاع الأموال خلال 14 يوماً ودعم فني على مدار الساعة.
+              </p>
+              <div className="font-mono text-gold font-bold">Gulf Express • 2026</div>
+            </div>
+          </div>
+          <div className="mt-10 pt-6 border-t border-white/10 text-center text-white/60 text-[11px]">
+            جميع الحقوق محفوظة © 2026 باكس BAX Marketplace
+          </div>
+        </footer>
       </StoreProvider>
     </QueryClientProvider>
   );
