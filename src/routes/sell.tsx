@@ -30,10 +30,10 @@ import p6 from "@/assets/p6.jpg";
 export const Route = createFileRoute("/sell")({
   head: () => ({
     meta: [
-      { title: "مركز البائعين | BAX Seller Central" },
-      { name: "description", content: "افتح متجرك وأدر مبيعاتك ومنتجاتك وطلباتك على منصة باكس." },
-      { property: "og:title", content: "مركز بائعي باكس | BAX Seller Central" },
-      { property: "og:description", content: "لوحة تحكم البائع وإدارة المنتجات والطلبات على باكس." },
+      { title: "مركز البائعين | Souqly Seller Central" },
+      { name: "description", content: "افتح متجرك وأدر مبيعاتك ومنتجاتك وطلباتك على منصة سوقلي." },
+      { property: "og:title", content: "مركز بائعي سوقلي | Souqly Seller Central" },
+      { property: "og:description", content: "لوحة تحكم البائع وإدارة المنتجات والطلبات على سوقلي." },
     ],
   }),
   component: SellerCenter,
@@ -107,8 +107,8 @@ function SellerCenter() {
   const handleRegisterSeller = (e: React.FormEvent) => {
     e.preventDefault();
     registerSeller(
-      storeNameInput || (lang === "ar" ? "متجر باكس الرسمي" : "BAX Official Store"),
-      sellerNameInput || (lang === "ar" ? "تاجر باكس" : "BAX Seller"),
+      storeNameInput || (lang === "ar" ? "متجر سوقلي الرسمي" : "Souqly Official Store"),
+      sellerNameInput || (lang === "ar" ? "تاجر سوقلي" : "Souqly Seller"),
       phoneInput || "+966500000000"
     );
   };
@@ -166,12 +166,12 @@ function SellerCenter() {
           <div className="relative z-10 max-w-2xl">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-4">
               <ShieldCheck className="h-4 w-4" />
-              {lang === "ar" ? "برنامج تجار باكس المعتمدين" : "BAX Verified Sellers Program"}
+              {lang === "ar" ? "برنامج تجار سوقلي المعتمدين" : "Souqly Verified Sellers Program"}
             </div>
             <h1 className="text-3xl font-black md:text-5xl leading-tight">
               {lang === "ar"
-                ? "ابدأ البيع على باكس، ووصّل منتجاتك لملايين العملاء في الخليج"
-                : "Sell on BAX and Reach Millions of Shoppers Across the Gulf"}
+                ? "ابدأ البيع على سوقلي، ووصّل منتجاتك لملايين العملاء في الخليج"
+                : "Sell on Souqly and Reach Millions of Shoppers Across the Gulf"}
             </h1>
             <p className="mt-4 text-white/80 text-sm md:text-base leading-relaxed">
               {lang === "ar"
@@ -257,9 +257,9 @@ function SellerCenter() {
           </div>
           <div className="rounded-xl border border-border bg-card p-5">
             <Truck className="h-8 w-8 text-gold" />
-            <h3 className="mt-3 font-bold">{lang === "ar" ? "شحن لوجستي موحد" : "Fulfillment by BAX"}</h3>
+            <h3 className="mt-3 font-bold">{lang === "ar" ? "شحن لوجستي موحد" : "Fulfillment by Souqly"}</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              {lang === "ar" ? "اشحن بنفسك أو دع أسطول باكس يتولى التوصيل لباب العميل." : "Ship yourself or let our Gulf network deliver."}
+              {lang === "ar" ? "اشحن بنفسك أو دع أسطول سوقلي يتولى التوصيل لباب العميل." : "Ship yourself or let our Gulf network deliver."}
             </p>
           </div>
           <div className="rounded-xl border border-border bg-card p-5">
@@ -292,7 +292,7 @@ function SellerCenter() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold">{user?.storeName || (lang === "ar" ? "متجر باكس" : "BAX Store")}</h1>
+              <h1 className="text-xl font-bold">{user?.storeName || (lang === "ar" ? "متجر سوقلي" : "Souqly Store")}</h1>
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 {lang === "ar" ? "بائع موثق" : "Verified Seller"}
@@ -516,7 +516,7 @@ function SellerCenter() {
         <div className="mt-6 max-w-3xl rounded-2xl border border-border bg-card p-6 md:p-8 shadow-xs">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <PlusCircle className="h-5 w-5 text-gold" />
-            {lang === "ar" ? "إضافة منتج جديد ونشره فوراً في المتجر" : "List New Product on BAX"}
+            {lang === "ar" ? "إضافة منتج جديد ونشره فوراً في المتجر" : "List New Product on Souqly"}
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
             {lang === "ar"
@@ -527,7 +527,7 @@ function SellerCenter() {
           {successToast && (
             <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-500/15 p-3 text-sm font-bold text-emerald-600">
               <CheckCircle2 className="h-5 w-5" />
-              {lang === "ar" ? "تم نشر المنتج بنجاح في متجر باكس!" : "Product published successfully to BAX!"}
+              {lang === "ar" ? "تم نشر المنتج بنجاح في متجر سوقلي!" : "Product published successfully to Souqly!"}
             </div>
           )}
 
@@ -802,8 +802,8 @@ function SellerCenter() {
             <h2 className="text-lg font-bold">{lang === "ar" ? "إدارة طلبات الإرجاع والاستبدال" : "Returns & Customer Claims"}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {lang === "ar"
-                ? "متابعة طلبات الإرجاع المقدمة من العملاء وفقاً لضمان باكس الذهبي وقانون حماية المستهلك المصري والخليجي."
-                : "Manage buyer return requests under BAX Buyer Protection and local consumer laws."}
+                ? "متابعة طلبات الإرجاع المقدمة من العملاء وفقاً لضمان سوقلي الذهبي وقانون حماية المستهلك المصري والخليجي."
+                : "Manage buyer return requests under Souqly Buyer Protection and local consumer laws."}
             </p>
           </div>
 
@@ -897,7 +897,7 @@ function SellerCenter() {
               <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "الرصيد المتاح للسحب الفوري" : "Available Payout Balance"}</span>
               <div className="mt-2 text-3xl font-black text-primary font-display">{price(totalRevenue * 0.9)}</div>
               <span className="text-[11px] text-muted-foreground block mt-1">
-                {lang === "ar" ? "(صافي بعد خصم عمولة باكس 10%)" : "(Net after 10% platform fee)"}
+                {lang === "ar" ? "(صافي بعد خصم عمولة سوقلي 10%)" : "(Net after 10% platform fee)"}
               </span>
             </div>
 

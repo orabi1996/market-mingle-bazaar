@@ -17,9 +17,9 @@ export function AuthModal() {
     login({
       id: "usr_" + Date.now(),
       name: name || (lang === "ar" ? "مستخدم جديد" : "New User"),
-      email: email || "user@bax.market",
+      email: email || "user@souqly.market",
       role,
-      storeName: role === "seller" ? storeName || (lang === "ar" ? "متجر باكس" : "BAX Store") : undefined,
+      storeName: role === "seller" ? storeName || (lang === "ar" ? "متجر سوقلي" : "Souqly Store") : undefined,
     });
     setIsAuthModalOpen(false);
   };
@@ -29,9 +29,9 @@ export function AuthModal() {
     login({
       id: "usr_" + Date.now(),
       name: name || (lang === "ar" ? "عبدالله العرابي" : "Orabi User"),
-      email: email || "orabi@bax.market",
+      email: email || "orabi@souqly.market",
       role: role || "seller",
-      storeName: (role === "seller" ? storeName : undefined) || (lang === "ar" ? "متجر باكس للتكنولوجيا" : "BAX Tech Store"),
+      storeName: (role === "seller" ? storeName : undefined) || (lang === "ar" ? "متجر سوقلي للتكنولوجيا" : "Souqly Tech Store"),
     });
     setIsAuthModalOpen(false);
   };
@@ -41,16 +41,16 @@ export function AuthModal() {
       login({
         id: "demo_seller",
         name: "عبدالله العرابي (تاجر)",
-        email: "orabi.seller@bax.market",
+        email: "orabi.seller@souqly.market",
         role: "seller",
-        storeName: "متجر باكس للتكنولوجيا الفاخرة",
+        storeName: "متجر سوقلي للتكنولوجيا الفاخرة",
         phone: "+966501234567",
       });
     } else if (demoRole === "admin") {
       login({
         id: "demo_admin",
         name: "عبدالله العرابي (مشرف المنصة)",
-        email: "admin@bax.market",
+        email: "admin@souqly.market",
         role: "admin",
         phone: "+966500000000",
       });
@@ -58,7 +58,7 @@ export function AuthModal() {
       login({
         id: "demo_buyer",
         name: "محمد الأحمد (مشتري)",
-        email: "mohammed@bax.market",
+        email: "mohammed@souqly.market",
         role: "buyer",
         phone: "+966559876543",
       });
@@ -139,16 +139,16 @@ export function AuthModal() {
           <div>
             <div className="text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-xl">
-                BAX
+                Souqly
               </div>
               <h2 className="mt-2 text-xl font-bold">
                 {tab === "login"
                   ? lang === "ar"
-                    ? "تسجيل الدخول إلى باكس"
-                    : "Sign in to BAX"
+                    ? "تسجيل الدخول إلى سوقلي"
+                    : "Sign in to Souqly"
                   : lang === "ar"
-                  ? "إنشاء حساب جديد على باكس"
-                  : "Create BAX Account"}
+                  ? "إنشاء حساب جديد على سوقلي"
+                  : "Create Souqly Account"}
               </h2>
               <p className="text-xs text-muted-foreground mt-1">
                 {lang === "ar"

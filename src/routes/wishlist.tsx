@@ -12,10 +12,10 @@ import {
 export const Route = createFileRoute("/wishlist")({
   head: () => ({
     meta: [
-      { title: "قائمة المفضلة والرغبات | BAX Wishlist" },
-      { name: "description", content: "منتجاتك المفضلة المحفوظة للشراء لاحقاً على باكس." },
-      { property: "og:title", content: "قائمة المفضلة | BAX" },
-      { property: "og:description", content: "منتجاتك المفضلة المحفوظة للشراء لاحقاً على باكس." },
+      { title: "قائمة المفضلة والرغبات | Souqly Wishlist" },
+      { name: "description", content: "منتجاتك المفضلة المحفوظة للشراء لاحقاً على سوقلي." },
+      { property: "og:title", content: "قائمة المفضلة | Souqly" },
+      { property: "og:description", content: "منتجاتك المفضلة المحفوظة للشراء لاحقاً على سوقلي." },
     ],
   }),
   component: WishlistPage,
@@ -38,7 +38,7 @@ function WishlistPage() {
           <p className="text-xs text-muted-foreground mt-1">
             {lang === "ar"
               ? "منتجاتك المحفوظة للرجوع إليها وشرائها في أي وقت مع تنبيهات عند نزول الأسعار."
-              : "Items you saved to buy later on BAX."}
+              : "Items you saved to buy later on Souqly."}
           </p>
         </div>
 

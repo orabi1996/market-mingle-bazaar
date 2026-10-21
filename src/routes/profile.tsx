@@ -266,7 +266,7 @@ function ProfilePage() {
             className="rounded-2xl border border-gold/40 bg-gold/5 p-3.5 hover:border-gold transition cursor-pointer"
           >
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs font-bold text-gold-foreground dark:text-gold">{lang === "ar" ? "محفظة باكس" : "BAX Wallet"}</span>
+              <span className="text-xs font-bold text-gold-foreground dark:text-gold">{lang === "ar" ? "محفظة سوقلي" : "Souqly Wallet"}</span>
               <Wallet className="h-4 w-4 text-gold" />
             </div>
             <p className="mt-1 text-lg font-black text-primary">{price(walletBalance)}</p>
@@ -304,7 +304,7 @@ function ProfilePage() {
               <span className="text-xs">{lang === "ar" ? "بوابة التجارة" : "Seller Central"}</span>
               <Store className="h-4 w-4 text-gold" />
             </div>
-            <p className="mt-1 text-xs font-bold text-gold">{lang === "ar" ? "إدارة متاجري ↗" : "Sell on BAX ↗"}</p>
+            <p className="mt-1 text-xs font-bold text-gold">{lang === "ar" ? "إدارة متاجري ↗" : "Sell on Souqly ↗"}</p>
           </Link>
         </div>
       </div>
@@ -320,7 +320,7 @@ function ProfilePage() {
           }`}
         >
           <Wallet className="h-4 w-4" />
-          <span>{lang === "ar" ? "محفظة باكس الرقمية واسترداد الأموال" : "BAX Digital Wallet"}</span>
+          <span>{lang === "ar" ? "محفظة سوقلي الرقمية واسترداد الأموال" : "Souqly Digital Wallet"}</span>
           <span className="rounded-full bg-gold/20 text-gold-foreground dark:text-gold px-2 py-0.5 text-[10px] font-bold">
             {price(walletBalance)}
           </span>
@@ -364,7 +364,7 @@ function ProfilePage() {
         </button>
       </div>
 
-      {/* Tab: BAX Digital Wallet */}
+      {/* Tab: Souqly Digital Wallet */}
       {activeTab === "wallet" && (
         <div className="mt-6 space-y-6">
           {/* Main Balance Banner */}
@@ -383,7 +383,7 @@ function ProfilePage() {
                 <p className="mt-2 text-xs text-muted-foreground max-w-lg leading-relaxed">
                   {lang === "ar"
                     ? "تُودع استردادات المرتجعات والطلبات الملغية في محفظتك فوراً. يمكنك استخدام الرصيد للشراء بضغطة واحدة دون بطاقات، أو تحويله لحسابك البنكي / محفظتك الإلكترونية."
-                    : "Refunds and cashbacks are deposited instantly into your BAX Wallet. Use it for 1-click checkout or withdraw to your bank."}
+                    : "Refunds and cashbacks are deposited instantly into your Souqly Wallet. Use it for 1-click checkout or withdraw to your bank."}
                 </p>
               </div>
 
@@ -484,7 +484,7 @@ function ProfilePage() {
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2 font-bold text-base text-foreground">
                 <Wallet className="h-5 w-5 text-gold" />
-                <span>{lang === "ar" ? "شحن رصيد محفظة باكس" : "Top Up BAX Wallet"}</span>
+                <span>{lang === "ar" ? "شحن رصيد محفظة سوقلي" : "Top Up Souqly Wallet"}</span>
               </div>
               <button
                 onClick={() => setIsTopUpOpen(false)}

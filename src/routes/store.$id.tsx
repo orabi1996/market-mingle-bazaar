@@ -201,7 +201,7 @@ function StoreView() {
                 </div>
 
                 <p className="mt-2 max-w-2xl text-xs md:text-sm text-white/80 leading-relaxed">
-                  {store.bio ? store.bio[lang] : (lang === "ar" ? "أحد شركاء باكس المعتمدين في الخليج العربي." : "Verified Gulf marketplace partner.")}
+                  {store.bio ? store.bio[lang] : (lang === "ar" ? "أحد شركاء سوقلي المعتمدين في الخليج العربي." : "Verified Gulf marketplace partner.")}
                 </p>
 
                 {/* Badges / Location */}
@@ -270,7 +270,7 @@ function StoreView() {
               <p className="text-lg font-bold text-emerald-400 mt-0.5">99.4%</p>
             </div>
             <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-              <span className="text-[11px] text-white/60">{lang === "ar" ? "ضمان باكس للتجارة" : "Buyer Guarantee"}</span>
+              <span className="text-[11px] text-white/60">{lang === "ar" ? "ضمان سوقلي للتجارة" : "Buyer Guarantee"}</span>
               <p className="text-lg font-bold text-white mt-0.5">{lang === "ar" ? "حماية كاملة 🛡️" : "Full Escrow"}</p>
             </div>
           </div>

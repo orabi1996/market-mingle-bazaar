@@ -23,10 +23,10 @@ import {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "لوحة الإدارة المركزية | BAX Admin Console" },
-      { name: "description", content: "إدارة التجار والمبيعات ومراقبة منصة باكس في الخليج." },
-      { property: "og:title", content: "إدارة باكس المركزية | BAX Admin" },
-      { property: "og:description", content: "لوحة تحكم إدارة منصة باكس للتجارة الإلكترونية." },
+      { title: "لوحة الإدارة المركزية | Souqly Admin Console" },
+      { name: "description", content: "إدارة التجار والمبيعات ومراقبة منصة سوقلي في الخليج." },
+      { property: "og:title", content: "إدارة سوقلي المركزية | Souqly Admin" },
+      { property: "og:description", content: "لوحة تحكم إدارة منصة سوقلي للتجارة الإلكترونية." },
     ],
   }),
   component: AdminConsole,
@@ -81,12 +81,12 @@ function AdminConsole() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card border border-border p-6 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-xl shadow">
-            BAX
+            Souqly
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold">
-                {lang === "ar" ? "لوحة الإدارة المركزية والرقابة" : "BAX Platform Administration"}
+                {lang === "ar" ? "لوحة الإدارة المركزية والرقابة" : "Souqly Platform Administration"}
               </h1>
               <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                 <ShieldCheck className="h-3.5 w-3.5" />
@@ -132,7 +132,7 @@ function AdminConsole() {
         <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">
-              {lang === "ar" ? `أرباح عمولة باكس (${commissionRate}%)` : `BAX Net Take Rate (${commissionRate}%)`}
+              {lang === "ar" ? `أرباح عمولة سوقلي (${commissionRate}%)` : `Souqly Net Take Rate (${commissionRate}%)`}
             </span>
             <Percent className="h-4 w-4 text-emerald-600" />
           </div>
@@ -222,7 +222,7 @@ function AdminConsole() {
       {activeTab === "merchants" && (
         <div className="mt-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
-            <h2 className="text-lg font-bold">{lang === "ar" ? "المتاجر المسجلة في باكس" : "Registered Partner Stores"}</h2>
+            <h2 className="text-lg font-bold">{lang === "ar" ? "المتاجر المسجلة في سوقلي" : "Registered Partner Stores"}</h2>
             <div className="relative w-full sm:w-72">
               <input
                 type="text"
@@ -332,7 +332,7 @@ function AdminConsole() {
       {activeTab === "products" && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">{lang === "ar" ? "جميع المنتجات المعروضة في باكس" : "All Marketplace Products"}</h2>
+            <h2 className="text-lg font-bold">{lang === "ar" ? "جميع المنتجات المعروضة في سوقلي" : "All Marketplace Products"}</h2>
             <span className="text-xs text-muted-foreground">
               {products.length} {lang === "ar" ? "منتج نشط بالمنصة" : "products live"}
             </span>
@@ -440,8 +440,8 @@ function AdminConsole() {
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
             {lang === "ar"
-              ? "يتم خصم هذه النسبة تلقائياً من إجمالي كل عملية بيع لصالح منصة باكس وتحويل الباقي لحساب التاجر."
-              : "This percentage is retained by BAX on every transaction before merchant payout."}
+              ? "يتم خصم هذه النسبة تلقائياً من إجمالي كل عملية بيع لصالح منصة سوقلي وتحويل الباقي لحساب التاجر."
+              : "This percentage is retained by Souqly on every transaction before merchant payout."}
           </p>
 
           {savedSettingsToast && (
@@ -454,7 +454,7 @@ function AdminConsole() {
           <form onSubmit={handleSaveCommission} className="mt-6 space-y-4">
             <div>
               <label className="text-xs font-semibold text-foreground">
-                {lang === "ar" ? "نسبة عمولة منصة باكس (%)" : "Platform Commission Rate (%)"}
+                {lang === "ar" ? "نسبة عمولة منصة سوقلي (%)" : "Platform Commission Rate (%)"}
               </label>
               <div className="mt-1 flex items-center gap-3">
                 <input
@@ -474,7 +474,7 @@ function AdminConsole() {
                 <span>{lang === "ar" ? "مثال لعملية بيع بقيمة 1,000 ر.س:" : "Example on 1,000 SAR sale:"}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
-                <span>{lang === "ar" ? "ربح منصة باكس الصافي:" : "BAX Platform Fee:"}</span>
+                <span>{lang === "ar" ? "ربح منصة سوقلي الصافي:" : "Souqly Platform Fee:"}</span>
                 <span className="font-bold text-emerald-600">{price(1000 * (commRateInput / 100))}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">

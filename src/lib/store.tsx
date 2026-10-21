@@ -204,7 +204,7 @@ export const INITIAL_COUPONS: Coupon[] = [
     description: { ar: "خصم 50 ر.س / 650 ج.م للطلبات فوق 250", en: "50 discount on orders above 250" },
   },
   {
-    code: "BAX10",
+    code: "SOUQLY10",
     discountType: "percentage",
     discountValue: 10,
     description: { ar: "خصم 10% على إجمالي الطلب", en: "10% off entire order" },
@@ -227,7 +227,7 @@ export const INITIAL_COUPONS: Coupon[] = [
 export const INITIAL_WALLET_TRANSACTIONS: WalletTransaction[] = [
   {
     id: "tx_1",
-    title: { ar: "رصيد ترحيبي بمناسبة تدشين منصة باكس مصر والخليج", en: "Welcome Platform Credit" },
+    title: { ar: "رصيد ترحيبي بمناسبة تدشين منصة سوقلي مصر والخليج", en: "Welcome Platform Credit" },
     date: "2026-04-01",
     amount: 150,
     type: "credit",
@@ -289,7 +289,7 @@ export const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: "notif_2",
     title: { ar: "كوبون خصم حصري لك", en: "Exclusive promo coupon!" },
-    message: { ar: "استخدم كود BAX10 واحصل على خصم 10% على جميع الإلكترونيات.", en: "Use code BAX10 for 10% off." },
+    message: { ar: "استخدم كود SOUQLY10 واحصل على خصم 10% على جميع الإلكترونيات.", en: "Use code SOUQLY10 for 10% off." },
     time: "منذ ساعتين",
     read: false,
     type: "deal",
@@ -359,7 +359,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_cairo_tech",
     name: "Cairo Techno - تكنو القاهرة",
     owner: "محمود الشربيني",
-    email: "cairo.tech@bax.market",
+    email: "cairo.tech@souqly.market",
     phone: "+201001234567",
     category: "إلكترونيات",
     isVerified: true,
@@ -379,7 +379,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_nile_cotton",
     name: "Nile Cotton - قطن النيل الفاخر",
     owner: "شريف عبدالسلام",
-    email: "cotton@bax.market",
+    email: "cotton@souqly.market",
     phone: "+201209876543",
     category: "أزياء",
     isVerified: true,
@@ -399,7 +399,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_techhub",
     name: "TechHub Store",
     owner: "عبدالرحمن الدوسري",
-    email: "techhub@bax.market",
+    email: "techhub@souqly.market",
     phone: "+966501112233",
     category: "إلكترونيات",
     isVerified: true,
@@ -419,7 +419,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_oud",
     name: "Oud House",
     owner: "سلطان الهاجري",
-    email: "oud@bax.market",
+    email: "oud@souqly.market",
     phone: "+966504445566",
     category: "عطور",
     isVerified: true,
@@ -439,7 +439,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_milano",
     name: "Milano Leather",
     owner: "فيصل الغامدي",
-    email: "milano@bax.market",
+    email: "milano@souqly.market",
     phone: "+966507778899",
     category: "أزياء",
     isVerified: true,
@@ -459,7 +459,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_homeplus",
     name: "Home Plus",
     owner: "أحمد المنصور",
-    email: "homeplus@bax.market",
+    email: "homeplus@souqly.market",
     phone: "+966503332211",
     category: "المنزل",
     isVerified: false,
@@ -479,7 +479,7 @@ export const INITIAL_STORES: StoreInfo[] = [
     id: "seller_runpro",
     name: "Run Pro Sports",
     owner: "طارق العتيبي",
-    email: "runpro@bax.market",
+    email: "runpro@souqly.market",
     phone: "+966508889900",
     category: "رياضة",
     isVerified: true,
@@ -651,13 +651,13 @@ export function getProductById(id: string): Product | undefined {
 
 const T = {
   ar: {
-    brandName: "باكس",
+    brandName: "سوقلي",
     brandTag: "سوق مصر والخليج العربي الأول 🇪🇬 🇸🇦",
     search: "ابحث في ملايين المنتجات، الماركات والتجار في مصر والخليج...",
     searchButton: "بحث",
     cart: "عربة التسوق",
     sell: "مركز البائعين",
-    sellCta: "بِع على باكس",
+    sellCta: "بِع على سوقلي",
     admin: "إدارة المنصة",
     heroTitle: "كل ما تحتاجه، من أكبر متاجر مصر والخليج في منصة واحدة",
     heroSub: "سوقك الإلكتروني الشامل في جمهورية مصر العربية ودول الخليج. منتجات أصلية، دفع بالجنيه والريال وكافة الطرق المحلية، شحن فوري وضمان ذهبي.",
@@ -708,13 +708,13 @@ const T = {
     },
   },
   en: {
-    brandName: "BAX",
+    brandName: "Souqly",
     brandTag: "Egypt & Gulf Premier Marketplace 🇪🇬 🇸🇦",
     search: "Search millions of Egyptian & Gulf products, brands and sellers...",
     searchButton: "Search",
     cart: "Cart",
     sell: "Seller Central",
-    sellCta: "Sell on BAX",
+    sellCta: "Sell on Souqly",
     admin: "Admin Console",
     heroTitle: "Everything You Need, From Top Egypt & Gulf Sellers",
     heroSub: "The premier multi-vendor e-commerce platform connecting Egypt and the GCC. 100% authentic items, local payments, rapid delivery & buyer guarantee.",
@@ -913,9 +913,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const defaultUser: User = {
           id: "demo_seller",
           name: "عبدالله العرابي",
-          email: "orabi@bax.market",
+          email: "orabi@souqly.market",
           role: "seller",
-          storeName: "متجر باكس للتكنولوجيا",
+          storeName: "متجر سوقلي للتكنولوجيا",
           phone: "+966501234567",
         };
         setUser(defaultUser);
@@ -931,7 +931,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             id: "ORD-9422",
             createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
             customerName: "أحمد مصطفى العربي",
-            customerEmail: "ahmed@bax.market",
+            customerEmail: "ahmed@souqly.market",
             customerPhone: "+201012345678",
             customerAddress: "شارع التسعين الجنوبي، مجمع الياسمين",
             city: "القاهرة",
@@ -1118,8 +1118,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const registerSeller = (storeName: string, sellerName: string, phone: string) => {
     const updated: User = {
       id: user?.id || "seller_" + Date.now(),
-      name: sellerName || user?.name || "تاجر باكس",
-      email: user?.email || "seller@bax.market",
+      name: sellerName || user?.name || "تاجر سوقلي",
+      email: user?.email || "seller@souqly.market",
       role: "seller",
       storeName,
       phone,
@@ -1396,7 +1396,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
       message: {
         ar: refundToWallet
-          ? `تم إلغاء طلبك واسترداد ${price(target.total)} فوراً إلى محفظة باكس.`
+          ? `تم إلغاء طلبك واسترداد ${price(target.total)} فوراً إلى محفظة سوقلي.`
           : `تم إلغاء طلبك وسيتم إرجاع المبلغ لوسيلة الدفع الأصلية خلال 48 ساعة.`,
         en: `Your order was cancelled and refunded.`,
       },
@@ -1433,7 +1433,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         en: `Return Request Submitted for ${target.id}`,
       },
       message: {
-        ar: `رقم بوليصة الإرجاع: ${returnTracking}. سيتواصل معك مندوب باكس إكسبريس للاستلام المجاني من باب بيتك.`,
+        ar: `رقم بوليصة الإرجاع: ${returnTracking}. سيتواصل معك مندوب سوقلي إكسبريس للاستلام المجاني من باب بيتك.`,
         en: `Return tracking number: ${returnTracking}. Free courier pickup scheduled.`,
       },
       type: "order",

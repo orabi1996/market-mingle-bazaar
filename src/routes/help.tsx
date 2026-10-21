@@ -26,9 +26,9 @@ import {
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "مركز المساعدة والدعم الفني | BAX Help Center" },
-      { name: "description", content: "مركز المساعدة، سياسة الشحن والاسترجاع، والضمان لعملاء مصر والخليج العربي في باكس." },
-      { property: "og:title", content: "مركز الدعم والضمان | BAX Marketplace" },
+      { title: "مركز المساعدة والدعم الفني | Souqly Help Center" },
+      { name: "description", content: "مركز المساعدة، سياسة الشحن والاسترجاع، والضمان لعملاء مصر والخليج العربي في سوقلي." },
+      { property: "og:title", content: "مركز الدعم والضمان | Souqly Marketplace" },
     ],
   }),
   component: HelpCenterPage,
@@ -47,15 +47,15 @@ const FAQS: FaqItem[] = [
     category: "shipping",
     qAr: "كم تستغرق مدة شحن وتوصيل الطلبات في مصر والخليج؟",
     qEn: "How long does shipping take across Egypt and the Gulf?",
-    aAr: "يتم توصيل الشحنات داخل القاهرة الكبرى، الجيزة، والإسكندرية، بالإضافة للرياض ودبي خلال 24 إلى 48 ساعة كحد أقصى. أما باقي محافظات مصر ومدن دول مجلس التعاون فتستغرق من يومين إلى 3 أيام عمل عبر أسطول الشحن السريع BAX Express.",
-    aEn: "Deliveries within Greater Cairo, Giza, Alexandria, Riyadh, and Dubai arrive within 24 to 48 hours. Other Egyptian governorates and Gulf cities typically take 2-3 business days via BAX Express.",
+    aAr: "يتم توصيل الشحنات داخل القاهرة الكبرى، الجيزة، والإسكندرية، بالإضافة للرياض ودبي خلال 24 إلى 48 ساعة كحد أقصى. أما باقي محافظات مصر ومدن دول مجلس التعاون فتستغرق من يومين إلى 3 أيام عمل عبر أسطول الشحن السريع Souqly Express.",
+    aEn: "Deliveries within Greater Cairo, Giza, Alexandria, Riyadh, and Dubai arrive within 24 to 48 hours. Other Egyptian governorates and Gulf cities typically take 2-3 business days via Souqly Express.",
   },
   {
     category: "returns",
-    qAr: "ما هي شروط وسياسة الاسترجاع واسترداد الأموال في باكس؟",
-    qEn: "What is BAX's return and refund policy?",
-    aAr: "تتيح منصة باكس إرجاع المنتجات مجاناً خلال 14 يوماً من تاريخ الاستلام في حال كان المنتج معيباً أو غير مطابق للمواصفات أو لم يعجبك، شريطة أن يكون بحالته وتغليفه الأصلي. ويتم استرداد المبلغ فور فحص المنتج خلال 3 إلى 5 أيام عمل لنفس وسيلة الدفع أو لمحفظتك الإلكترونية.",
-    aEn: "BAX offers free returns within 14 days of delivery if the item is defective, does not match description, or if you are not satisfied, provided it is in its original packaging. Refunds are processed within 3-5 business days.",
+    qAr: "ما هي شروط وسياسة الاسترجاع واسترداد الأموال في سوقلي؟",
+    qEn: "What is Souqly's return and refund policy?",
+    aAr: "تتيح منصة سوقلي إرجاع المنتجات مجاناً خلال 14 يوماً من تاريخ الاستلام في حال كان المنتج معيباً أو غير مطابق للمواصفات أو لم يعجبك، شريطة أن يكون بحالته وتغليفه الأصلي. ويتم استرداد المبلغ فور فحص المنتج خلال 3 إلى 5 أيام عمل لنفس وسيلة الدفع أو لمحفظتك الإلكترونية.",
+    aEn: "Souqly offers free returns within 14 days of delivery if the item is defective, does not match description, or if you are not satisfied, provided it is in its original packaging. Refunds are processed within 3-5 business days.",
   },
   {
     category: "payments",
@@ -73,10 +73,10 @@ const FAQS: FaqItem[] = [
   },
   {
     category: "seller",
-    qAr: "كيف أبدأ البيع وأعرض منتجاتي كتاجر أو ماركة على منصة باكس؟",
-    qEn: "How do I start selling as a merchant or brand on BAX?",
-    aAr: "يمكنك التوجه مباشرة إلى 'مركز البائعين' بالنقر على رابط 'بِع على باكس'، ثم تسجيل اسم متجرك ورقمك التجاري أو الضريبي. يتم تفعيل متجرك ومنحك شارة التوثيق والبدء في رفع المنتجات واستقبال الطلبات فوراً.",
-    aEn: "Head directly to Seller Central by clicking 'Sell on BAX', register your boutique name and commercial details. Your storefront will be activated with a verified badge to start uploading products immediately.",
+    qAr: "كيف أبدأ البيع وأعرض منتجاتي كتاجر أو ماركة على منصة سوقلي؟",
+    qEn: "How do I start selling as a merchant or brand on Souqly?",
+    aAr: "يمكنك التوجه مباشرة إلى 'مركز البائعين' بالنقر على رابط 'بِع على سوقلي'، ثم تسجيل اسم متجرك ورقمك التجاري أو الضريبي. يتم تفعيل متجرك ومنحك شارة التوثيق والبدء في رفع المنتجات واستقبال الطلبات فوراً.",
+    aEn: "Head directly to Seller Central by clicking 'Sell on Souqly', register your boutique name and commercial details. Your storefront will be activated with a verified badge to start uploading products immediately.",
   },
 ];
 
@@ -107,7 +107,7 @@ function HelpCenterPage() {
         en: `Support Ticket Opened (#${ticketCode})`,
       },
       message: {
-        ar: `تم استلام استفسارك بنجاح وسيتواصل معك فريق خدمة عملاء باكس خلال 60 دقيقة.`,
+        ar: `تم استلام استفسارك بنجاح وسيتواصل معك فريق خدمة عملاء سوقلي خلال 60 دقيقة.`,
         en: `Your inquiry has been received. Our support team will reach out within 60 minutes.`,
       },
       type: "system",
@@ -220,7 +220,7 @@ function HelpCenterPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 group-hover:scale-110 transition mb-2">
               <Store className="h-6 w-6" />
             </div>
-            <h3 className="font-bold text-xs text-foreground">{lang === "ar" ? "خدمات التجار" : "Selling on BAX"}</h3>
+            <h3 className="font-bold text-xs text-foreground">{lang === "ar" ? "خدمات التجار" : "Selling on Souqly"}</h3>
             <p className="text-[10px] text-muted-foreground mt-0.5">{lang === "ar" ? "فتح متجر والتوثيق" : "Store Verification"}</p>
           </button>
         </div>
@@ -237,7 +237,7 @@ function HelpCenterPage() {
                 <span>{lang === "ar" ? "الأسئلة الشائعة والأكثر طلباً" : "Frequently Asked Questions"}</span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {lang === "ar" ? "إجابات فورية ومعتمدة من فريق سياسات باكس." : "Instant verified answers from BAX policies."}
+                {lang === "ar" ? "إجابات فورية ومعتمدة من فريق سياسات سوقلي." : "Instant verified answers from Souqly policies."}
               </p>
             </div>
 
@@ -298,7 +298,7 @@ function HelpCenterPage() {
               </div>
               <div>
                 <h3 className="font-bold text-sm md:text-base text-foreground">
-                  {lang === "ar" ? "ضمان باكس الذهبي لحماية المشتري في مصر والخليج" : "BAX Golden Buyer Protection"}
+                  {lang === "ar" ? "ضمان سوقلي الذهبي لحماية المشتري في مصر والخليج" : "Souqly Golden Buyer Protection"}
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   {lang === "ar"
@@ -423,11 +423,11 @@ function HelpCenterPage() {
           <div className="pt-3 border-t border-border space-y-2 text-xs">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Phone className="h-3.5 w-3.5 text-primary" />
-              <span>{lang === "ar" ? "الخط الساخن: 19445 (مصر) • 800-BAX (الخليج)" : "Hotline: 19445 (EG) • 800-BAX (GCC)"}</span>
+              <span>{lang === "ar" ? "الخط الساخن: 19445 (مصر) • 800-Souqly (الخليج)" : "Hotline: 19445 (EG) • 800-Souqly (GCC)"}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Mail className="h-3.5 w-3.5 text-gold" />
-              <span>support@bax.market</span>
+              <span>support@souqly.market</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-3.5 w-3.5 text-emerald-600" />

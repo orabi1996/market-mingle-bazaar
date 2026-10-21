@@ -21,10 +21,10 @@ import {
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "عربة التسوق | BAX" },
-      { name: "description", content: "راجع منتجاتك وأتمم طلبك بأمان على باكس." },
-      { property: "og:title", content: "عربة التسوق | BAX" },
-      { property: "og:description", content: "راجع منتجاتك وأتمم طلبك بأمان على باكس." },
+      { title: "عربة التسوق | Souqly" },
+      { name: "description", content: "راجع منتجاتك وأتمم طلبك بأمان على سوقلي." },
+      { property: "og:title", content: "عربة التسوق | Souqly" },
+      { property: "og:description", content: "راجع منتجاتك وأتمم طلبك بأمان على سوقلي." },
     ],
   }),
   component: Cart,
@@ -107,9 +107,9 @@ function Cart() {
       seller: p.seller,
     }));
 
-    if (paymentMethod.includes("محفظة باكس")) {
+    if (paymentMethod.includes("محفظة سوقلي")) {
       if (walletBalance < finalTotal) {
-        alert(lang === "ar" ? "رصيد محفظة باكس غير كافٍ لإتمام عملية الشراء. يرجى شحن المحفظة أو اختيار وسيلة دفع أخرى." : "Insufficient BAX Wallet balance.");
+        alert(lang === "ar" ? "رصيد محفظة سوقلي غير كافٍ لإتمام عملية الشراء. يرجى شحن المحفظة أو اختيار وسيلة دفع أخرى." : "Insufficient Souqly Wallet balance.");
         return;
       }
       deductWallet(finalTotal, "شراء طلب من المتجر");
@@ -311,7 +311,7 @@ function Cart() {
                     type="text"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
-                    placeholder={lang === "ar" ? "أدخل الكود (مثال: BAX10 أو GULF50)..." : "e.g. BAX10..."}
+                    placeholder={lang === "ar" ? "أدخل الكود (مثال: SOUQLY10 أو GULF50)..." : "e.g. SOUQLY10..."}
                     className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono uppercase outline-none focus:ring-1 focus:ring-primary"
                   />
                   <button
@@ -331,10 +331,10 @@ function Cart() {
                 <span>{lang === "ar" ? "كوبونات تجريبية متاحة:" : "Available codes:"}</span>
                 <button
                   type="button"
-                  onClick={() => applyCoupon("BAX10", subtotal)}
+                  onClick={() => applyCoupon("SOUQLY10", subtotal)}
                   className="rounded bg-secondary px-1.5 py-0.5 font-mono font-bold text-foreground hover:bg-muted"
                 >
-                  BAX10 (10%)
+                  SOUQLY10 (10%)
                 </button>
                 <button
                   type="button"
@@ -495,7 +495,7 @@ function Cart() {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none font-medium"
                   >
-                    <option value="محفظة باكس الإلكترونية (BAX Wallet)">محفظة باكس الإلكترونية (BAX Wallet)</option>
+                    <option value="محفظة سوقلي الإلكترونية (Souqly Wallet)">محفظة سوقلي الإلكترونية (Souqly Wallet)</option>
                     <option value="فودافون كاش / إنستاباي (Vodafone Cash / InstaPay)">فودافون كاش / إنستاباي</option>
                     <option value="فوري / بطاقة ميزة (Fawry / Meeza)">فوري / ميزة (Fawry / Meeza)</option>
                     <option value="مدى / بطاقة بنكية (Mada)">مدى (Mada)</option>
@@ -506,13 +506,13 @@ function Cart() {
                   </select>
                 </div>
 
-                {/* Simulated BAX Wallet Option */}
-                {paymentMethod.includes("محفظة باكس") && (
+                {/* Simulated Souqly Wallet Option */}
+                {paymentMethod.includes("محفظة سوقلي") && (
                   <div className="rounded-xl border border-gold/40 bg-gold/5 p-3 space-y-2 mt-2 text-xs">
                     <div className="flex items-center justify-between text-[11px] font-bold text-foreground">
                       <span className="flex items-center gap-1.5">
                         <Wallet className="h-4 w-4 text-gold" />
-                        {lang === "ar" ? "الدفع الفوري من رصيد محفظة باكس" : "Pay with BAX Wallet Balance"}
+                        {lang === "ar" ? "الدفع الفوري من رصيد محفظة سوقلي" : "Pay with Souqly Wallet Balance"}
                       </span>
                       <span className="font-mono text-gold-foreground dark:text-gold font-bold">
                         {price(walletBalance)}

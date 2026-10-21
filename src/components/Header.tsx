@@ -71,12 +71,10 @@ export function Header() {
 
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-1.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold text-primary font-black text-xl tracking-tight shadow">
-            B
-          </div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold text-primary font-black text-xl tracking-tight shadow">S</div>
           <div className="flex flex-col">
             <span className="font-display text-2xl font-black tracking-tight leading-none text-white">
-              BAX<span className="text-gold text-sm font-normal ms-1">.market</span>
+              Souqly<span className="text-gold text-sm font-normal ms-1">.market</span>
             </span>
             <span className="text-[10px] text-white/70 tracking-widest hidden sm:inline">
               {lang === "ar" ? "سوق مصر والخليج الشامل" : "EGYPT & GULF MARKETPLACE"}
@@ -214,7 +212,7 @@ export function Header() {
                       className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-gold hover:bg-muted transition"
                     >
                       <Store className="h-3.5 w-3.5" />
-                      <span>{lang === "ar" ? "مركز بائعي باكس" : "Seller Central"}</span>
+                      <span>{lang === "ar" ? "مركز بائعي سوقلي" : "Seller Central"}</span>
                     </Link>
                   )}
 

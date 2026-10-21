@@ -35,10 +35,10 @@ export const Route = createFileRoute("/product/$id")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData ? `${loaderData.name.ar} | باكس BAX` : "باكس BAX" },
-      { name: "description", content: loaderData?.desc.ar ?? "منتج على باكس" },
-      { property: "og:title", content: loaderData?.name.ar ?? "باكس BAX" },
-      { property: "og:description", content: loaderData?.desc.ar ?? "منتج على باكس" },
+      { title: loaderData ? `${loaderData.name.ar} | سوقلي Souqly` : "سوقلي Souqly" },
+      { name: "description", content: loaderData?.desc.ar ?? "منتج على سوقلي" },
+      { property: "og:title", content: loaderData?.name.ar ?? "سوقلي Souqly" },
+      { property: "og:description", content: loaderData?.desc.ar ?? "منتج على سوقلي" },
     ],
   }),
   component: ProductPage,
@@ -272,7 +272,7 @@ function ProductPage() {
           <div className="rounded-2xl border border-border bg-card p-3.5 space-y-2 text-xs">
             <h4 className="font-bold text-foreground flex items-center gap-1.5 border-b border-border pb-1.5">
               <ShieldCheck className="h-4 w-4 text-gold" />
-              <span>{lang === "ar" ? "مواصفات وضمان باكس المعتمد" : "BAX Certified Specs"}</span>
+              <span>{lang === "ar" ? "مواصفات وضمان سوقلي المعتمد" : "Souqly Certified Specs"}</span>
             </h4>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="text-muted-foreground">{lang === "ar" ? "الضمان الرسمي:" : "Official Warranty:"}</div>

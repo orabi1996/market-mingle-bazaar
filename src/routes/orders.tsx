@@ -26,10 +26,10 @@ import {
 export const Route = createFileRoute("/orders")({
   head: () => ({
     meta: [
-      { title: "طلباتي، المرتجعات وتتبع الشحنات | BAX Orders" },
-      { name: "description", content: "تتبع شحناتك، إدارة المرتجعات، الإلغاء الفوري والفواتير الضريبية على باكس مصر والخليج." },
-      { property: "og:title", content: "طلباتي والمرتجعات | BAX Orders" },
-      { property: "og:description", content: "تتبع شحناتك وإدارة طلبات الإرجاع والاستبدال مع ضمان باكس الذهبي." },
+      { title: "طلباتي، المرتجعات وتتبع الشحنات | Souqly Orders" },
+      { name: "description", content: "تتبع شحناتك، إدارة المرتجعات، الإلغاء الفوري والفواتير الضريبية على سوقلي مصر والخليج." },
+      { property: "og:title", content: "طلباتي والمرتجعات | Souqly Orders" },
+      { property: "og:description", content: "تتبع شحناتك وإدارة طلبات الإرجاع والاستبدال مع ضمان سوقلي الذهبي." },
     ],
   }),
   component: OrdersPage,
@@ -83,7 +83,7 @@ function OrdersPage() {
 
   const returnSteps = [
     { label: { ar: "طلب الإرجاع", en: "Return Requested" }, desc: { ar: "تم تسجيل الطلب", en: "Registered" } },
-    { label: { ar: "الموافقة والفحص", en: "Inspection" }, desc: { ar: "موافقة التاجر وباكس", en: "Approved" } },
+    { label: { ar: "الموافقة والفحص", en: "Inspection" }, desc: { ar: "موافقة التاجر وسوقلي", en: "Approved" } },
     { label: { ar: "استلام المندوب", en: "Courier Pickup" }, desc: { ar: "استلام مجاني من الباب", en: "Free pickup" } },
     { label: { ar: "استرداد المبلغ", en: "Refund Completed" }, desc: { ar: "إيداع في المحفظة", en: "Refund issued" } },
   ];
@@ -120,7 +120,7 @@ function OrdersPage() {
               {lang === "ar" ? "طلباتي، المرتجعات وتتبع الشحنات" : "My Orders, Returns & Tracking"}
             </h1>
             <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 border border-emerald-500/20">
-              {lang === "ar" ? "ضمان باكس الذهبي 🇪🇬 🇸🇦" : "BAX Golden Guarantee"}
+              {lang === "ar" ? "ضمان سوقلي الذهبي 🇪🇬 🇸🇦" : "Souqly Golden Guarantee"}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -206,7 +206,7 @@ function OrdersPage() {
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
             {lang === "ar"
               ? "تصفح ملايين المنتجات والعروض المخفضة في السوق المصري ودول الخليج وأضفها لسلة التسوق."
-              : "Explore thousands of products across Egypt and the Gulf on BAX."}
+              : "Explore thousands of products across Egypt and the Gulf on Souqly."}
           </p>
           <Link
             to="/"
@@ -303,7 +303,7 @@ function OrdersPage() {
                     </div>
                     <div className="text-muted-foreground text-[11px]">
                       {lang === "ar"
-                        ? `تم استرداد ${price(o.total)} إلى ${o.refundMethod === "wallet" ? "محفظة باكس الرقمية فوراً" : "وسيلة الدفع الأصلية"}.`
+                        ? `تم استرداد ${price(o.total)} إلى ${o.refundMethod === "wallet" ? "محفظة سوقلي الرقمية فوراً" : "وسيلة الدفع الأصلية"}.`
                         : `Refund of ${price(o.total)} completed.`}
                     </div>
                   </div>
@@ -479,12 +479,12 @@ function OrdersPage() {
                     <div className="pt-3 border-t border-border">
                       <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mb-1">
                         <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                        <span>{lang === "ar" ? "حماية المشتري المعتمدة" : "BAX Buyer Protection"}</span>
+                        <span>{lang === "ar" ? "حماية المشتري المعتمدة" : "Souqly Buyer Protection"}</span>
                       </div>
                       <p className="text-[10px] text-muted-foreground">
                         {lang === "ar"
-                          ? "مشترياتك مغطاة بضمان باكس الذهبي. استرجاع واستبدال مجاني واسترداد فوري خلال 14 يوماً."
-                          : "Covered by BAX Golden Warranty & 14-day return compliance."}
+                          ? "مشترياتك مغطاة بضمان سوقلي الذهبي. استرجاع واستبدال مجاني واسترداد فوري خلال 14 يوماً."
+                          : "Covered by Souqly Golden Warranty & 14-day return compliance."}
                       </p>
                     </div>
                   </div>
@@ -550,8 +550,8 @@ function OrdersPage() {
                 />
                 <span className="font-semibold text-foreground">
                   {lang === "ar"
-                    ? `إيداع فوري في محفظة باكس BAX Wallet (${price(cancellingOrder.total)})`
-                    : `Instant to BAX Wallet (${price(cancellingOrder.total)})`}
+                    ? `إيداع فوري في محفظة سوقلي Souqly Wallet (${price(cancellingOrder.total)})`
+                    : `Instant to Souqly Wallet (${price(cancellingOrder.total)})`}
                 </span>
               </label>
               <label className="flex items-center gap-2 text-xs cursor-pointer">
@@ -614,7 +614,7 @@ function OrdersPage() {
               </div>
               <p className="text-[11px] leading-relaxed">
                 {lang === "ar"
-                  ? "يحق لك استرجاع أو استبدال المنتج مجاناً خلال 14 يوماً من الاستلام. سيتولى مندوب أسطول باكس إكسبريس الحضور لاستلام الشحنة من باب بيتك مجاناً دون أي رسوم إضافية."
+                  ? "يحق لك استرجاع أو استبدال المنتج مجاناً خلال 14 يوماً من الاستلام. سيتولى مندوب أسطول سوقلي إكسبريس الحضور لاستلام الشحنة من باب بيتك مجاناً دون أي رسوم إضافية."
                   : "You can return or exchange any item for free within 14 days. Our courier will pick up from your doorstep at zero cost."}
               </p>
             </div>
@@ -651,7 +651,7 @@ function OrdersPage() {
 
             <div>
               <label className="text-xs font-bold text-foreground block mb-1">
-                {lang === "ar" ? "عنوان استلام المرتجع بواسطة مندوب باكس:" : "Pickup Address for Courier:"}
+                {lang === "ar" ? "عنوان استلام المرتجع بواسطة مندوب سوقلي:" : "Pickup Address for Courier:"}
               </label>
               <input
                 type="text"
@@ -676,8 +676,8 @@ function OrdersPage() {
                 />
                 <span className="font-semibold text-foreground">
                   {lang === "ar"
-                    ? `إيداع فوري في محفظة باكس BAX Wallet (${price(returningOrder.total)})`
-                    : `Instant to BAX Wallet (${price(returningOrder.total)})`}
+                    ? `إيداع فوري في محفظة سوقلي Souqly Wallet (${price(returningOrder.total)})`
+                    : `Instant to Souqly Wallet (${price(returningOrder.total)})`}
                 </span>
               </label>
               <label className="flex items-center gap-2 text-xs cursor-pointer">
@@ -747,9 +747,9 @@ function OrdersPage() {
             {/* Invoice Header */}
             <div className="flex items-start justify-between text-xs border-b border-border pb-4">
               <div>
-                <span className="font-display font-black text-xl text-primary block">BAX Marketplace</span>
+                <span className="font-display font-black text-xl text-primary block">Souqly Marketplace</span>
                 <span className="text-muted-foreground block text-[11px]">
-                  {lang === "ar" ? "سوق باكس للتجارة الإلكترونية ش.م.م" : "BAX E-Commerce LLC"}
+                  {lang === "ar" ? "سوق سوقلي للتجارة الإلكترونية ش.م.م" : "Souqly E-Commerce LLC"}
                 </span>
                 <span className="text-muted-foreground block text-[11px]">
                   {lang === "ar" ? "الرقم الضريبي الموحد: 310982347100003" : "Tax ID: 310982347100003"}
@@ -782,7 +782,7 @@ function OrdersPage() {
               <div className="text-end">
                 <span className="text-muted-foreground block text-[10px]">{lang === "ar" ? "طريقة الدفع والشحن:" : "Payment & Shipping:"}</span>
                 <p className="font-semibold text-foreground">{invoiceOrder.paymentMethod}</p>
-                <p className="text-muted-foreground">{lang === "ar" ? "شحن سريع: أسطول باكس إكسبريس" : "BAX Express Courier"}</p>
+                <p className="text-muted-foreground">{lang === "ar" ? "شحن سريع: أسطول سوقلي إكسبريس" : "Souqly Express Courier"}</p>
               </div>
             </div>
 
@@ -835,7 +835,7 @@ function OrdersPage() {
 
             <div className="text-[10px] text-center text-muted-foreground pt-2">
               {lang === "ar"
-                ? "فاتورة إلكترونية معتمدة تصدر آلياً من منصة باكس وفقاً لتعليمات مصلحة الضرائب المصرية وهيئة الزكاة والضريبة والجمارك ZATCA."
+                ? "فاتورة إلكترونية معتمدة تصدر آلياً من منصة سوقلي وفقاً لتعليمات مصلحة الضرائب المصرية وهيئة الزكاة والضريبة والجمارك ZATCA."
                 : "Certified automated tax invoice issued in compliance with Egyptian Tax Authority & ZATCA standards."}
             </div>
           </div>

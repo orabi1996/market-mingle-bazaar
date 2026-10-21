@@ -28,7 +28,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "msg_welcome",
     sender: "bot",
-    text: "أهلاً بك في منصة باكس مصر والخليج العربي! 👋 كيف يمكن لفريق خدمة العملاء مساعدتك اليوم؟",
+    text: "أهلاً بك في منصة سوقلي مصر والخليج العربي! 👋 كيف يمكن لفريق خدمة العملاء مساعدتك اليوم؟",
     time: "الآن",
   },
 ];
@@ -76,7 +76,7 @@ export function LiveChatWidget() {
         id: `reply_${Date.now()}`,
         sender: "bot",
         text: lang === "ar"
-          ? "شكراً لتواصلك مع باكس! تم استلام رسالتك وسيتواصل معك ممثل خدمة العملاء المختص خلال دقائق."
+          ? "شكراً لتواصلك مع سوقلي! تم استلام رسالتك وسيتواصل معك ممثل خدمة العملاء المختص خلال دقائق."
           : "Thank you for reaching out! A representative will connect with you shortly.",
         time: new Date().toLocaleTimeString(lang === "ar" ? "ar-EG" : "en-US", { hour: "2-digit", minute: "2-digit" }),
       };
@@ -99,8 +99,8 @@ export function LiveChatWidget() {
         botReply.link = { url: "/help", label: lang === "ar" ? "مركز الضمان والمساعدة ←" : "Help & Warranty Center →" };
       } else if (lower.includes("تاجر") || lower.includes("بيع") || lower.includes("متجر") || lower.includes("seller") || lower.includes("store")) {
         botReply.text = lang === "ar"
-          ? "يسعدنا انضمامك لشبكة تجار وماركات باكس في مصر والخليج! يمكنك فتح متجرك والبدء برفع المنتجات خلال دقائق من مركز البائعين."
-          : "Join BAX's merchant network across Egypt & GCC! Open your storefront in minutes via Seller Central.";
+          ? "يسعدنا انضمامك لشبكة تجار وماركات سوقلي في مصر والخليج! يمكنك فتح متجرك والبدء برفع المنتجات خلال دقائق من مركز البائعين."
+          : "Join Souqly's merchant network across Egypt & GCC! Open your storefront in minutes via Seller Central.";
         botReply.link = { url: "/sell", label: lang === "ar" ? "افتح متجرك الآن مجاناً ←" : "Open Your Store →" };
       }
 
@@ -153,7 +153,7 @@ export function LiveChatWidget() {
               </div>
               <div>
                 <h4 className="font-bold text-xs md:text-sm text-white flex items-center gap-1">
-                  <span>{lang === "ar" ? "خدمة عملاء باكس" : "BAX Customer Support"}</span>
+                  <span>{lang === "ar" ? "خدمة عملاء سوقلي" : "Souqly Customer Support"}</span>
                 </h4>
                 <p className="text-[10px] text-emerald-300 font-medium flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
@@ -193,7 +193,7 @@ export function LiveChatWidget() {
               🔄 {lang === "ar" ? "الاسترجاع 14 يوم" : "Returns"}
             </button>
             <button
-              onClick={() => handleShortcutClick(lang === "ar" ? "كيف أبدأ البيع كتاجر في باكس؟" : "How to sell on BAX")}
+              onClick={() => handleShortcutClick(lang === "ar" ? "كيف أبدأ البيع كتاجر في سوقلي؟" : "How to sell on Souqly")}
               className="whitespace-nowrap rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-semibold hover:border-gold/50 transition cursor-pointer"
             >
               🏪 {lang === "ar" ? "بِع معنا" : "Become Seller"}

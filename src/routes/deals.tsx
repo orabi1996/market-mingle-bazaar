@@ -21,9 +21,9 @@ import {
 export const Route = createFileRoute("/deals")({
   head: () => ({
     meta: [
-      { title: "عروض اليوم والصفقات الخاطفة | BAX Flash Deals" },
+      { title: "عروض اليوم والصفقات الخاطفة | Souqly Flash Deals" },
       { name: "description", content: "أقوى خصومات وعروض اليوم في جمهورية مصر العربية ودول الخليج على الإلكترونيات، الأزياء، والعطور." },
-      { property: "og:title", content: "صفقات اليوم الكبرى | BAX Deals" },
+      { property: "og:title", content: "صفقات اليوم الكبرى | Souqly Deals" },
       { property: "og:description", content: "خصومات تصل إلى 50% مع شحن مجاني وضمان 14 يوم إرجاع." },
     ],
   }),
@@ -230,7 +230,7 @@ function DealsPage() {
           <div className="rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-4 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-1.5 font-mono font-bold text-sm text-primary">
-                <span>BAX10</span>
+                <span>SOUQLY10</span>
                 <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px]">خصم 10%</span>
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">
@@ -238,11 +238,11 @@ function DealsPage() {
               </p>
             </div>
             <button
-              onClick={() => handleCopyCoupon("BAX10")}
+              onClick={() => handleCopyCoupon("SOUQLY10")}
               className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:opacity-90 flex items-center gap-1 cursor-pointer"
             >
-              {copiedCoupon === "BAX10" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              <span>{copiedCoupon === "BAX10" ? "تم التطبيق" : "تطبيق"}</span>
+              {copiedCoupon === "SOUQLY10" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              <span>{copiedCoupon === "SOUQLY10" ? "تم التطبيق" : "تطبيق"}</span>
             </button>
           </div>
         </div>

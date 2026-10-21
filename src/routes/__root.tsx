@@ -82,7 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "سوقلي | Souqly - سوق مصر والخليج العربي الشامل" },
+      { name: "description", content: "منصة سوقلي (Souqly) للتجارة الإلكترونية متعددة التجار في مصر والخليج. منتجات أصلية، دفع عبر إنستاباي وفودافون كاش ومحفظة سوقلي، وشحن فوري وضمان ذهبي." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "سوقلي Souqly" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -126,8 +129,8 @@ function RootComponent() {
           <div className="mx-auto max-w-7xl px-4 grid gap-8 md:grid-cols-4 text-xs">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold text-primary font-black text-sm">B</span>
-                <span className="font-display text-lg font-black tracking-tight text-white">BAX<span className="text-gold">.market</span></span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold text-primary font-black text-sm">S</span>
+                <span className="font-display text-lg font-black tracking-tight text-white">Souqly<span className="text-gold">.market</span></span>
               </div>
               <p className="text-white/70 leading-relaxed">
                 سوق التجارة الإلكترونية الشامل لجمهورية مصر العربية ودول الخليج. يجمع بين كبرى المتاجر والتجار المعتمدين والمشترين في بيئة آمنة وتوصيل فائق السرعة.
@@ -135,7 +138,7 @@ function RootComponent() {
             </div>
 
             <div>
-              <h4 className="font-bold text-white mb-3 text-sm">تسوق مع باكس</h4>
+              <h4 className="font-bold text-white mb-3 text-sm">تسوق مع سوقلي</h4>
               <ul className="space-y-2 text-white/75">
                 <li><Link to="/" className="hover:text-gold transition">جميع الأقسام والتصنيفات</Link></li>
                 <li><Link to="/" className="hover:text-gold transition">عروض وصفقات اليوم</Link></li>
@@ -149,7 +152,7 @@ function RootComponent() {
             <div>
               <h4 className="font-bold text-white mb-3 text-sm">خدمات التجار والأعمال</h4>
               <ul className="space-y-2 text-white/75">
-                <li><Link to="/sell" className="hover:text-gold transition">مركز بائعي باكس (Seller Central)</Link></li>
+                <li><Link to="/sell" className="hover:text-gold transition">مركز بائعي سوقلي (Seller Central)</Link></li>
                 <li><Link to="/sell" className="hover:text-gold transition">لوحة تحكم المخزون والمنتجات</Link></li>
                 <li><Link to="/admin" className="hover:text-gold transition">بوابة الإدارة المركزية والرقابة</Link></li>
                 <li><Link to="/sell" className="hover:text-gold transition">الشحن اللوجستي والتحصيل</Link></li>
@@ -168,7 +171,7 @@ function RootComponent() {
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-white/10 text-center text-white/60 text-[11px]">
-            جميع الحقوق محفوظة © 2026 باكس BAX Marketplace
+            جميع الحقوق محفوظة © 2026 سوقلي Souqly Marketplace
           </div>
         </footer>
       </StoreProvider>

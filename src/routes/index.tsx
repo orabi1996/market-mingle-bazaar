@@ -25,9 +25,9 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "باكس | BAX - سوق التجارة الإلكترونية الشامل في الخليج" },
+      { title: "سوقلي | Souqly - سوق التجارة الإلكترونية الشامل في الخليج" },
       { name: "description", content: "تسوق ملايين المنتجات من آلاف التجار المعتمدين في الخليج بتوصيل سريع وضمان ذهبي." },
-      { property: "og:title", content: "باكس | BAX Marketplace" },
+      { property: "og:title", content: "سوقلي | Souqly Marketplace" },
       { property: "og:description", content: "سوق التجارة الإلكترونية الشامل في الخليج العربي." },
     ],
   }),
@@ -96,7 +96,7 @@ function Index() {
       <section className="relative overflow-hidden bg-sand">
         <img
           src={hero}
-          alt="BAX Gulf Shopping"
+          alt="Souqly Gulf Shopping"
           width={1600}
           height={800}
           className="absolute inset-0 h-full w-full object-cover ltr:scale-x-[-1] opacity-90"
@@ -359,7 +359,7 @@ function Index() {
           <div>
             <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
               <Store className="h-5 w-5 text-gold" />
-              <span>{lang === "ar" ? "المتاجر المعتمدة في باكس" : "Featured Partner Stores"}</span>
+              <span>{lang === "ar" ? "المتاجر المعتمدة في سوقلي" : "Featured Partner Stores"}</span>
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {lang === "ar"
@@ -449,8 +449,8 @@ function Index() {
             </h3>
             <p className="mt-2 text-sm text-white/80 leading-relaxed">
               {lang === "ar"
-                ? "انضم لآلاف التجار في مصر والخليج وافتح متجرك مجاناً في باكس. استفد من شبكة عملائنا الواسعة وأدوات إدارة المنتجات والمخزون."
-                : "Join thousands of merchants across Egypt & the Gulf on BAX. Leverage our expansive customer base and powerful merchant tooling."}
+                ? "انضم لآلاف التجار في مصر والخليج وافتح متجرك مجاناً في سوقلي. استفد من شبكة عملائنا الواسعة وأدوات إدارة المنتجات والمخزون."
+                : "Join thousands of merchants across Egypt & the Gulf on Souqly. Leverage our expansive customer base and powerful merchant tooling."}
             </p>
           </div>
           <Link
