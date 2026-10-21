@@ -1,5 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getProductById, useStore } from "@/lib/store";
+import { ProductCard } from "@/components/ProductCard";
+import p1 from "@/assets/p1.jpg";
+import p2 from "@/assets/p2.jpg";
+import p3 from "@/assets/p3.jpg";
+import p4 from "@/assets/p4.jpg";
 import { useState } from "react";
 import {
   Star,
@@ -15,6 +20,11 @@ import {
   UserCheck,
   Send,
   Heart,
+  Check,
+  Sparkles,
+  Layers,
+  SlidersHorizontal,
+  Info,
 } from "lucide-react";
 
 export const Route = createFileRoute("/product/$id")({
@@ -51,6 +61,30 @@ function ProductPage() {
   const p = products.find((x) => x.id === initial?.id) || initial;
   const productReviews = reviews.filter((r) => r.productId === p.id);
 
+  // Gallery & Variants state
+  const galleryImages = [p.image, p1, p2, p3].filter(Boolean);
+  const [selectedImage, setSelectedImage] = useState(p.image);
+
+  const COLORS = [
+    { id: "black", nameAr: "أسود ملكي", nameEn: "Matte Black", hex: "#18181b" },
+    { id: "silver", nameAr: "فضي تيتانيوم", nameEn: "Titanium Silver", hex: "#94a3b8" },
+    { id: "navy", nameAr: "كحلي داكن", nameEn: "Royal Navy", hex: "#1e3a8a" },
+    { id: "gold", nameAr: "ذهبي فاخر", nameEn: "Champagne Gold", hex: "#d4af37" },
+  ];
+  const [selectedColor, setSelectedColor] = useState(0);
+
+  const SIZES = p.category.en.toLowerCase().includes("perfume") || p.category.ar.includes("عطور")
+    ? ["50 مل (السفر)", "100 مل (الأصلي)", "150 مل (الملكي)"]
+    : p.category.en.toLowerCase().includes("fashion") || p.category.ar.includes("أزياء")
+    ? ["Medium (M)", "Large (L)", "X-Large (XL)", "XX-Large (2XL)"]
+    : ["128GB (Standard)", "256GB (Pro)", "512GB (Max)"];
+  const [selectedSize, setSelectedSize] = useState(1);
+
+  // Related products from same category
+  const relatedProducts = products
+    .filter((item) => item.id !== p.id && item.category[lang] === p.category[lang])
+    .slice(0, 4);
+
   const handleAddToCart = () => {
     add(p.id, qty);
     setAddedToast(true);
@@ -86,15 +120,42 @@ function ProductPage() {
       </div>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        {/* Product Media */}
-        <div className="overflow-hidden rounded-3xl bg-card border border-border p-4 shadow-xs">
-          <img
-            src={p.image}
-            alt={p.name[lang]}
-            width={816}
-            height={816}
-            className="aspect-square w-full rounded-2xl object-cover bg-secondary"
-          />
+        {/* Product Media & Interactive Gallery */}
+        <div className="flex flex-col gap-3">
+          <div className="relative overflow-hidden rounded-3xl bg-card border border-border p-4 shadow-xs">
+            <img
+              src={selectedImage}
+              alt={p.name[lang]}
+              width={816}
+              height={816}
+              className="aspect-square w-full rounded-2xl object-cover bg-secondary transition-all duration-300"
+            />
+            <span className="absolute bottom-6 start-6 rounded-lg bg-black/60 backdrop-blur-xs px-2.5 py-1 text-[10px] font-bold text-white">
+              {lang === "ar" ? "معاينة عالية الدقة HD" : "HD Zoom Preview"}
+            </span>
+          </div>
+
+          {/* Thumbnails Swapper */}
+          <div className="grid grid-cols-4 gap-2">
+            {galleryImages.map((img, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelectedImage(img)}
+                className={`relative aspect-square overflow-hidden rounded-xl border bg-card p-1 transition cursor-pointer ${
+                  selectedImage === img
+                    ? "border-primary ring-2 ring-primary/30"
+                    : "border-border hover:border-gold/50 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <img
+                  src={img}
+                  alt={`View ${i + 1}`}
+                  className="h-full w-full rounded-lg object-cover"
+                />
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Product Details & Purchase Box */}
@@ -143,6 +204,86 @@ function ProductPage() {
           {/* Description */}
           <div className="text-sm text-muted-foreground leading-relaxed">
             <p>{p.desc[lang]}</p>
+          </div>
+
+          {/* Color Selection Swatches */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-foreground">
+                {lang === "ar" ? "اللون المختار:" : "Color:"}{" "}
+                <span className="font-normal text-muted-foreground">
+                  {COLORS[selectedColor][lang === "ar" ? "nameAr" : "nameEn"]}
+                </span>
+              </span>
+              <span className="text-[11px] text-emerald-600 font-semibold">
+                {lang === "ar" ? "جاهز للشحن الفوري ⚡" : "In Stock"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {COLORS.map((c, i) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelectedColor(i)}
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition cursor-pointer ${
+                    selectedColor === i
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110 shadow-xs"
+                      : "hover:scale-105 opacity-80"
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                  title={c[lang === "ar" ? "nameAr" : "nameEn"]}
+                >
+                  {selectedColor === i && <Check className="h-4 w-4 text-white drop-shadow-md" />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Size / Capacity Selection */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-foreground">
+                {p.category.en.toLowerCase().includes("fashion") || p.category.ar.includes("أزياء")
+                  ? (lang === "ar" ? "المقاس:" : "Size:")
+                  : p.category.en.toLowerCase().includes("perfume") || p.category.ar.includes("عطور")
+                  ? (lang === "ar" ? "الحجم والسعة:" : "Volume:")
+                  : (lang === "ar" ? "الموديل والسعة:" : "Capacity:")}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {SIZES.map((s, i) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSelectedSize(i)}
+                  className={`rounded-xl border px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                    selectedSize === i
+                      ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                      : "border-border bg-card text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Certified Specifications & Guarantee Box */}
+          <div className="rounded-2xl border border-border bg-card p-3.5 space-y-2 text-xs">
+            <h4 className="font-bold text-foreground flex items-center gap-1.5 border-b border-border pb-1.5">
+              <ShieldCheck className="h-4 w-4 text-gold" />
+              <span>{lang === "ar" ? "مواصفات وضمان باكس المعتمد" : "BAX Certified Specs"}</span>
+            </h4>
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div className="text-muted-foreground">{lang === "ar" ? "الضمان الرسمي:" : "Official Warranty:"}</div>
+              <div className="font-semibold text-emerald-600 text-end">{lang === "ar" ? "24 شهراً ضمان شامل" : "24 Months"}</div>
+
+              <div className="text-muted-foreground">{lang === "ar" ? "الشحن والتسليم:" : "Delivery:"}</div>
+              <div className="font-semibold text-foreground text-end">{lang === "ar" ? "24-48 ساعة (مصر والخليج)" : "24-48 hrs"}</div>
+
+              <div className="text-muted-foreground">{lang === "ar" ? "سياسة الإرجاع:" : "Returns:"}</div>
+              <div className="font-semibold text-foreground text-end">{lang === "ar" ? "14 يوماً استرجاع مجاني" : "14 Days Free"}</div>
+            </div>
           </div>
 
           {/* Sold by Merchant */}
@@ -404,6 +545,28 @@ function ProductPage() {
           </div>
         </div>
       </section>
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <section className="mt-16 border-t border-border pt-12">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-gold" />
+                <span>{lang === "ar" ? "منتجات مشابهة قد تنال إعجابك" : "Related Products You May Like"}</span>
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {lang === "ar" ? "عروض مختارة من نفس القسم بأفضل الأسعار وتوصيل سريع" : "Top picks from the same department"}
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {relatedProducts.map((rel) => (
+              <ProductCard key={rel.id} p={rel} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

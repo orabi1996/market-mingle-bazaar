@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { StoreProvider } from "@/lib/store";
 import { Header } from "@/components/Header";
 import { AuthModal } from "@/components/AuthModal";
+import { LiveChatWidget } from "@/components/LiveChatWidget";
 
 function NotFoundComponent() {
   return (
@@ -120,6 +121,7 @@ function RootComponent() {
         <Header />
         <Outlet />
         <AuthModal />
+        <LiveChatWidget />
         <footer className="mt-20 border-t border-border bg-primary text-primary-foreground py-12">
           <div className="mx-auto max-w-7xl px-4 grid gap-8 md:grid-cols-4 text-xs">
             <div>
