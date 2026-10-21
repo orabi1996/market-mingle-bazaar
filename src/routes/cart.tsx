@@ -15,6 +15,7 @@ import {
   Tag,
   X,
   Lock,
+  Wallet,
 } from "lucide-react";
 
 export const Route = createFileRoute("/cart")({
@@ -48,6 +49,8 @@ function Cart() {
     calculateDiscount,
     addresses,
     user,
+    walletBalance,
+    deductWallet,
   } = useStore();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -103,6 +106,14 @@ function Cart() {
       image: p.image,
       seller: p.seller,
     }));
+
+    if (paymentMethod.includes("محفظة باكس")) {
+      if (walletBalance < finalTotal) {
+        alert(lang === "ar" ? "رصيد محفظة باكس غير كافٍ لإتمام عملية الشراء. يرجى شحن المحفظة أو اختيار وسيلة دفع أخرى." : "Insufficient BAX Wallet balance.");
+        return;
+      }
+      deductWallet(finalTotal, "شراء طلب من المتجر");
+    }
 
     const order = createOrder({
       customerName,
@@ -484,6 +495,7 @@ function Cart() {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none font-medium"
                   >
+                    <option value="محفظة باكس الإلكترونية (BAX Wallet)">محفظة باكس الإلكترونية (BAX Wallet)</option>
                     <option value="فودافون كاش / إنستاباي (Vodafone Cash / InstaPay)">فودافون كاش / إنستاباي</option>
                     <option value="فوري / بطاقة ميزة (Fawry / Meeza)">فوري / ميزة (Fawry / Meeza)</option>
                     <option value="مدى / بطاقة بنكية (Mada)">مدى (Mada)</option>
@@ -493,6 +505,46 @@ function Cart() {
                     <option value="الدفع عند الاستلام">الدفع عند الاستلام (COD)</option>
                   </select>
                 </div>
+
+                {/* Simulated BAX Wallet Option */}
+                {paymentMethod.includes("محفظة باكس") && (
+                  <div className="rounded-xl border border-gold/40 bg-gold/5 p-3 space-y-2 mt-2 text-xs">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <Wallet className="h-4 w-4 text-gold" />
+                        {lang === "ar" ? "الدفع الفوري من رصيد محفظة باكس" : "Pay with BAX Wallet Balance"}
+                      </span>
+                      <span className="font-mono text-gold-foreground dark:text-gold font-bold">
+                        {price(walletBalance)}
+                      </span>
+                    </div>
+
+                    {walletBalance >= finalTotal ? (
+                      <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-2 text-[11px] text-emerald-700 dark:text-emerald-400">
+                        <div className="flex items-center gap-1 font-bold">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                          <span>{lang === "ar" ? "رصيدك كافٍ لتغطية قيمة الطلب بالكامل." : "Balance covers full order."}</span>
+                        </div>
+                        <p className="mt-0.5 text-muted-foreground">
+                          {lang === "ar"
+                            ? `الرصيد المتبقي بعد الشراء سيكون: ${price(walletBalance - finalTotal)}`
+                            : `Remaining balance: ${price(walletBalance - finalTotal)}`}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg bg-rose-500/10 border border-rose-500/20 p-2 text-[11px] text-rose-700 dark:text-rose-400">
+                        <p className="font-bold">
+                          {lang === "ar"
+                            ? `رصيدك الحالي (${price(walletBalance)}) أقل من إجمالي الطلب (${price(finalTotal)}).`
+                            : `Insufficient balance.`}
+                        </p>
+                        <Link to="/profile" className="font-bold underline text-primary mt-1 inline-block">
+                          {lang === "ar" ? "اشحن محفظتك الآن بضغطة زر ↗" : "Top up wallet now ↗"}
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Simulated Vodafone Cash / InstaPay Input */}
                 {paymentMethod.includes("فودافون") && (

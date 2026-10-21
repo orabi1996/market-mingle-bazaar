@@ -16,6 +16,9 @@ import {
   ArrowRight,
   ExternalLink,
   ShieldCheck,
+  RotateCcw,
+  Landmark,
+  AlertTriangle,
 } from "lucide-react";
 import p1 from "@/assets/p1.jpg";
 import p2 from "@/assets/p2.jpg";
@@ -59,9 +62,26 @@ function SellerCenter() {
     price,
     registerSeller,
     switchRole,
+    sellerPayouts,
+    requestSellerPayout,
+    approveReturn,
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<"inventory" | "newProduct" | "orders">("inventory");
+  const [activeTab, setActiveTab] = useState<"inventory" | "newProduct" | "orders" | "returns" | "payouts">("inventory");
+
+  // Payout Form States
+  const [payoutAmount, setPayoutAmount] = useState(2500);
+  const [payoutMethod, setPayoutMethod] = useState<"instapay" | "vodafone_cash" | "bank_iban">("instapay");
+  const [payoutDest, setPayoutDest] = useState("cairo.tech@instapay");
+  const [payoutSuccessToast, setPayoutSuccessToast] = useState(false);
+
+  const handleRequestPayout = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!payoutDest.trim()) return;
+    requestSellerPayout(Number(payoutAmount), payoutMethod, payoutDest);
+    setPayoutSuccessToast(true);
+    setTimeout(() => setPayoutSuccessToast(false), 3000);
+  };
 
   // Registration Form States for new sellers
   const [storeNameInput, setStoreNameInput] = useState("");
@@ -376,6 +396,30 @@ function SellerCenter() {
         >
           <ShoppingBag className="h-4 w-4" />
           {lang === "ar" ? "الطلبات الواردة" : "Incoming Orders"} ({orders.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("returns")}
+          className={`flex items-center gap-2 pb-3 px-4 text-sm font-bold border-b-2 transition ${
+            activeTab === "returns"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <RotateCcw className="h-4 w-4 text-amber-500" />
+          {lang === "ar" ? "المرتجعات والشكاوى" : "Returns & Claims"} ({orders.filter((o) => o.status === "return_requested" || o.status === "returned").length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("payouts")}
+          className={`flex items-center gap-2 pb-3 px-4 text-sm font-bold border-b-2 transition ${
+            activeTab === "payouts"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <DollarSign className="h-4 w-4 text-gold" />
+          {lang === "ar" ? "المالية وسحب الأرباح" : "Financials & Payouts"}
         </button>
       </div>
 
@@ -742,6 +786,253 @@ function SellerCenter() {
           )}
         </div>
       )}
+
+      {/* Toast */}
+      {payoutSuccessToast && (
+        <div className="fixed bottom-6 start-6 z-50 flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-xs font-bold text-background shadow-xl animate-in fade-in slide-in-from-bottom-2">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+          <span>{lang === "ar" ? "تم إرسال طلب التحويل المالي وسحب الأرباح بنجاح!" : "Payout request processed!"}</span>
+        </div>
+      )}
+
+      {/* Tab 4: Returns & Customer Claims */}
+      {activeTab === "returns" && (
+        <div className="mt-6 space-y-6">
+          <div>
+            <h2 className="text-lg font-bold">{lang === "ar" ? "إدارة طلبات الإرجاع والاستبدال" : "Returns & Customer Claims"}</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {lang === "ar"
+                ? "متابعة طلبات الإرجاع المقدمة من العملاء وفقاً لضمان باكس الذهبي وقانون حماية المستهلك المصري والخليجي."
+                : "Manage buyer return requests under BAX Buyer Protection and local consumer laws."}
+            </p>
+          </div>
+
+          {orders.filter((o) => o.status === "return_requested" || o.status === "returned").length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center text-xs text-muted-foreground">
+              <RotateCcw className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+              {lang === "ar" ? "لا توجد طلبات إرجاع حالية لمتجرك. مؤشرات رضا العملاء ممتازة!" : "No return requests found."}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {orders
+                .filter((o) => o.status === "return_requested" || o.status === "returned")
+                .map((o) => (
+                  <div key={o.id} className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono font-bold text-sm text-foreground">#{o.id}</span>
+                        {o.returnTrackingNumber && (
+                          <span className="font-mono bg-amber-500/15 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded text-xs font-bold">
+                            بوليصة: {o.returnTrackingNumber}
+                          </span>
+                        )}
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                            o.status === "returned"
+                              ? "bg-purple-500/15 text-purple-600"
+                              : "bg-amber-500/15 text-amber-600"
+                          }`}
+                        >
+                          {o.status === "returned"
+                            ? lang === "ar" ? "تم الإرجاع والاسترداد" : "Returned & Refunded"
+                            : lang === "ar" ? "طلب إرجاع قيد المراجعة" : "Return Requested"}
+                        </span>
+                      </div>
+
+                      <div className="text-end">
+                        <span className="font-bold text-sm text-primary">{price(o.total)}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid gap-4 md:grid-cols-2 text-xs">
+                      <div>
+                        <span className="font-bold text-foreground block mb-1">
+                          {lang === "ar" ? "سبب طلب الإرجاع من العميل:" : "Return Reason:"}
+                        </span>
+                        <p className="text-amber-700 dark:text-amber-400 font-semibold">{o.returnReason || "غير محدد"}</p>
+                        {o.returnNotes && <p className="text-muted-foreground mt-1">{o.returnNotes}</p>}
+                        <p className="text-muted-foreground mt-2">
+                          {lang === "ar" ? "العميل:" : "Buyer:"} {o.customerName} ({o.customerPhone}) - {o.city}، {o.country}
+                        </p>
+                      </div>
+
+                      <div>
+                        <span className="font-bold text-foreground block mb-1">
+                          {lang === "ar" ? "المنتجات المطلوب إرجاعها:" : "Returned Items:"}
+                        </span>
+                        <div className="space-y-1">
+                          {o.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-muted-foreground">
+                              <span>{item.name[lang] || item.name.ar} × {item.quantity}</span>
+                              <span className="font-semibold text-foreground">{price(item.price * item.quantity)}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {o.status === "return_requested" && (
+                          <div className="mt-4 pt-3 border-t border-border flex justify-end">
+                            <button
+                              onClick={() => approveReturn(o.id)}
+                              className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 cursor-pointer"
+                            >
+                              {lang === "ar" ? "الموافقة على الإرجاع وصرف المستحقات للعميل" : "Approve Return & Issue Refund"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 5: Financials & Payouts */}
+      {activeTab === "payouts" && (
+        <div className="mt-6 space-y-6">
+          {/* Financial summary banner */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "الرصيد المتاح للسحب الفوري" : "Available Payout Balance"}</span>
+              <div className="mt-2 text-3xl font-black text-primary font-display">{price(totalRevenue * 0.9)}</div>
+              <span className="text-[11px] text-muted-foreground block mt-1">
+                {lang === "ar" ? "(صافي بعد خصم عمولة باكس 10%)" : "(Net after 10% platform fee)"}
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "إجمالي الأرباح المحولة" : "Total Paid Out"}</span>
+              <div className="mt-2 text-3xl font-black text-emerald-600 font-display">
+                {price(sellerPayouts.reduce((sum, p) => sum + p.amount, 0))}
+              </div>
+              <span className="text-[11px] text-muted-foreground block mt-1">
+                {sellerPayouts.length} {lang === "ar" ? "عمليات تحويل مكتملة" : "completed payouts"}
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "دورة التحويل المالي" : "Payout Schedule"}</span>
+              <div className="mt-2 text-xl font-black text-foreground">{lang === "ar" ? "تحويل فوري ويومي" : "Instant Daily Payouts"}</div>
+              <span className="text-[11px] text-emerald-600 font-semibold block mt-1">
+                {lang === "ar" ? "✓ إنستاباي، فودافون كاش، وIBAN بنكي" : "✓ InstaPay, Vodafone Cash & IBAN"}
+              </span>
+            </div>
+          </div>
+
+          {/* Request Payout Form */}
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
+            <h3 className="font-bold text-base text-foreground flex items-center gap-2 mb-1">
+              <Landmark className="h-5 w-5 text-gold" />
+              {lang === "ar" ? "طلب سحب أرباح جديدة لحسابك" : "Request Payout"}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              {lang === "ar"
+                ? "اختر وسيلة التحويل المفضلة في جمهورية مصر العربية أو دول الخليج لإيداع أرباحك فوراً."
+                : "Select your preferred payment channel across Egypt or the GCC."}
+            </p>
+
+            <form onSubmit={handleRequestPayout} className="grid gap-4 md:grid-cols-3">
+              <div>
+                <label className="text-xs font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "المبلغ المراد سحبه:" : "Amount to Withdraw:"}
+                </label>
+                <input
+                  type="number"
+                  min="100"
+                  required
+                  value={payoutAmount}
+                  onChange={(e) => setPayoutAmount(Number(e.target.value))}
+                  className="w-full rounded-xl border border-input bg-background p-2 text-sm font-bold outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "قناة التحويل:" : "Payout Method:"}
+                </label>
+                <select
+                  value={payoutMethod}
+                  onChange={(e) => {
+                    const m = e.target.value;
+                    setPayoutMethod(m);
+                    if (m === "instapay") setPayoutDest("cairo.tech@instapay");
+                    else if (m === "vodafone_cash") setPayoutDest("01012345678");
+                    else setPayoutDest("EG380002000100000012345678901");
+                  }}
+                  className="w-full rounded-xl border border-input bg-background p-2 text-xs outline-none cursor-pointer"
+                >
+                  <option value="instapay">إنستاباي مصر (InstaPay IPA)</option>
+                  <option value="vodafone_cash">فودافون كاش / المحافظ الإلكترونية</option>
+                  <option value="bank_iban">تحويل بنكي مباشر (IBAN مصر والخليج)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "معرف الحساب / رقم المحفظة / IBAN:" : "Destination Account / Handle:"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={payoutDest}
+                  onChange={(e) => setPayoutDest(e.target.value)}
+                  placeholder="مثال: name@instapay"
+                  className="w-full rounded-xl border border-input bg-background p-2 text-xs outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div className="md:col-span-3 pt-2 flex justify-end">
+                <button
+                  type="submit"
+                  className="rounded-xl bg-gold px-6 py-2.5 text-xs font-black text-gold-foreground shadow hover:opacity-90 cursor-pointer flex items-center gap-1.5"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  <span>{lang === "ar" ? "تأكيد طلب سحب الأرباح" : "Process Payout"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Payout History Ledger */}
+          <div className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-bold text-sm text-foreground">
+                {lang === "ar" ? "سجل التحويلات السابقة" : "Payout History"}
+              </h3>
+              <span className="text-xs text-muted-foreground">{sellerPayouts.length} {lang === "ar" ? "عمليات" : "records"}</span>
+            </div>
+
+            <div className="divide-y divide-border">
+              {sellerPayouts.map((p) => (
+                <div key={p.id} className="p-4 flex items-center justify-between gap-4 text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 font-bold">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold font-mono text-foreground block">{p.id}</span>
+                      <span className="text-muted-foreground text-[11px]">
+                        {p.method === "instapay"
+                          ? "إنستاباي (InstaPay)"
+                          : p.method === "vodafone_cash"
+                          ? "فودافون كاش"
+                          : "تحويل بنكي IBAN"} • {p.destination}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-end">
+                    <span className="font-bold text-sm text-foreground block">{price(p.amount)}</span>
+                    <span className="text-[10px] text-muted-foreground">{p.date} • {lang === "ar" ? "تم التحويل" : "Completed"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

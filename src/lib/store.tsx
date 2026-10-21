@@ -17,6 +17,7 @@ export type User = {
   role: UserRole;
   storeName?: string;
   phone?: string;
+  walletBalance?: number;
 };
 
 export type ShippingAddress = {
@@ -99,7 +100,36 @@ export type Order = {
   items: OrderItem[];
   total: number;
   currency: Currency;
-  status: "pending" | "processing" | "shipped" | "delivered";
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "return_requested" | "returned";
+  cancelReason?: string;
+  cancelDate?: string;
+  returnReason?: string;
+  returnNotes?: string;
+  returnDate?: string;
+  returnTrackingNumber?: string;
+  refundMethod?: "wallet" | "original_payment";
+  refundAmount?: number;
+};
+
+export type WalletTransaction = {
+  id: string;
+  title: { ar: string; en: string };
+  date: string;
+  amount: number;
+  type: "credit" | "debit";
+  orderId?: string;
+  note?: string;
+};
+
+export type SellerPayout = {
+  id: string;
+  storeId: string;
+  amount: number;
+  currency: Currency;
+  method: "instapay" | "vodafone_cash" | "bank_iban";
+  destination: string;
+  status: "completed" | "processing";
+  date: string;
 };
 
 export type Review = {
@@ -193,6 +223,48 @@ export const INITIAL_COUPONS: Coupon[] = [
     description: { ar: "خصم 15% ترحيبي لطلبك الأول", en: "15% welcome discount" },
   },
 ];
+
+export const INITIAL_WALLET_TRANSACTIONS: WalletTransaction[] = [
+  {
+    id: "tx_1",
+    title: { ar: "رصيد ترحيبي بمناسبة تدشين منصة باكس مصر والخليج", en: "Welcome Platform Credit" },
+    date: "2026-04-01",
+    amount: 150,
+    type: "credit",
+  },
+  {
+    id: "tx_2",
+    title: { ar: "استرداد فوري لإلغاء طلب سابق ORD-9102", en: "Instant refund for cancelled order ORD-9102" },
+    date: "2026-04-12",
+    amount: 350,
+    type: "credit",
+    orderId: "ORD-9102",
+  },
+];
+
+export const INITIAL_SELLER_PAYOUTS: SellerPayout[] = [
+  {
+    id: "PAY-1042",
+    storeId: "seller_cairo_tech",
+    amount: 3500,
+    currency: "EGP",
+    method: "instapay",
+    destination: "cairo.tech@instapay",
+    status: "completed",
+    date: "2026-04-15",
+  },
+  {
+    id: "PAY-1041",
+    storeId: "seller_nile_cotton",
+    amount: 2200,
+    currency: "EGP",
+    method: "vodafone_cash",
+    destination: "01099887766",
+    status: "completed",
+    date: "2026-04-10",
+  },
+];
+
 
 export type Notification = {
   id: string;
@@ -748,6 +820,15 @@ type Ctx = {
   deleteAddress: (id: string) => void;
   setDefaultAddress: (id: string) => void;
   updateUser: (u: Partial<User>) => void;
+  walletBalance: number;
+  walletTransactions: WalletTransaction[];
+  topUpWallet: (amountSar: number, methodTitle: string) => void;
+  deductWallet: (amountSar: number, note: string) => boolean;
+  cancelOrder: (orderId: string, reason: string, refundToWallet?: boolean) => void;
+  requestReturn: (orderId: string, reason: string, notes?: string, refundToWallet?: boolean) => void;
+  approveReturn: (orderId: string) => void;
+  sellerPayouts: SellerPayout[];
+  requestSellerPayout: (amountSar: number, method: "instapay" | "vodafone_cash" | "bank_iban", destination: string) => boolean;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -769,10 +850,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [addresses, setAddresses] = useState<ShippingAddress[]>(INITIAL_ADDRESSES);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
+  const [walletBalance, setWalletBalance] = useState<number>(500);
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(INITIAL_WALLET_TRANSACTIONS);
+  const [sellerPayouts, setSellerPayouts] = useState<SellerPayout[]>(INITIAL_SELLER_PAYOUTS);
 
   // Initialize from LocalStorage
   useEffect(() => {
     try {
+      const storedWallet = localStorage.getItem("bax-wallet");
+      if (storedWallet) setWalletBalance(Number(storedWallet));
+
+      const storedTxs = localStorage.getItem("bax-wallet-tx");
+      if (storedTxs) setWalletTransactions(JSON.parse(storedTxs));
+
+      const storedPayouts = localStorage.getItem("bax-seller-payouts");
+      if (storedPayouts) setSellerPayouts(JSON.parse(storedPayouts));
+
       const storedNotifs = localStorage.getItem("bax-notifications");
       if (storedNotifs) setNotifications(JSON.parse(storedNotifs));
 
@@ -835,6 +928,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       } else {
         const sampleOrders: Order[] = [
           {
+            id: "ORD-9422",
+            createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+            customerName: "أحمد مصطفى العربي",
+            customerEmail: "ahmed@bax.market",
+            customerPhone: "+201012345678",
+            customerAddress: "شارع التسعين الجنوبي، مجمع الياسمين",
+            city: "القاهرة",
+            country: "جمهورية مصر العربية",
+            paymentMethod: "فودافون كاش / إنستاباي",
+            items: [
+              {
+                productId: "7",
+                name: { ar: "طقم مفروشات سرير قطن مصري 100% فاخر", en: "Luxury 100% Egyptian Cotton Bedding" },
+                quantity: 1,
+                price: 490,
+                image: p4,
+                seller: "Nile Cotton - قطن النيل الفاخر",
+              },
+            ],
+            total: 490,
+            currency: "EGP",
+            status: "delivered",
+          },
+          {
             id: "ORD-9421",
             createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
             customerName: "سعد الشمري",
@@ -860,7 +977,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           },
           {
             id: "ORD-9420",
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
             customerName: "فاطمة الكعبي",
             customerEmail: "fatima@example.com",
             customerPhone: "+971509876543",
@@ -1182,6 +1299,231 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("bax-user", JSON.stringify(updated));
   };
 
+  
+  // Wallet operations
+  const saveWallet = (balance: number, txs: WalletTransaction[]) => {
+    setWalletBalance(balance);
+    setWalletTransactions(txs);
+    localStorage.setItem("bax-wallet", String(balance));
+    localStorage.setItem("bax-wallet-tx", JSON.stringify(txs));
+  };
+
+  const topUpWallet = (amountSar: number, methodTitle: string) => {
+    const newBal = walletBalance + amountSar;
+    const newTx: WalletTransaction = {
+      id: "tx_" + Date.now(),
+      title: {
+        ar: `شحن رصيد المحفظة عبر ${methodTitle}`,
+        en: `Wallet top-up via ${methodTitle}`,
+      },
+      date: new Date().toISOString().split("T")[0],
+      amount: amountSar,
+      type: "credit",
+      note: methodTitle,
+    };
+    const nextTxs = [newTx, ...walletTransactions];
+    saveWallet(newBal, nextTxs);
+    addNotification({
+      title: { ar: "تم شحن المحفظة بنجاح", en: "Wallet Recharged" },
+      message: {
+        ar: `تمت إضافة ${price(amountSar)} إلى محفظتك الإلكترونية بنجاح.`,
+        en: `Added ${price(amountSar)} to your digital wallet.`,
+      },
+      type: "system",
+      link: "/profile",
+    });
+  };
+
+  const deductWallet = (amountSar: number, note: string): boolean => {
+    if (walletBalance < amountSar) return false;
+    const newBal = walletBalance - amountSar;
+    const newTx: WalletTransaction = {
+      id: "tx_" + Date.now(),
+      title: {
+        ar: `دفع قيمة طلب من المحفظة`,
+        en: `Order payment from wallet`,
+      },
+      date: new Date().toISOString().split("T")[0],
+      amount: amountSar,
+      type: "debit",
+      note,
+    };
+    const nextTxs = [newTx, ...walletTransactions];
+    saveWallet(newBal, nextTxs);
+    return true;
+  };
+
+  const cancelOrder = (orderId: string, reason: string, refundToWallet = true) => {
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) return;
+
+    const nextOrders = orders.map((o) =>
+      o.id === orderId
+        ? {
+            ...o,
+            status: "cancelled" as const,
+            cancelReason: reason,
+            cancelDate: new Date().toISOString(),
+            refundMethod: refundToWallet ? ("wallet" as const) : ("original_payment" as const),
+            refundAmount: o.total,
+          }
+        : o
+    );
+    setOrders(nextOrders);
+    localStorage.setItem("bax-orders", JSON.stringify(nextOrders));
+
+    if (refundToWallet) {
+      const newBal = walletBalance + target.total;
+      const newTx: WalletTransaction = {
+        id: "tx_" + Date.now(),
+        title: {
+          ar: `استرداد فوري لإلغاء الطلب ${target.id}`,
+          en: `Instant refund for cancelled ${target.id}`,
+        },
+        date: new Date().toISOString().split("T")[0],
+        amount: target.total,
+        type: "credit",
+        orderId: target.id,
+        note: reason,
+      };
+      saveWallet(newBal, [newTx, ...walletTransactions]);
+    }
+
+    addNotification({
+      title: {
+        ar: `تم إلغاء الطلب ${target.id}`,
+        en: `Order ${target.id} Cancelled`,
+      },
+      message: {
+        ar: refundToWallet
+          ? `تم إلغاء طلبك واسترداد ${price(target.total)} فوراً إلى محفظة باكس.`
+          : `تم إلغاء طلبك وسيتم إرجاع المبلغ لوسيلة الدفع الأصلية خلال 48 ساعة.`,
+        en: `Your order was cancelled and refunded.`,
+      },
+      type: "order",
+      link: "/orders",
+    });
+  };
+
+  const requestReturn = (orderId: string, reason: string, notes?: string, refundToWallet = true) => {
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) return;
+
+    const returnTracking = "RET-" + Math.floor(100000 + Math.random() * 900000);
+    const nextOrders = orders.map((o) =>
+      o.id === orderId
+        ? {
+            ...o,
+            status: "return_requested" as const,
+            returnReason: reason,
+            returnNotes: notes,
+            returnDate: new Date().toISOString(),
+            returnTrackingNumber: returnTracking,
+            refundMethod: refundToWallet ? ("wallet" as const) : ("original_payment" as const),
+            refundAmount: o.total,
+          }
+        : o
+    );
+    setOrders(nextOrders);
+    localStorage.setItem("bax-orders", JSON.stringify(nextOrders));
+
+    addNotification({
+      title: {
+        ar: `تم تقديم طلب إرجاع للطلب ${target.id}`,
+        en: `Return Request Submitted for ${target.id}`,
+      },
+      message: {
+        ar: `رقم بوليصة الإرجاع: ${returnTracking}. سيتواصل معك مندوب باكس إكسبريس للاستلام المجاني من باب بيتك.`,
+        en: `Return tracking number: ${returnTracking}. Free courier pickup scheduled.`,
+      },
+      type: "order",
+      link: "/orders",
+    });
+  };
+
+  const approveReturn = (orderId: string) => {
+    const target = orders.find((o) => o.id === orderId);
+    if (!target) return;
+
+    const nextOrders = orders.map((o) =>
+      o.id === orderId
+        ? {
+            ...o,
+            status: "returned" as const,
+          }
+        : o
+    );
+    setOrders(nextOrders);
+    localStorage.setItem("bax-orders", JSON.stringify(nextOrders));
+
+    const newBal = walletBalance + target.total;
+    const newTx: WalletTransaction = {
+      id: "tx_" + Date.now(),
+      title: {
+        ar: `استرداد إرجاع معتمد للطلب ${target.id}`,
+        en: `Refund for returned ${target.id}`,
+      },
+      date: new Date().toISOString().split("T")[0],
+      amount: target.total,
+      type: "credit",
+      orderId: target.id,
+    };
+    saveWallet(newBal, [newTx, ...walletTransactions]);
+
+    addNotification({
+      title: {
+        ar: `اكتمل الإرجاع للطلب ${target.id}`,
+        en: `Return Completed for ${target.id}`,
+      },
+      message: {
+        ar: `تم فحص واستلام الشحنة وإيداع ${price(target.total)} في محفظتك الإلكترونية بنجاح.`,
+        en: `Returned items received. ${price(target.total)} credited to your wallet.`,
+      },
+      type: "order",
+      link: "/profile",
+    });
+  };
+
+  const saveSellerPayouts = (payouts: SellerPayout[]) => {
+    setSellerPayouts(payouts);
+    localStorage.setItem("bax-seller-payouts", JSON.stringify(payouts));
+  };
+
+  const requestSellerPayout = (
+    amountSar: number,
+    method: "instapay" | "vodafone_cash" | "bank_iban",
+    destination: string
+  ): boolean => {
+    const newPayout: SellerPayout = {
+      id: "PAY-" + Math.floor(1000 + Math.random() * 9000),
+      storeId: user?.id || "seller",
+      amount: amountSar,
+      currency,
+      method,
+      destination,
+      status: "completed",
+      date: new Date().toISOString().split("T")[0],
+    };
+    const next = [newPayout, ...sellerPayouts];
+    saveSellerPayouts(next);
+
+    addNotification({
+      title: {
+        ar: `تم تحويل أرباح بقيمة ${price(amountSar)} بنجاح`,
+        en: `Payout of ${price(amountSar)} processed`,
+      },
+      message: {
+        ar: `تم تحويل المبلغ عبر ${
+          method === "instapay" ? "إنستاباي (InstaPay)" : method === "vodafone_cash" ? "فودافون كاش" : "التحويل البنكي"
+        } إلى ${destination}.`,
+        en: `Funds transferred to ${destination}.`,
+      },
+      type: "seller",
+      link: "/sell",
+    });
+    return true;
+  };
+
   // Currency pricing helper
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
@@ -1250,6 +1592,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         deleteAddress,
         setDefaultAddress,
         updateUser,
+        walletBalance,
+        walletTransactions,
+        topUpWallet,
+        deductWallet,
+        cancelOrder,
+        requestReturn,
+        approveReturn,
+        sellerPayouts,
+        requestSellerPayout,
       }}
     >
       {children}
