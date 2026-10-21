@@ -7,7 +7,7 @@ import p5 from "@/assets/p5.jpg";
 import p6 from "@/assets/p6.jpg";
 
 export type Lang = "ar" | "en";
-export type Currency = "SAR" | "AED" | "KWD" | "QAR" | "BHD" | "OMR";
+export type Currency = "EGP" | "SAR" | "AED" | "KWD" | "QAR" | "BHD" | "OMR" | "USD";
 export type UserRole = "buyer" | "seller" | "admin";
 
 export type User = {
@@ -52,12 +52,14 @@ export type StoreInfo = {
 
 // Approximate rates from SAR (base)
 export const RATES: Record<Currency, number> = {
+  EGP: 13.2,
   SAR: 1,
   AED: 0.98,
   KWD: 0.082,
   QAR: 0.97,
   BHD: 0.1,
   OMR: 0.103,
+  USD: 0.27,
 };
 
 export type Product = {
@@ -121,31 +123,56 @@ export type Coupon = {
 export const INITIAL_ADDRESSES: ShippingAddress[] = [
   {
     id: "addr_1",
-    title: "المنزل - الرياض",
-    recipientName: "سعد بن محمد القحطاني",
+    title: "المنزل - القاهرة الجديدة",
+    recipientName: "أحمد مصطفى العربي",
+    phone: "+201012345678",
+    country: "جمهورية مصر العربية",
+    city: "القاهرة",
+    district: "التجمع الخامس",
+    street: "شارع التسعين الجنوبي، مجمع الياسمين",
+    postalCode: "11835",
+    isDefault: true,
+  },
+  {
+    id: "addr_2",
+    title: "مكتب الإسكندرية",
+    recipientName: "أحمد مصطفى العربي",
+    phone: "+201298765432",
+    country: "جمهورية مصر العربية",
+    city: "الإسكندرية",
+    district: "سموحة",
+    street: "طريق 14 مايو، برج الصفوة",
+    postalCode: "21615",
+    isDefault: false,
+  },
+  {
+    id: "addr_3",
+    title: "فرع الرياض",
+    recipientName: "أحمد مصطفى العربي",
     phone: "+966501234567",
     country: "المملكة العربية السعودية",
     city: "الرياض",
     district: "حي النرجس",
     street: "طريق عثمان بن عفان، فيلا 18",
     postalCode: "13324",
-    isDefault: true,
-  },
-  {
-    id: "addr_2",
-    title: "مكتب العمل - دبي",
-    recipientName: "سعد بن محمد القحطاني",
-    phone: "+971509876543",
-    country: "الإمارات العربية المتحدة",
-    city: "دبي",
-    district: "الخليج التجاري (Business Bay)",
-    street: "برج إيريس باي، الطابق 12",
-    postalCode: "00000",
     isDefault: false,
   },
 ];
 
 export const INITIAL_COUPONS: Coupon[] = [
+  {
+    code: "MASR10",
+    discountType: "percentage",
+    discountValue: 10,
+    description: { ar: "خصم 10% ترحيبي لعملاء السوق المصري", en: "10% off for Egypt customers" },
+  },
+  {
+    code: "CAIRO50",
+    discountType: "fixed",
+    discountValue: 50,
+    minOrderAmount: 250,
+    description: { ar: "خصم 50 ر.س / 650 ج.م للطلبات فوق 250", en: "50 discount on orders above 250" },
+  },
   {
     code: "BAX10",
     discountType: "percentage",
@@ -256,6 +283,46 @@ export const INITIAL_REVIEWS: Review[] = [
 ];
 
 export const INITIAL_STORES: StoreInfo[] = [
+  {
+    id: "seller_cairo_tech",
+    name: "Cairo Techno - تكنو القاهرة",
+    owner: "محمود الشربيني",
+    email: "cairo.tech@bax.market",
+    phone: "+201001234567",
+    category: "إلكترونيات",
+    isVerified: true,
+    status: "active",
+    productsCount: 24,
+    totalSales: 125000,
+    createdAt: "2026-01-10",
+    city: "القاهرة",
+    country: "جمهورية مصر العربية",
+    rating: 4.9,
+    bio: {
+      ar: "الموزع الأول للأجهزة الذكية والإلكترونيات الأصلية في مصر مع ضمان الوكيل المعتمد وشحن فوري لجميع المحافظات.",
+      en: "Premier distributor of authentic smart devices and consumer electronics across Egypt with authorized warranty.",
+    },
+  },
+  {
+    id: "seller_nile_cotton",
+    name: "Nile Cotton - قطن النيل الفاخر",
+    owner: "شريف عبدالسلام",
+    email: "cotton@bax.market",
+    phone: "+201209876543",
+    category: "أزياء",
+    isVerified: true,
+    status: "active",
+    productsCount: 16,
+    totalSales: 78000,
+    createdAt: "2026-01-22",
+    city: "الإسكندرية",
+    country: "جمهورية مصر العربية",
+    rating: 4.9,
+    bio: {
+      ar: "منسوجات وأزياء قطنية مصرية 100% طويلة التيلة فائقة النعومة والجودة المصدرة لأرقى بيوت الأزياء العالمية.",
+      en: "100% pure Egyptian extra-long staple cotton textiles, linens, and apparel of world-renowned luxury.",
+    },
+  },
   {
     id: "seller_techhub",
     name: "TechHub Store",
@@ -458,6 +525,40 @@ export const INITIAL_PRODUCTS: Product[] = [
       en: "Flexible responsive air cushioning sole with breathable mesh upper, engineered for marathon runners and fitness.",
     },
   },
+  {
+    id: "7",
+    name: { ar: "طقم مفروشات سرير قطن مصري 100% طويل التيلة فاخر", en: "Luxury 100% Egyptian Long-Staple Cotton Bedding Set" },
+    category: { ar: "أزياء", en: "Fashion" },
+    price: 490,
+    oldPrice: 650,
+    rating: 4.9,
+    reviews: 620,
+    image: p4,
+    seller: "Nile Cotton - قطن النيل الفاخر",
+    sellerId: "seller_nile_cotton",
+    stock: 40,
+    desc: {
+      ar: "مفروشات سرير مصنوعة من أجود أنواع القطن المصري الأصيل طويل التيلة بكثافة 600 خيط لنعومة فائقة وبرودة وانتعاش دائم.",
+      en: "Luxurious 600-thread count 100% authentic Egyptian long-staple cotton sheets, naturally breathable and extraordinarily soft.",
+    },
+  },
+  {
+    id: "8",
+    name: { ar: "منصة شحن لاسلكي 3 في 1 السريعة للأجهزة الذكية", en: "3-in-1 Fast Wireless Charging Station" },
+    category: { ar: "إلكترونيات", en: "Electronics" },
+    price: 340,
+    oldPrice: 420,
+    rating: 4.7,
+    reviews: 480,
+    image: p3,
+    seller: "Cairo Techno - تكنو القاهرة",
+    sellerId: "seller_cairo_tech",
+    stock: 55,
+    desc: {
+      ar: "شاحن مكتبي متعدد لشحن الهواتف الذكية وساعات اليد والسماعات اللاسلكية معاً بسرعة 15 واط مع شريحة حماية حرارية ذكية.",
+      en: "Multi-device wireless dock charging phone, smartwatch, and earbuds simultaneously with 15W intelligent safety.",
+    },
+  },
 ];
 
 export const PRODUCTS = INITIAL_PRODUCTS;
@@ -479,15 +580,15 @@ export function getProductById(id: string): Product | undefined {
 const T = {
   ar: {
     brandName: "باكس",
-    brandTag: "سوقك الخليجي الشامل",
-    search: "ابحث في ملايين المنتجات، الماركات، والتجار على باكس...",
+    brandTag: "سوق مصر والخليج العربي الأول 🇪🇬 🇸🇦",
+    search: "ابحث في ملايين المنتجات، الماركات والتجار في مصر والخليج...",
     searchButton: "بحث",
     cart: "عربة التسوق",
     sell: "مركز البائعين",
     sellCta: "بِع على باكس",
     admin: "إدارة المنصة",
-    heroTitle: "كل ما تحتاجه، من آلاف التجار في سوق واحد",
-    heroSub: "أكبر منصة تجارة إلكترونية متعددة التجار في الخليج العربي. منتجات أصلية، توصيل سريع، وضمان ذهبي.",
+    heroTitle: "كل ما تحتاجه، من أكبر متاجر مصر والخليج في منصة واحدة",
+    heroSub: "سوقك الإلكتروني الشامل في جمهورية مصر العربية ودول الخليج. منتجات أصلية، دفع بالجنيه والريال وكافة الطرق المحلية، شحن فوري وضمان ذهبي.",
     shop: "تسوق العروض المميزة",
     deals: "عروض وصفقات اليوم المختارة",
     add: "أضف للسلة",
@@ -525,26 +626,26 @@ const T = {
     inWishlist: "في المفضلة",
     features: {
       fastDelivery: "توصيل سريع وآمن",
-      fastDeliveryDesc: "شحن لجميع مدن الخليج خلال 24 - 48 ساعة",
+      fastDeliveryDesc: "شحن لجميع محافظات مصر والخليج العربي خلال 24 - 48 ساعة",
       genuine: "منتجات أصلية 100%",
       genuineDesc: "ضمان استرداد الأموال وفحص جودة صارم",
       securePay: "دفع إلكتروني موثوق",
-      securePayDesc: "مدى، فيزا، ماستركارد، Apple Pay والدفع عند الاستلام",
+      securePayDesc: "فوري، محافظ كاش، ميزة، مدى، فيزا، والدفع عند الاستلام",
       support: "خدمة عملاء على مدار الساعة",
       supportDesc: "فريق دعم مخصص لخدمة المشترين والتجار",
     },
   },
   en: {
     brandName: "BAX",
-    brandTag: "Gulf's Premier Marketplace",
-    search: "Search millions of products, brands and sellers on BAX...",
+    brandTag: "Egypt & Gulf Premier Marketplace 🇪🇬 🇸🇦",
+    search: "Search millions of Egyptian & Gulf products, brands and sellers...",
     searchButton: "Search",
     cart: "Cart",
     sell: "Seller Central",
     sellCta: "Sell on BAX",
     admin: "Admin Console",
-    heroTitle: "Everything You Need, From Thousands of Sellers",
-    heroSub: "The premier multi-vendor e-commerce platform across the Arabian Gulf. Authentic items, rapid delivery & buyer guarantee.",
+    heroTitle: "Everything You Need, From Top Egypt & Gulf Sellers",
+    heroSub: "The premier multi-vendor e-commerce platform connecting Egypt and the GCC. 100% authentic items, local payments, rapid delivery & buyer guarantee.",
     shop: "Shop Featured Deals",
     deals: "Today's Top Deals & Offers",
     add: "Add to Cart",
@@ -582,11 +683,11 @@ const T = {
     inWishlist: "Saved in Wishlist",
     features: {
       fastDelivery: "Fast & Safe Delivery",
-      fastDeliveryDesc: "Express shipping across the Gulf within 24 - 48 hrs",
+      fastDeliveryDesc: "Express shipping across Egyptian governorates and the GCC within 24 - 48 hrs",
       genuine: "100% Authentic Guarantee",
       genuineDesc: "Money-back guarantee & strict quality inspection",
       securePay: "Secure Seamless Payments",
-      securePayDesc: "Mada, Visa, Mastercard, Apple Pay & Cash on Delivery",
+      securePayDesc: "Fawry, Mobile Wallets, Meeza, Mada, Visa, Apple Pay & Cash on Delivery",
       support: "24/7 Dedicated Support",
       supportDesc: "Specialized assistance for both buyers and merchants",
     },
@@ -653,7 +754,7 @@ const StoreCtx = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("ar");
-  const [currency, setCurrency] = useState<Currency>("SAR");
+  const [currency, setCurrency] = useState<Currency>("EGP");
   const [cart, setCart] = useState<Record<string, number>>({});
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [searchQuery, setSearchQuery] = useState("");
@@ -674,6 +775,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const storedNotifs = localStorage.getItem("bax-notifications");
       if (storedNotifs) setNotifications(JSON.parse(storedNotifs));
+
+      const storedCur = localStorage.getItem("bax-currency");
+      if (storedCur) setCurrency(storedCur as Currency);
 
       const storedAddresses = localStorage.getItem("bax-addresses");
       if (storedAddresses) setAddresses(JSON.parse(storedAddresses));
@@ -1082,7 +1186,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const price = (sar: number) => {
     const v = sar * (RATES[currency] || 1);
     const fractionDigits = currency === "KWD" || currency === "BHD" || currency === "OMR" ? 3 : 0;
-    return new Intl.NumberFormat(lang === "ar" ? "ar-SA" : "en-US", {
+    const locale = lang === "ar" ? (currency === "EGP" ? "ar-EG" : "ar-SA") : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       maximumFractionDigits: fractionDigits,

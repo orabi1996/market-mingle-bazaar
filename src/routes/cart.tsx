@@ -62,9 +62,10 @@ function Cart() {
   const [customerName, setCustomerName] = useState(user?.name || defaultAddr?.recipientName || "");
   const [customerPhone, setCustomerPhone] = useState(user?.phone || defaultAddr?.phone || "");
   const [customerAddress, setCustomerAddress] = useState(defaultAddr ? `${defaultAddr.street}، ${defaultAddr.district}` : "");
-  const [city, setCity] = useState(defaultAddr?.city || "الرياض");
-  const [country, setCountry] = useState(defaultAddr?.country || "المملكة العربية السعودية");
-  const [paymentMethod, setPaymentMethod] = useState("مدى / بطاقة بنكية (Mada)");
+  const [city, setCity] = useState(defaultAddr?.city || "القاهرة");
+  const [country, setCountry] = useState(defaultAddr?.country || "جمهورية مصر العربية");
+  const [paymentMethod, setPaymentMethod] = useState("فودافون كاش / إنستاباي (Vodafone Cash / InstaPay)");
+  const [walletNumber, setWalletNumber] = useState("01012345678");
 
   // Simulated Card Payment Inputs
   const [cardNumber, setCardNumber] = useState("4111 •••• •••• 9821");
@@ -461,15 +462,21 @@ function Cart() {
                     onChange={(e) => setCity(e.target.value)}
                     className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none"
                   >
-                    <option value="الرياض">الرياض</option>
-                    <option value="جدة">جدة</option>
-                    <option value="الدمام">الدمام</option>
-                    <option value="دبي">دبي</option>
-                    <option value="أبوظبي">أبوظبي</option>
-                    <option value="الكويت">الكويت</option>
-                    <option value="الدوحة">الدوحة</option>
-                    <option value="المنامة">المنامة</option>
-                    <option value="مسقط">مسقط</option>
+                    <option value="القاهرة">القاهرة (Cairo)</option>
+                    <option value="الجيزة">الجيزة (Giza)</option>
+                    <option value="الإسكندرية">الإسكندرية (Alexandria)</option>
+                    <option value="المنصورة">المنصورة (Mansoura)</option>
+                    <option value="طنطا">طنطا (Tanta)</option>
+                    <option value="بورسعيد">بورسعيد (Port Said)</option>
+                    <option value="الرياض">الرياض (Riyadh)</option>
+                    <option value="جدة">جدة (Jeddah)</option>
+                    <option value="الدمام">الدمام (Dammam)</option>
+                    <option value="دبي">دبي (Dubai)</option>
+                    <option value="أبوظبي">أبوظبي (Abu Dhabi)</option>
+                    <option value="الكويت">الكويت (Kuwait)</option>
+                    <option value="الدوحة">الدوحة (Doha)</option>
+                    <option value="المنامة">المنامة (Manama)</option>
+                    <option value="مسقط">مسقط (Muscat)</option>
                   </select>
 
                   <select
@@ -477,12 +484,49 @@ function Cart() {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none font-medium"
                   >
+                    <option value="فودافون كاش / إنستاباي (Vodafone Cash / InstaPay)">فودافون كاش / إنستاباي</option>
+                    <option value="فوري / بطاقة ميزة (Fawry / Meeza)">فوري / ميزة (Fawry / Meeza)</option>
                     <option value="مدى / بطاقة بنكية (Mada)">مدى (Mada)</option>
                     <option value="Apple Pay">Apple Pay</option>
-                    <option value="فيزا / ماستركارد">فيزا / ماستركارد</option>
-                    <option value="الدفع عند الاستلام">الدفع عند الاستلام</option>
+                    <option value="فيزا / ماستركارد">فيزا / ماستركارد (Visa / Master)</option>
+                    <option value="تمارا / تابي بالتقسيط">تمارا / تابي بالتقسيط</option>
+                    <option value="الدفع عند الاستلام">الدفع عند الاستلام (COD)</option>
                   </select>
                 </div>
+
+                {/* Simulated Vodafone Cash / InstaPay Input */}
+                {paymentMethod.includes("فودافون") && (
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1.5 mt-2 text-xs">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                      <span>📱 فودافون كاش / المحافظ الإلكترونية / إنستاباي</span>
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    </div>
+                    <input
+                      type="tel"
+                      value={walletNumber}
+                      onChange={(e) => setWalletNumber(e.target.value)}
+                      placeholder="رقم المحفظة (010xxxxxxx) أو معرف InstaPay IPA"
+                      className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono outline-none"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      سيصلك طلب تأكيد الدفع الفوري على محفظتك لإتمام المعاملة بأمان.
+                    </p>
+                  </div>
+                )}
+
+                {/* Simulated Fawry Ref Code */}
+                {paymentMethod.includes("فوري") && (
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 space-y-1.5 mt-2 text-xs">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                      <span>⚡ الدفع عبر منافذ فوري (Fawry Pay)</span>
+                      <span className="font-mono bg-amber-500/20 px-2 py-0.5 rounded text-amber-800 dark:text-amber-300 font-bold">FAWRY</span>
+                    </div>
+                    <div className="rounded border border-amber-200 bg-background p-2 text-center">
+                      <span className="text-[10px] text-muted-foreground block">رقم الدفع المرجعي بفوري (صالح 48 ساعة):</span>
+                      <span className="font-mono text-sm font-black tracking-wider text-amber-600">849 201 992</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Simulated Interactive Card Input for Mada / Visa */}
                 {(paymentMethod.includes("مدى") || paymentMethod.includes("فيزا")) && (

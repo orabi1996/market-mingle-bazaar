@@ -77,17 +77,17 @@ export function Header() {
               BAX<span className="text-gold text-sm font-normal ms-1">.market</span>
             </span>
             <span className="text-[10px] text-white/70 tracking-widest hidden sm:inline">
-              {lang === "ar" ? "سوق الخليج الشامل" : "GULF MARKETPLACE"}
+              {lang === "ar" ? "سوق مصر والخليج الشامل" : "EGYPT & GULF MARKETPLACE"}
             </span>
           </div>
         </Link>
 
-        {/* Gulf Delivery Badge (Desktop) */}
+        {/* Egypt & Gulf Delivery Badge (Desktop) */}
         <div className="hidden lg:flex items-center gap-1.5 text-xs text-white/80 border-s border-white/15 ps-4">
           <MapPin className="h-4 w-4 text-gold shrink-0" />
           <div className="leading-tight">
             <div className="text-[10px] text-white/60">{lang === "ar" ? "التوصيل إلى" : "Deliver to"}</div>
-            <div className="font-bold text-white">{lang === "ar" ? "المملكة والخليج" : "Saudi & Gulf"}</div>
+            <div className="font-bold text-white">{lang === "ar" ? "مصر ودول الخليج 🇪🇬 🇸🇦" : "Egypt & Gulf 🇪🇬 🇸🇦"}</div>
           </div>
         </div>
 

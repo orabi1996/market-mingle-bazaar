@@ -128,7 +128,7 @@ function RootComponent() {
                 <span className="font-display text-lg font-black tracking-tight text-white">BAX<span className="text-gold">.market</span></span>
               </div>
               <p className="text-white/70 leading-relaxed">
-                سوق التجارة الإلكترونية الشامل للخليج العربي. يجمع بين كبرى المتاجر والتجار المعتمدين والمشترين في بيئة آمنة وتوصيل فائق السرعة.
+                سوق التجارة الإلكترونية الشامل لجمهورية مصر العربية ودول الخليج. يجمع بين كبرى المتاجر والتجار المعتمدين والمشترين في بيئة آمنة وتوصيل فائق السرعة.
               </p>
             </div>
 
@@ -158,7 +158,7 @@ function RootComponent() {
               <p className="text-white/70 leading-relaxed mb-3">
                 جميع المنتجات معتمدة وتخضع لفحص الجودة، مع ضمان استرجاع الأموال خلال 14 يوماً ودعم فني على مدار الساعة.
               </p>
-              <div className="font-mono text-gold font-bold">Gulf Express • 2026</div>
+              <div className="font-mono text-gold font-bold">Egypt & Gulf Express • 2026</div>
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-white/10 text-center text-white/60 text-[11px]">

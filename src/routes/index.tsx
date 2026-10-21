@@ -288,8 +288,8 @@ function Index() {
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               {lang === "ar"
-                ? "تسوّق مباشرة من كبرى المتاجر الرسمية والتجار المعتمدين في الخليج بضمان كامل"
-                : "Shop directly from verified brand boutiques and trusted Gulf merchants"}
+                ? "تسوّق مباشرة من كبرى المتاجر الرسمية والتجار المعتمدين في مصر والخليج بضمان كامل"
+                : "Shop directly from verified brand boutiques across Egypt & the Gulf"}
             </p>
           </div>
 
@@ -374,8 +374,8 @@ function Index() {
             </h3>
             <p className="mt-2 text-sm text-white/80 leading-relaxed">
               {lang === "ar"
-                ? "انضم لآلاف التجار في الخليج وافتح متجرك مجاناً في باكس. استفد من شبكة عملائنا الواسعة وأدوات إدارة المنتجات والمخزون."
-                : "Join thousands of Gulf merchants on BAX. Leverage our expansive customer base and powerful merchant tooling."}
+                ? "انضم لآلاف التجار في مصر والخليج وافتح متجرك مجاناً في باكس. استفد من شبكة عملائنا الواسعة وأدوات إدارة المنتجات والمخزون."
+                : "Join thousands of merchants across Egypt & the Gulf on BAX. Leverage our expansive customer base and powerful merchant tooling."}
             </p>
           </div>
           <Link
