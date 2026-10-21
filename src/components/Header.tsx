@@ -16,6 +16,7 @@ import {
   CheckCheck,
   Trash2,
   LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -216,6 +217,15 @@ export function Header() {
                     </Link>
                   )}
 
+                  <Link
+                    to="/help"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5 text-gold" />
+                    <span>{lang === "ar" ? "مركز المساعدة والضمان" : "Help & Warranty"}</span>
+                  </Link>
+
                   <div className="pt-1 border-t border-border mt-1">
                     <button
                       onClick={() => {
@@ -388,7 +398,14 @@ export function Header() {
             );
           })}
 
-          <div className="ms-auto flex items-center gap-4 text-gold shrink-0">
+          <div className="ms-auto flex items-center gap-3 text-gold shrink-0">
+            <Link
+              to="/help"
+              className="hidden md:flex items-center gap-1 text-[11px] text-white/80 hover:text-gold transition font-medium"
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-gold" />
+              <span>{lang === "ar" ? "خدمة العملاء والضمان" : "Help & Support"}</span>
+            </Link>
             <span className="flex items-center gap-1 font-semibold text-white/90">
               <Sparkles className="h-3.5 w-3.5 text-gold" />
               {t.freeShipping}

@@ -140,6 +140,7 @@ function RootComponent() {
                 <li><Link to="/cart" className="hover:text-gold transition">عربة التسوق والطلبات</Link></li>
                 <li><Link to="/orders" className="hover:text-gold transition">تتبع الشحنات والطلبات</Link></li>
                 <li><Link to="/wishlist" className="hover:text-gold transition">قائمة الأمنيات والمحفوظات</Link></li>
+                <li><Link to="/help" className="hover:text-gold transition">مركز المساعدة والدعم الفني</Link></li>
               </ul>
             </div>
 
@@ -158,6 +159,9 @@ function RootComponent() {
               <p className="text-white/70 leading-relaxed mb-3">
                 جميع المنتجات معتمدة وتخضع لفحص الجودة، مع ضمان استرجاع الأموال خلال 14 يوماً ودعم فني على مدار الساعة.
               </p>
+              <Link to="/help" className="inline-block mb-3 rounded-lg border border-gold/40 bg-gold/15 px-3 py-1 text-xs text-gold font-bold hover:bg-gold/25 transition">
+                مركز الضمان والاسترجاع ↗
+              </Link>
               <div className="font-mono text-gold font-bold">Egypt & Gulf Express • 2026</div>
             </div>
           </div>
