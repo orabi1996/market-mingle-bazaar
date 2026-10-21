@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as DealsRouteImport } from './routes/deals'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -33,6 +34,11 @@ const AdminRoute = AdminRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DealsRoute = DealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
+  '/deals': typeof DealsRoute
   '/help': typeof HelpRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
+  '/deals': typeof DealsRoute
   '/help': typeof HelpRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
+  '/deals': typeof DealsRoute
   '/help': typeof HelpRoute
   '/orders': typeof OrdersRoute
   '/profile': typeof ProfileRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/deals'
     | '/help'
     | '/orders'
     | '/profile'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/deals'
     | '/help'
     | '/orders'
     | '/profile'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cart'
+    | '/deals'
     | '/help'
     | '/orders'
     | '/profile'
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   CartRoute: typeof CartRoute
+  DealsRoute: typeof DealsRoute
   HelpRoute: typeof HelpRoute
   OrdersRoute: typeof OrdersRoute
   ProfileRoute: typeof ProfileRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deals': {
+      id: '/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof DealsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help': {
@@ -239,6 +259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   CartRoute: CartRoute,
+  DealsRoute: DealsRoute,
   HelpRoute: HelpRoute,
   OrdersRoute: OrdersRoute,
   ProfileRoute: ProfileRoute,

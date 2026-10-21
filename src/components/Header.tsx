@@ -17,6 +17,7 @@ import {
   Trash2,
   LogOut,
   HelpCircle,
+  Flame,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -381,6 +382,13 @@ export function Header() {
       {/* Secondary Bar: Categories Navigation (Amazon-style) */}
       <div className="border-t border-white/15 bg-primary/95 text-xs">
         <div className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto px-4 py-1.5 no-scrollbar">
+                    <Link
+            to="/deals"
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-md bg-rose-600/90 hover:bg-rose-600 px-3 py-1 font-bold text-white transition shadow-2xs me-1"
+          >
+            <Flame className="h-3.5 w-3.5 text-gold fill-gold" />
+            <span>{lang === "ar" ? "عروض اليوم الكبرى 🔥" : "Today's Deals 🔥"}</span>
+          </Link>
           {categories.map((cat) => {
             const isActive = selectedCategory === cat.id;
             return (
@@ -424,6 +432,14 @@ export function Header() {
           >
             <Store className="h-4 w-4" />
             <span>{t.sell} ({t.sellerDashboard})</span>
+          </Link>
+                    <Link
+            to="/deals"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 py-2 font-bold text-rose-300 border-b border-white/10"
+          >
+            <Flame className="h-4 w-4 text-gold fill-gold" />
+            <span>{lang === "ar" ? "عروض اليوم والصفقات الخاطفة 🔥" : "Today's Deals"}</span>
           </Link>
           <div className="py-2 text-xs font-semibold text-white/60">{t.categories}</div>
           <div className="grid grid-cols-2 gap-2">

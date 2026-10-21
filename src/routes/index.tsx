@@ -115,12 +115,13 @@ function Index() {
               {t.heroSub}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#products"
-                className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-md transition hover:bg-primary/90"
+              <Link
+                to="/deals"
+                className="rounded-xl bg-gold px-6 py-3 text-sm font-black text-gold-foreground shadow-md transition hover:opacity-90 flex items-center gap-1.5"
               >
-                {t.shop}
-              </a>
+                <Flame className="h-4 w-4 fill-gold-foreground" />
+                <span>{lang === "ar" ? "عروض اليوم والصفقات الكبرى 🔥" : "Today's Flash Deals 🔥"}</span>
+              </Link>
               <Link
                 to="/sell"
                 className="rounded-xl border border-input bg-card/90 backdrop-blur-xs px-6 py-3 text-sm font-bold text-foreground shadow-xs transition hover:bg-muted"
@@ -175,6 +176,80 @@ function Index() {
                 <p className="text-[11px] text-muted-foreground">{t.features.supportDesc}</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Flash Deals Spotlight on Home */}
+      <section className="bg-sand/30 border-b border-border py-8">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white shadow-xs">
+                <Flame className="h-5 w-5 fill-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-black text-foreground">
+                    {lang === "ar" ? "عروض اليوم والصفقات الخاطفة" : "Today's Flash Deals"}
+                  </h3>
+                  <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-600">
+                    خصم حتى 50%
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {lang === "ar"
+                    ? "أفضل الصفقات اليومية المحدثة في مصر والخليج العربي مع شحن سريع مجاني."
+                    : "Top deals updated daily with free express shipping."}
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to="/deals"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-card border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-muted hover:border-gold/50 transition w-fit"
+            >
+              <span>{lang === "ar" ? "تصفح جميع العروض (صفحة الصفقات)" : "View All Deals"}</span>
+              <ArrowRight className="h-3.5 w-3.5 text-gold rtl:rotate-180" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {products
+              .filter((p) => p.oldPrice && p.oldPrice > p.price)
+              .slice(0, 4)
+              .map((deal) => {
+                const discount = deal.oldPrice ? Math.round(((deal.oldPrice - deal.price) / deal.oldPrice) * 100) : 0;
+                return (
+                  <Link
+                    key={deal.id}
+                    to="/product/$id"
+                    params={{ id: deal.id }}
+                    className="group rounded-2xl border border-border bg-card p-3 shadow-2xs hover:shadow-md hover:border-gold/50 transition flex flex-col"
+                  >
+                    <div className="relative aspect-square overflow-hidden rounded-xl bg-secondary mb-2.5">
+                      <img
+                        src={deal.image}
+                        alt=""
+                        className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                      <span className="absolute top-2 start-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-black text-white">
+                        -{discount}%
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">{deal.seller}</span>
+                    <h4 className="font-bold text-xs text-foreground line-clamp-1 group-hover:text-primary mt-0.5">
+                      {deal.name[lang] || deal.name.ar}
+                    </h4>
+                    <div className="mt-2 flex items-baseline gap-1.5">
+                      <span className="font-black text-sm text-primary">{price(deal.price)}</span>
+                      {deal.oldPrice && (
+                        <span className="text-[11px] text-muted-foreground line-through">{price(deal.oldPrice)}</span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
           </div>
         </div>
       </section>
