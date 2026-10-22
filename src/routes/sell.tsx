@@ -204,7 +204,7 @@ function SellerCenter() {
   if (!isSeller) {
     // Non-seller view: Landing Page to Join as Seller
     return (
-      <main className="mx-auto max-w-5xl px-4 py-12">
+      <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-12 py-12">
         <div className="rounded-3xl bg-linear-to-r from-primary to-primary/90 p-8 md:p-14 text-white shadow-xl relative overflow-hidden">
           <div className="relative z-10 max-w-2xl">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-4">
@@ -326,7 +326,7 @@ function SellerCenter() {
 
   // Active Seller Dashboard
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8">
+    <main className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       {/* Top Banner: Store Status & Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card border border-border p-5 shadow-xs">
         <div className="flex items-center gap-3">

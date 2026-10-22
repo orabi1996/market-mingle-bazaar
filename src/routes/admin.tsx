@@ -80,7 +80,7 @@ function AdminConsole() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8">
+    <main className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       {/* Admin Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-card border border-border p-6 shadow-xs">
         <div className="flex items-center gap-3">

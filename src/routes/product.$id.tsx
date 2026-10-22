@@ -109,7 +109,7 @@ function ProductPage() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
+    <main className="mx-auto max-w-[1680px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       {/* Breadcrumb navigation */}
       <div className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
         <Link to="/" className="hover:text-primary">{lang === "ar" ? "الرئيسية" : "Home"}</Link>
@@ -119,9 +119,9 @@ function ProductPage() {
         <span className="text-foreground line-clamp-1">{p.name[lang]}</span>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid gap-12 lg:grid-cols-12 items-start">
         {/* Product Media & Interactive Gallery */}
-        <div className="flex flex-col gap-3">
+        <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-4">
           <div className="relative overflow-hidden rounded-3xl bg-card border border-border p-4 shadow-xs">
             <img
               src={selectedImage}
@@ -159,7 +159,7 @@ function ProductPage() {
         </div>
 
         {/* Product Details & Purchase Box */}
-        <div className="flex flex-col gap-4">
+        <div className="lg:col-span-6 xl:col-span-5 flex flex-col gap-5 sticky top-24">
           <div>
             <span className="inline-block rounded-md bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
               {p.category[lang]}

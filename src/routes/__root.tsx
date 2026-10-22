@@ -126,7 +126,7 @@ function RootComponent() {
         <AuthModal />
         <LiveChatWidget />
         <footer className="mt-20 border-t border-border bg-primary text-primary-foreground py-12">
-          <div className="mx-auto max-w-7xl px-4 grid gap-8 md:grid-cols-4 text-xs">
+          <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 grid gap-8 md:grid-cols-4 text-xs">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold text-primary font-black text-sm">S</span>

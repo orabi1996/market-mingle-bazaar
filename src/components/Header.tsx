@@ -59,8 +59,29 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
+      {/* Top Flash Announcement Ticker Bar */}
+      <div className="bg-primary/90 border-b border-white/10 py-1.5 text-[11px] text-white/90">
+        <div className="mx-auto flex max-w-[1720px] items-center justify-between px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
+            <span className="font-black text-gold">🇪🇬 منصة سوقلي:</span>
+            <span>شحن سريع مجاني لجميع المحافظات المصرية للطلبات فوق 250 ج.م</span>
+            <span className="text-white/40 hidden sm:inline">•</span>
+            <span className="hidden sm:inline">كوبون خصم إضافي: <b className="text-gold font-mono">MASR10</b></span>
+            <span className="text-white/40 hidden md:inline">•</span>
+            <span className="hidden md:inline">دفع إلكتروني لحظي عبر إنستاباي، فودافون كاش، وكروت ميزة</span>
+          </div>
+          <div className="hidden lg:flex items-center gap-3 shrink-0 text-white/80">
+            <Link to="/orders" className="hover:text-gold transition">تتبع شحنتك ↗</Link>
+            <span>•</span>
+            <Link to="/deals" className="hover:text-gold transition text-rose-300 font-bold">عروض اليوم 🔥</Link>
+            <span>•</span>
+            <Link to="/sell" className="hover:text-gold transition font-bold text-gold">سجل كبائع معتمد 🛡️</Link>
+          </div>
+        </div>
+      </div>
+
       {/* Top Main Navigation Bar */}
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 md:gap-6">
+      <div className="mx-auto flex max-w-[1720px] items-center gap-3 px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 md:gap-6">
         {/* Mobile menu trigger */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -379,7 +400,7 @@ export function Header() {
 
       {/* Secondary Bar: Categories Navigation (Amazon-style) */}
       <div className="border-t border-white/15 bg-primary/95 text-xs">
-        <div className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto px-4 py-1.5 no-scrollbar">
+        <div className="mx-auto flex max-w-[1720px] items-center gap-1.5 overflow-x-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-1.5 no-scrollbar">
                     <Link
             to="/deals"
             className="flex items-center gap-1.5 whitespace-nowrap rounded-md bg-rose-600/90 hover:bg-rose-600 px-3 py-1 font-bold text-white transition shadow-2xs me-1"

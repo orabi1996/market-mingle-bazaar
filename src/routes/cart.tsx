@@ -223,7 +223,7 @@ function Cart() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
+    <main className="mx-auto max-w-[1680px] px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
       <h1 className="mb-6 text-2xl md:text-3xl font-black flex items-center gap-2">
         <ShoppingBag className="h-7 w-7 text-gold" />
         {t.cart} ({Object.values(cart).reduce((a, b) => a + b, 0)})
@@ -243,9 +243,9 @@ function Cart() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-12 items-start">
           {/* Cart Items List */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-7 xl:col-span-8 space-y-4">
             {/* Free shipping & Governorates logistics banner */}
             <div className="rounded-xl bg-secondary/50 p-3.5 text-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-bold">
@@ -405,7 +405,7 @@ function Cart() {
           </div>
 
           {/* Checkout & Summary Sidebar */}
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs h-fit">
+          <div className="lg:col-span-5 xl:col-span-4 rounded-3xl border border-border bg-card p-6 shadow-sm h-fit sticky top-28">
             <h3 className="text-base font-bold pb-3 border-b border-border">
               {lang === "ar" ? "ملخص الفاتورة" : "Order Summary"}
             </h3>

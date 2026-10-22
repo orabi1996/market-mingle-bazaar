@@ -108,7 +108,7 @@ function DealsPage() {
   });
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8">
+    <main className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       {/* Toast Notification */}
       {addedToast && (
         <div className="fixed bottom-6 start-6 z-50 flex items-center gap-2 rounded-xl bg-foreground px-4 py-3 text-xs font-bold text-background shadow-2xl animate-in fade-in slide-in-from-bottom-2">
@@ -296,7 +296,7 @@ function DealsPage() {
       </div>
 
       {/* Deals Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5">
         {dealsProducts.map((p) => {
           const discountPercent = p.oldPrice ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
           const claimedPercent = Math.min(92, 55 + (Number(p.id) * 7) % 35);

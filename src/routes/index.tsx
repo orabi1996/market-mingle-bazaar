@@ -102,7 +102,7 @@ function Index() {
           className="absolute inset-0 h-full w-full object-cover ltr:scale-x-[-1] opacity-90"
         />
         <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/70 to-transparent"></div>
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-28">
+        <div className="relative mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 py-16 md:py-28">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/25 px-3 py-1 text-xs font-bold text-foreground mb-4">
               <Sparkles className="h-4 w-4 text-gold" />
@@ -135,7 +135,7 @@ function Index() {
 
       {/* Trust & Guarantee Badges Bar */}
       <section className="border-y border-border bg-card py-6">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -182,7 +182,7 @@ function Index() {
 
       {/* Flash Deals Spotlight on Home */}
       <section className="bg-sand/30 border-b border-border py-8">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white shadow-xs">
@@ -214,7 +214,7 @@ function Index() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {products
               .filter((p) => p.oldPrice && p.oldPrice > p.price)
               .slice(0, 4)
@@ -255,7 +255,7 @@ function Index() {
       </section>
 
       {/* Main Products Grid with Advanced Filter Bar */}
-      <section id="products" className="mx-auto max-w-7xl px-4 py-12">
+      <section id="products" className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 py-12">
         {/* Section Heading & Result Summary */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -345,7 +345,7 @@ function Index() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
             {filteredProducts.map((p) => (
               <ProductCard key={p.id} p={p} />
             ))}
@@ -354,7 +354,7 @@ function Index() {
       </section>
 
       {/* Featured Verified Stores Showcase */}
-      <section className="mx-auto max-w-7xl px-4 pb-16">
+      <section className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 pb-16">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
@@ -377,7 +377,7 @@ function Index() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           {stores.map((s) => {
             const storeProductCount = products.filter(
               (p) => p.sellerId === s.id || p.seller.toLowerCase() === s.name.toLowerCase()
@@ -437,7 +437,7 @@ function Index() {
       </section>
 
       {/* Seller Invitation Banner (Amazon Marketplace style) */}
-      <section className="mx-auto max-w-7xl px-4 pb-16">
+      <section className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 pb-16">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-linear-to-r from-primary to-primary/95 p-8 text-primary-foreground shadow-lg">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-1 rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-2">
