@@ -820,6 +820,27 @@ function SellerCenter() {
                       <p className="font-semibold text-sm mt-0.5">{o.customerName} ({o.customerPhone})</p>
                       <p className="text-xs text-muted-foreground">{o.customerAddress} - {o.city}، {o.country}</p>
                       <p className="text-xs text-muted-foreground mt-1">💳 {o.paymentMethod}</p>
+                      
+                      {/* Courier & AWB Information */}
+                      <div className="mt-2.5 rounded-lg border border-border bg-secondary/40 p-2 text-[11px] space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-foreground flex items-center gap-1">
+                            <Truck className="h-3 w-3 text-gold" />
+                            {o.courier || "بوسطة Bosta Express"}
+                          </span>
+                          <span className="text-muted-foreground font-mono">{o.estimatedDeliveryDate || "24-48 ساعة"}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-border/50">
+                          <span className="font-mono text-muted-foreground">AWB: <b className="text-foreground">{o.trackingNumber || `BST-EG-${o.id.replace('ORD-', '')}89`}</b></span>
+                          <button
+                            type="button"
+                            onClick={() => window.print()}
+                            className="text-primary hover:underline font-bold text-[10px] cursor-pointer"
+                          >
+                            طباعة البوليصة 🖨️
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
                     <div>
@@ -949,31 +970,37 @@ function SellerCenter() {
       {/* Tab 5: Financials & Payouts */}
       {activeTab === "payouts" && (
         <div className="mt-6 space-y-6">
-          {/* Financial summary banner */}
-          <div className="grid gap-4 md:grid-cols-3">
+          {/* Financial summary banner with Escrow Breakdown */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
-              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "الرصيد المتاح للسحب الفوري" : "Available Payout Balance"}</span>
-              <div className="mt-2 text-3xl font-black text-primary font-display">{price(totalRevenue * 0.9)}</div>
-              <span className="text-[11px] text-muted-foreground block mt-1">
-                {lang === "ar" ? "(صافي بعد خصم عمولة سوقلي 10%)" : "(Net after 10% platform fee)"}
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "إجمالي مبيعات المتجر (Gross)" : "Gross Store Sales"}</span>
+              <div className="mt-2 text-2xl font-black text-foreground font-display">{price(totalRevenue)}</div>
+              <span className="text-[10px] text-muted-foreground block mt-1">
+                {lang === "ar" ? "قبل خصم العمولات والضرائب" : "Before platform fees"}
               </span>
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
-              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "إجمالي الأرباح المحولة" : "Total Paid Out"}</span>
-              <div className="mt-2 text-3xl font-black text-emerald-600 font-display">
-                {price(sellerPayouts.reduce((sum, p) => sum + p.amount, 0))}
-              </div>
-              <span className="text-[11px] text-muted-foreground block mt-1">
-                {sellerPayouts.length} {lang === "ar" ? "عمليات تحويل مكتملة" : "completed payouts"}
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "الرصيد المتاح للسحب الفوري" : "Available for Instant Payout"}</span>
+              <div className="mt-2 text-2xl font-black text-emerald-600 font-display">{price(totalRevenue * 0.65)}</div>
+              <span className="text-[10px] text-emerald-600 font-bold block mt-1">
+                {lang === "ar" ? "جاهز للتحويل الفوري عبر إنستاباي" : "Ready for instant transfer"}
               </span>
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
-              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "دورة التحويل المالي" : "Payout Schedule"}</span>
-              <div className="mt-2 text-xl font-black text-foreground">{lang === "ar" ? "تحويل فوري ويومي" : "Instant Daily Payouts"}</div>
-              <span className="text-[11px] text-emerald-600 font-semibold block mt-1">
-                {lang === "ar" ? "✓ إنستاباي، فودافون كاش، وIBAN بنكي" : "✓ InstaPay, Vodafone Cash & IBAN"}
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "رصيد الأمان المعلق (Escrow Hold)" : "14-Day Escrow Hold"}</span>
+              <div className="mt-2 text-2xl font-black text-amber-600 font-display">{price(totalRevenue * 0.25)}</div>
+              <span className="text-[10px] text-muted-foreground block mt-1">
+                {lang === "ar" ? "فترة حماية المستهلك القانونية (14 يوماً)" : "Consumer Protection 14-day hold"}
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+              <span className="text-xs font-medium text-muted-foreground block">{lang === "ar" ? "عمولة منصة سوقلي (10%)" : "Souqly Commission (10%)"}</span>
+              <div className="mt-2 text-2xl font-black text-primary font-display">{price(totalRevenue * 0.1)}</div>
+              <span className="text-[10px] text-muted-foreground block mt-1">
+                {lang === "ar" ? "شاملة رسوم بوابات الدفع الإلكتروني" : "Includes gateway processing"}
               </span>
             </div>
           </div>

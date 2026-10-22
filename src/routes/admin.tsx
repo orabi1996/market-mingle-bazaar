@@ -18,6 +18,9 @@ import {
   Trash2,
   Lock,
   ArrowRight,
+  Truck,
+  MapPin,
+  Send,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
@@ -50,7 +53,7 @@ function AdminConsole() {
     reviewMerchantKyc,
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<"merchants" | "kyc" | "products" | "orders" | "financials">("merchants");
+  const [activeTab, setActiveTab] = useState<"merchants" | "kyc" | "logistics" | "products" | "orders" | "financials">("merchants");
   const [storeSearch, setStoreSearch] = useState("");
   const [commRateInput, setCommRateInput] = useState(commissionRate);
   const [savedSettingsToast, setSavedSettingsToast] = useState(false);
@@ -192,6 +195,18 @@ function AdminConsole() {
         >
           <Package className="h-4 w-4" />
           {lang === "ar" ? "كتالوج ورقابة المنتجات" : "Catalog & Moderation"} ({products.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("logistics")}
+          className={`flex items-center gap-2 pb-3 px-4 text-sm font-bold border-b-2 transition ${
+            activeTab === "logistics"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Truck className="h-4 w-4 text-gold" />
+          {lang === "ar" ? "مركز الشحن والمحافظات المصرية" : "Logistics Hub"}
         </button>
 
         <button

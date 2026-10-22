@@ -97,6 +97,88 @@ export type OrderItem = {
   seller: string;
 };
 
+export type ShippingZone = {
+  id: string;
+  name: { ar: string; en: string };
+  region: { ar: string; en: string };
+  governorates: string[];
+  baseFee: number;
+  freeThreshold: number;
+  eta: { ar: string; en: string };
+  courier: string;
+};
+
+export const SHIPPING_ZONES: ShippingZone[] = [
+  {
+    id: "zone_cairo",
+    name: { ar: "القاهرة الكبرى (القاهرة، الجيزة، القليوبية)", en: "Greater Cairo (Cairo, Giza, Qalyubia)" },
+    region: { ar: "القاهرة الكبرى", en: "Greater Cairo" },
+    governorates: ["القاهرة", "الجيزة", "القليوبية"],
+    baseFee: 35,
+    freeThreshold: 250,
+    eta: { ar: "خلال 24-48 ساعة", en: "24-48 Hours" },
+    courier: "بوسطة Bosta Express",
+  },
+  {
+    id: "zone_alex_canal",
+    name: { ar: "الإسكندرية والقناة (الإسكندرية، بورسعيد، السويس، الإسماعيلية)", en: "Alexandria & Canal Cities" },
+    region: { ar: "الإسكندرية والقناة", en: "Alexandria & Canal" },
+    governorates: ["الإسكندرية", "بورسعيد", "السويس", "الإسماعيلية"],
+    baseFee: 45,
+    freeThreshold: 350,
+    eta: { ar: "خلال 48-72 ساعة (2-3 أيام)", en: "2-3 Days" },
+    courier: "Mylerz Logistics",
+  },
+  {
+    id: "zone_delta",
+    name: { ar: "الدلتا والوجه البحري (المنصورة، طنطا، الزقازيق، المنوفية، دمياط)", en: "Nile Delta Governorates" },
+    region: { ar: "الدلتا والوجه البحري", en: "Nile Delta" },
+    governorates: ["الدقهلية (المنصورة)", "الغربية (طنطا)", "الشرقية (الزقازيق)", "المنوفية", "البحيرة", "دمياط", "كفر الشيخ"],
+    baseFee: 45,
+    freeThreshold: 350,
+    eta: { ar: "خلال 2-3 أيام", en: "2-3 Days" },
+    courier: "بوسطة Bosta Express",
+  },
+  {
+    id: "zone_upper_egypt",
+    name: { ar: "محافظات الصعيد (أسيوط، سوهاج، قنا، الأقصر، أسوان، الفيوم، بني سويف، المنيا)", en: "Upper Egypt Governorates" },
+    region: { ar: "محافظات الصعيد", en: "Upper Egypt" },
+    governorates: ["الفيوم", "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان"],
+    baseFee: 65,
+    freeThreshold: 500,
+    eta: { ar: "خلال 3-5 أيام", en: "3-5 Days" },
+    courier: "أرامكس Aramex Egypt",
+  },
+  {
+    id: "zone_border",
+    name: { ar: "المحافظات الحدودية والساحلية (الغردقة، شرم الشيخ، مطروح، الوادي الجديد)", en: "Red Sea & Frontier Governorates" },
+    region: { ar: "المحافظات الحدودية", en: "Frontier Regions" },
+    governorates: ["البحر الأحمر (الغردقة)", "جنوب سيناء (شرم الشيخ)", "شمال سيناء", "مرسى مطروح", "الوادي الجديد"],
+    baseFee: 85,
+    freeThreshold: 600,
+    eta: { ar: "خلال 4-6 أيام", en: "4-6 Days" },
+    courier: "أرامكس Aramex Egypt",
+  },
+  {
+    id: "zone_gulf",
+    name: { ar: "دول الخليج العربي (الرياض، جدة، دبي، أبوظبي، الكويت، الدوحة، المنامة، مسقط)", en: "GCC Gulf Express" },
+    region: { ar: "دول الخليج العربي", en: "GCC Gulf" },
+    governorates: ["الرياض", "جدة", "الدمام", "دبي", "أبوظبي", "الكويت", "الدوحة", "المنامة", "مسقط"],
+    baseFee: 150,
+    freeThreshold: 1000,
+    eta: { ar: "3-5 أيام (شحن جوي سريع)", en: "3-5 Days Express" },
+    courier: "DHL Express / أرامكس الدولية",
+  },
+];
+
+export const getShippingZoneForCity = (cityOrGov: string): ShippingZone => {
+  if (!cityOrGov) return SHIPPING_ZONES[0];
+  const found = SHIPPING_ZONES.find((z) =>
+    z.governorates.some((g) => g.toLowerCase().includes(cityOrGov.toLowerCase()) || cityOrGov.toLowerCase().includes(g.toLowerCase()))
+  );
+  return found || SHIPPING_ZONES[0];
+};
+
 export type Order = {
   id: string;
   createdAt: string;
@@ -119,6 +201,14 @@ export type Order = {
   returnTrackingNumber?: string;
   refundMethod?: "wallet" | "original_payment";
   refundAmount?: number;
+  governorate?: string;
+  shippingZoneId?: string;
+  courier?: string;
+  trackingNumber?: string;
+  shippingFee?: number;
+  estimatedDeliveryDate?: string;
+  whatsappNotificationSent?: boolean;
+  smsNotificationSent?: boolean;
 };
 
 export type WalletTransaction = {
@@ -865,6 +955,8 @@ type Ctx = {
     }
   ) => void;
   reviewMerchantKyc: (storeId: string, approved: boolean, reason?: string) => void;
+  shippingZones: ShippingZone[];
+  getZoneForCity: (cityOrGov: string) => ShippingZone;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -986,6 +1078,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             total: 490,
             currency: "EGP",
             status: "delivered",
+            courier: "بوسطة Bosta Express",
+            trackingNumber: "BST-EG-849201",
+            estimatedDeliveryDate: "خلال 24-48 ساعة",
+            shippingFee: 35,
+            governorate: "القاهرة",
+            whatsappNotificationSent: true,
+            smsNotificationSent: true,
           },
           {
             id: "ORD-9421",
@@ -1710,6 +1809,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         requestSellerPayout,
         submitMerchantKyc,
         reviewMerchantKyc,
+        shippingZones: SHIPPING_ZONES,
+        getZoneForCity: getShippingZoneForCity,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useStore, type OrderItem } from "@/lib/store";
+import { useStore, type OrderItem, getShippingZoneForCity } from "@/lib/store";
 import { useState } from "react";
 import {
   Trash2,
@@ -97,8 +97,9 @@ function Cart() {
   const items = products.filter((p) => cart[p.id]);
   const subtotal = items.reduce((s, p) => s + p.price * (cart[p.id] ?? 0), 0);
   const discountAmount = calculateDiscount(subtotal);
-  const isFreeShipping = subtotal >= 200;
-  const shippingFee = isFreeShipping ? 0 : 25;
+  const selectedZone = getShippingZoneForCity(city);
+  const isFreeShipping = subtotal >= selectedZone.freeThreshold;
+  const shippingFee = isFreeShipping ? 0 : selectedZone.baseFee;
   const finalTotal = Math.max(0, subtotal - discountAmount + shippingFee);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -139,7 +140,11 @@ function Cart() {
       customerPhone,
       customerAddress,
       city,
+      governorate: city,
       country,
+      courier: selectedZone.courier,
+      shippingFee,
+      estimatedDeliveryDate: selectedZone.eta.ar,
       paymentMethod:
         appliedCoupon
           ? `${finalMethod} (كوبون: ${appliedCoupon.code} - خصم ${price(discountAmount)})`
@@ -241,21 +246,29 @@ function Cart() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Cart Items List */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Free shipping banner */}
+            {/* Free shipping & Governorates logistics banner */}
             <div className="rounded-xl bg-secondary/50 p-3.5 text-xs">
-              <div className="flex items-center gap-2 font-bold">
-                <Truck className="h-4 w-4 text-gold" />
-                {isFreeShipping ? (
-                  <span className="text-emerald-600">
-                    {lang === "ar" ? "مبارك! طلبك مؤهل للشحن المجاني السريع." : "Congrats! Your order qualifies for free delivery."}
-                  </span>
-                ) : (
-                  <span>
-                    {lang === "ar"
-                      ? `أضف ${price(Math.max(0, 200 - subtotal))} إضافية لتحصل على الشحن المجاني`
-                      : `Add ${price(Math.max(0, 200 - subtotal))} more for free shipping`}
-                  </span>
-                )}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-bold">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-gold shrink-0" />
+                  {isFreeShipping ? (
+                    <span className="text-emerald-600">
+                      {lang === "ar"
+                        ? `مبارك! طلبك مؤهل للشحن المجاني السريع مع ${selectedZone.courier}.`
+                        : `Congrats! Order qualifies for free delivery via ${selectedZone.courier}.`}
+                    </span>
+                  ) : (
+                    <span>
+                      {lang === "ar"
+                        ? `أضف ${price(Math.max(0, selectedZone.freeThreshold - subtotal))} إضافية لتحصل على شحن مجاني في ${selectedZone.region.ar}`
+                        : `Add ${price(Math.max(0, selectedZone.freeThreshold - subtotal))} more for free shipping`}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground self-start sm:self-auto">
+                  <Clock className="h-3 w-3 text-gold" />
+                  <span>{lang === "ar" ? `التسليم: ${selectedZone.eta.ar}` : selectedZone.eta.en}</span>
+                </div>
               </div>
             </div>
 
@@ -411,10 +424,21 @@ function Cart() {
               )}
 
               <div className="flex justify-between text-muted-foreground">
-                <span>{lang === "ar" ? "رسوم الشحن والتوصيل" : "Shipping & Delivery"}</span>
-                <span className="font-semibold text-foreground">
-                  {isFreeShipping ? (lang === "ar" ? "مجاني" : "Free") : price(25)}
+                <span className="flex items-center gap-1">
+                  <span>{lang === "ar" ? "رسوم الشحن والتوصيل" : "Shipping & Delivery"}</span>
+                  <span className="text-[10px] text-muted-foreground">({selectedZone.courier.split(' ')[0]})</span>
                 </span>
+                <span className="font-semibold text-foreground">
+                  {isFreeShipping ? (
+                    <span className="text-emerald-600 font-bold">{lang === "ar" ? "مجاني" : "Free"}</span>
+                  ) : (
+                    price(selectedZone.baseFee)
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between text-[11px] text-muted-foreground">
+                <span>{lang === "ar" ? "موعد التسليم المتوقع:" : "Estimated Delivery:"}</span>
+                <span className="text-foreground font-medium">{selectedZone.eta.ar}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>{lang === "ar" ? "ضريبة القيمة المضافة" : "VAT"}</span>
@@ -514,24 +538,66 @@ function Cart() {
                 <div className="grid grid-cols-2 gap-2">
                   <select
                     value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCity(val);
+                      if (["الرياض", "جدة", "الدمام"].includes(val)) setCountry("المملكة العربية السعودية");
+                      else if (["دبي", "أبوظبي"].includes(val)) setCountry("الإمارات العربية المتحدة");
+                      else if (val === "الكويت") setCountry("دولة الكويت");
+                      else if (val === "الدوحة") setCountry("دولة قطر");
+                      else if (val === "المنامة") setCountry("مملكة البحرين");
+                      else if (val === "مسقط") setCountry("سلطنة عمان");
+                      else setCountry("جمهورية مصر العربية");
+                    }}
+                    className="rounded-lg border border-input bg-background px-2 py-1.5 text-xs outline-none font-medium"
                   >
-                    <option value="القاهرة">القاهرة (Cairo)</option>
-                    <option value="الجيزة">الجيزة (Giza)</option>
-                    <option value="الإسكندرية">الإسكندرية (Alexandria)</option>
-                    <option value="المنصورة">المنصورة (Mansoura)</option>
-                    <option value="طنطا">طنطا (Tanta)</option>
-                    <option value="بورسعيد">بورسعيد (Port Said)</option>
-                    <option value="الرياض">الرياض (Riyadh)</option>
-                    <option value="جدة">جدة (Jeddah)</option>
-                    <option value="الدمام">الدمام (Dammam)</option>
-                    <option value="دبي">دبي (Dubai)</option>
-                    <option value="أبوظبي">أبوظبي (Abu Dhabi)</option>
-                    <option value="الكويت">الكويت (Kuwait)</option>
-                    <option value="الدوحة">الدوحة (Doha)</option>
-                    <option value="المنامة">المنامة (Manama)</option>
-                    <option value="مسقط">مسقط (Muscat)</option>
+                    <optgroup label="🇪🇬 القاهرة الكبرى (خلال 24-48 ساعة)">
+                      <option value="القاهرة">القاهرة (Cairo)</option>
+                      <option value="الجيزة">الجيزة (Giza)</option>
+                      <option value="القليوبية">القليوبية (Qalyubia)</option>
+                    </optgroup>
+                    <optgroup label="🇪🇬 الإسكندرية ومدن القناة (2-3 أيام)">
+                      <option value="الإسكندرية">الإسكندرية (Alexandria)</option>
+                      <option value="بورسعيد">بورسعيد (Port Said)</option>
+                      <option value="السويس">السويس (Suez)</option>
+                      <option value="الإسماعيلية">الإسماعيلية (Ismailia)</option>
+                    </optgroup>
+                    <optgroup label="🇪🇬 محافظات الدلتا والوجه البحري (2-3 أيام)">
+                      <option value="الدقهلية (المنصورة)">المنصورة - الدقهلية</option>
+                      <option value="الغربية (طنطا)">طنطا - الغربية</option>
+                      <option value="الشرقية (الزقازيق)">الزقازيق - الشرقية</option>
+                      <option value="المنوفية">المنوفية</option>
+                      <option value="البحيرة">البحيرة</option>
+                      <option value="دمياط">دمياط</option>
+                      <option value="كفر الشيخ">كفر الشيخ</option>
+                    </optgroup>
+                    <optgroup label="🇪🇬 محافظات الصعيد (3-5 أيام)">
+                      <option value="الفيوم">الفيوم</option>
+                      <option value="بني سويف">بني سويف</option>
+                      <option value="المنيا">المنيا</option>
+                      <option value="أسيوط">أسيوط</option>
+                      <option value="سوهاج">سوهاج</option>
+                      <option value="قنا">قنا</option>
+                      <option value="الأقصر">الأقصر</option>
+                      <option value="أسوان">أسوان</option>
+                    </optgroup>
+                    <optgroup label="🇪🇬 المحافظات الساحلية والحدودية (4-6 أيام)">
+                      <option value="البحر الأحمر (الغردقة)">الغردقة - البحر الأحمر</option>
+                      <option value="جنوب سيناء (شرم الشيخ)">شرم الشيخ - جنوب سيناء</option>
+                      <option value="مرسى مطروح">مرسى مطروح</option>
+                      <option value="الوادي الجديد">الوادي الجديد</option>
+                    </optgroup>
+                    <optgroup label="🇸🇦 🇦🇪 🇰🇼 دول الخليج (شحن جوي سريع)">
+                      <option value="الرياض">الرياض (Riyadh)</option>
+                      <option value="جدة">جدة (Jeddah)</option>
+                      <option value="الدمام">الدمام (Dammam)</option>
+                      <option value="دبي">دبي (Dubai)</option>
+                      <option value="أبوظبي">أبوظبي (Abu Dhabi)</option>
+                      <option value="الكويت">الكويت (Kuwait)</option>
+                      <option value="الدوحة">الدوحة (Doha)</option>
+                      <option value="المنامة">المنامة (Manama)</option>
+                      <option value="مسقط">مسقط (Muscat)</option>
+                    </optgroup>
                   </select>
 
                   <select

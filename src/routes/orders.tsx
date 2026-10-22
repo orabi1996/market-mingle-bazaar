@@ -21,6 +21,12 @@ import {
   Info,
   X,
   Wallet,
+  Copy,
+  Check,
+  MessageCircle,
+  Send,
+  Smartphone,
+  Share2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/orders")({
@@ -64,6 +70,10 @@ function OrdersPage() {
 
   // Invoice Modal State
   const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
+
+  // WhatsApp & SMS Notification Modal State
+  const [whatsappModalOrder, setWhatsappModalOrder] = useState<Order | null>(null);
+  const [copiedTracking, setCopiedTracking] = useState<string | null>(null);
 
   const getStepStatus = (orderStatus: Order["status"], stepIndex: number) => {
     // 0: Confirmed (pending), 1: Processing, 2: Shipped, 3: Delivered
@@ -460,10 +470,18 @@ function OrdersPage() {
                         <FileText className="h-3.5 w-3.5 text-gold" />
                         {lang === "ar" ? "الفاتورة الضريبية الرسمية" : "Tax Invoice"}
                       </button>
+
+                      <button
+                        onClick={() => setWhatsappModalOrder(o)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                        {lang === "ar" ? "إشعار الواتساب وتتبع الشحنة" : "WhatsApp Tracking"}
+                      </button>
                     </div>
                   </div>
 
-                  {/* Delivery Address & Seller Details */}
+                  {/* Delivery Address & Logistics Details */}
                   <div className="rounded-xl border border-border bg-card p-4 text-xs space-y-3 h-fit">
                     <div>
                       <span className="font-bold text-foreground flex items-center gap-1.5 mb-1">
@@ -474,6 +492,35 @@ function OrdersPage() {
                       <p className="text-muted-foreground">{o.customerAddress}</p>
                       <p className="text-muted-foreground">{o.city}، {o.country}</p>
                       <p className="text-muted-foreground mt-0.5">{o.customerPhone}</p>
+                    </div>
+
+                    {/* Logistics Partner & Tracking Info */}
+                    <div className="pt-3 border-t border-border space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-foreground flex items-center gap-1">
+                          <Truck className="h-3.5 w-3.5 text-gold" />
+                          {o.courier || "بوسطة Bosta Express"}
+                        </span>
+                        <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground font-mono">
+                          {o.estimatedDeliveryDate || "24-48 ساعة"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-lg bg-secondary/40 p-1.5 text-[11px]">
+                        <span className="font-mono text-foreground font-bold">{o.trackingNumber || `BST-EG-${o.id.replace('ORD-', '')}89`}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const track = o.trackingNumber || `BST-EG-${o.id.replace('ORD-', '')}89`;
+                            navigator.clipboard?.writeText(track);
+                            setCopiedTracking(o.id);
+                            setTimeout(() => setCopiedTracking(null), 2000);
+                          }}
+                          className="text-primary hover:underline text-[10px] font-bold flex items-center gap-0.5 cursor-pointer"
+                        >
+                          {copiedTracking === o.id ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                          {copiedTracking === o.id ? "تم النسخ" : "نسخ"}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="pt-3 border-t border-border">
@@ -841,6 +888,83 @@ function OrdersPage() {
           </div>
         </div>
       )}
+    
+      {/* WhatsApp & SMS Notification Preview Modal */}
+      {whatsappModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-card p-6 shadow-2xl space-y-4 text-start relative overflow-hidden">
+            {/* Top WhatsApp Header */}
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold">
+                  <MessageCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-black">Souqly سوقلي</span>
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white">✓</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 font-semibold">حساب أعمال موثق عبر WhatsApp Business</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setWhatsappModalOrder(null)}
+                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* WhatsApp Chat Bubble */}
+            <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-xs space-y-2 relative">
+              <p className="font-bold text-foreground">
+                مرحباً بك يا {whatsappModalOrder.customerName}! 👋
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                يسرنا إبلاغك بأنه تم شحن طلبك رقم <b className="text-foreground">{whatsappModalOrder.id}</b> بنجاح من متجر سوقلي!
+              </p>
+
+              <div className="rounded-xl bg-card border border-border p-3 space-y-1 font-mono text-[11px] text-foreground">
+                <div>📦 <b>شركة الشحن:</b> {whatsappModalOrder.courier || "بوسطة Bosta Express"}</div>
+                <div>🏷️ <b>رقم التتبع:</b> {whatsappModalOrder.trackingNumber || "BST-EG-849201"}</div>
+                <div>⏱️ <b>موعد الوصول المتوقع:</b> {whatsappModalOrder.estimatedDeliveryDate || "خلال 24-48 ساعة"}</div>
+                <div>📍 <b>عنوان التوصيل:</b> {whatsappModalOrder.customerAddress} ({whatsappModalOrder.city})</div>
+                <div>💰 <b>إجمالي الفاتورة:</b> {price(whatsappModalOrder.total)}</div>
+              </div>
+
+              <p className="text-[11px] text-muted-foreground">
+                يمكنك التنسيق مع مندوب التوصيل فور وصوله أو متابعة خط السير اللحظي. شكراً لتسوقك من سوقلي! 💚
+              </p>
+
+              <div className="flex justify-end items-center gap-1 text-[10px] text-muted-foreground pt-1">
+                <span>{new Date().toLocaleTimeString(lang === 'ar' ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-emerald-600 font-bold">✓✓</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2 pt-1">
+              <a
+                href={`https://api.whatsapp.com/send?phone=${whatsappModalOrder.customerPhone.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(`مرحباً، أود الاستفسار عن شحنتي رقم ${whatsappModalOrder.id} مع ${whatsappModalOrder.courier || 'بوسطة'}`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow hover:bg-emerald-700 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Share2 className="h-4 w-4" />
+                مشاركة التحديث أو التواصل عبر واتساب
+              </a>
+              <button
+                type="button"
+                onClick={() => setWhatsappModalOrder(null)}
+                className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-muted-foreground hover:bg-muted cursor-pointer"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }
