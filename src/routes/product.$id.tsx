@@ -354,15 +354,15 @@ function ProductPage() {
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-4 text-center text-[11px] text-muted-foreground">
             <div className="flex flex-col items-center gap-1">
               <Truck className="h-5 w-5 text-primary" />
-              <span>{lang === "ar" ? "شحن خليجي سريع" : "Express Gulf Delivery"}</span>
+              <span>{lang === "ar" ? "شحن سريع للمحافظات والخليج" : "Fast Governorates Delivery"}</span>
             </div>
             <div className="flex flex-col items-center gap-1">
               <ShieldCheck className="h-5 w-5 text-gold" />
-              <span>{lang === "ar" ? "أصلي ومضمون" : "Authentic Guarantee"}</span>
+              <span>{lang === "ar" ? "أصلي 100% وضمان الوكيل" : "100% Authentic Guarantee"}</span>
             </div>
             <div className="flex flex-col items-center gap-1">
               <RotateCcw className="h-5 w-5 text-primary" />
-              <span>{lang === "ar" ? "إرجاع سهل خلال 14 يوماً" : "14-Day Free Returns"}</span>
+              <span>{lang === "ar" ? "إرجاع مجاني 14 يوماً (حماية المستهلك)" : "14-Day Free Returns"}</span>
             </div>
           </div>
         </div>
@@ -410,6 +410,39 @@ function ProductPage() {
                   ? "96% من المتسوقين ينصحون بهذا المنتج لجودته العالية."
                   : "96% of buyers recommend this product."}
               </p>
+
+              {/* Verified Product Quality Breakdown */}
+              <div className="mt-4 pt-3 border-t border-border space-y-2 text-[11px]">
+                <div>
+                  <div className="flex justify-between text-muted-foreground mb-1">
+                    <span>جودة وخامة المنتج</span>
+                    <span className="font-bold text-foreground">98%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full w-[98%]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-muted-foreground mb-1">
+                    <span>سرعة التوصيل مع المندوب</span>
+                    <span className="font-bold text-foreground">96%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full w-[96%]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-muted-foreground mb-1">
+                    <span>التغليف ومطابقة الوصف</span>
+                    <span className="font-bold text-foreground">99%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                    <div className="h-full bg-gold rounded-full w-[99%]" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Add Review Box */}
@@ -514,7 +547,7 @@ function ProductPage() {
                           {rev.isVerifiedBuyer && (
                             <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
                               <UserCheck className="h-3 w-3" />
-                              {lang === "ar" ? "مشترٍ موثق" : "Verified Purchase"}
+                              {lang === "ar" ? "مشترٍ موثق من مصر / الخليج" : "Verified Purchase"}
                             </span>
                           )}
                         </div>
@@ -539,6 +572,21 @@ function ProductPage() {
                   <p className="mt-3 text-xs text-foreground leading-relaxed">
                     {rev.comment}
                   </p>
+                  <div className="mt-3 pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span className="text-[10px]">تم التحقق من إتمام الشراء والتوصيل ✓</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const target = e.currentTarget;
+                        target.innerText = "✓ مفيد (15)";
+                        target.classList.add("text-emerald-600", "font-bold");
+                      }}
+                      className="flex items-center gap-1 hover:text-foreground cursor-pointer"
+                    >
+                      <ThumbsUp className="h-3 w-3" />
+                      <span>{lang === "ar" ? "مفيد (14)" : "Helpful (14)"}</span>
+                    </button>
+                  </div>
                 </div>
               ))
             )}

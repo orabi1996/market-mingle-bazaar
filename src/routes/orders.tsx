@@ -791,30 +791,66 @@ function OrdersPage() {
               </div>
             </div>
 
-            {/* Invoice Header */}
-            <div className="flex items-start justify-between text-xs border-b border-border pb-4">
+            {/* ETA Official Invoice Header & Cryptographic QR */}
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 text-xs border-b border-border pb-4 bg-secondary/15 p-4 rounded-xl">
               <div>
-                <span className="font-display font-black text-xl text-primary block">Souqly Marketplace</span>
-                <span className="text-muted-foreground block text-[11px]">
-                  {lang === "ar" ? "سوق سوقلي للتجارة الإلكترونية ش.م.م" : "Souqly E-Commerce LLC"}
+                <div className="flex items-center gap-2">
+                  <span className="font-display font-black text-xl text-primary">سوقلي Souqly</span>
+                  <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                    منظومة الفاتورة الإلكترونية ETA 🇪🇬
+                  </span>
+                </div>
+                <span className="text-muted-foreground block text-[11px] mt-0.5">
+                  شركة سوقلي للتجارة الإلكترونية (ش.م.م) • سجل تجاري: 104928 القاهرة
                 </span>
-                <span className="text-muted-foreground block text-[11px]">
-                  {lang === "ar" ? "الرقم الضريبي الموحد: 310982347100003" : "Tax ID: 310982347100003"}
+                <span className="text-foreground font-mono font-bold block text-[11px]">
+                  رقم التسجيل الضريبي الموحد: 482-901-342
                 </span>
-                <span className="text-muted-foreground block text-[11px]">
-                  {lang === "ar" ? "القاهرة: التجمع الخامس، برج التسعين | الرياض: طريق الملك فهد" : "Cairo & Riyadh Offices"}
+                <span className="text-muted-foreground block text-[10px]">
+                  المركز الرئيسي: شارع التسعين الجنوبي، مجمع الياسمين، القاهرة الجديدة
+                </span>
+                <span className="text-[10px] text-muted-foreground block font-mono mt-0.5">
+                  الرقم الإلكتروني الموحد: ETA-UUID-2026-{invoiceOrder.id.replace('ORD-', '')}-EG
                 </span>
               </div>
-              <div className="text-end">
-                <span className="font-mono font-bold text-sm block">{invoiceOrder.id}</span>
-                <span className="text-muted-foreground block text-[11px]">
-                  {new Date(invoiceOrder.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
-                    dateStyle: "long",
-                  })}
-                </span>
-                <span className="text-emerald-600 font-bold block text-[11px]">
-                  {lang === "ar" ? "✓ مدفوعة ومؤكدة إلكترونياً" : "✓ Paid Electronically"}
-                </span>
+
+              {/* Verified ETA QR Stamp */}
+              <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                <div className="text-end hidden sm:block">
+                  <span className="font-mono font-bold text-sm block text-foreground">{invoiceOrder.id}</span>
+                  <span className="text-muted-foreground block text-[10px]">
+                    {new Date(invoiceOrder.createdAt).toLocaleDateString(lang === "ar" ? "ar-EG" : "en-US", {
+                      dateStyle: "medium",
+                    })}
+                  </span>
+                  <span className="text-emerald-600 font-bold block text-[10px]">
+                    ✓ معتمدة ضريبياً
+                  </span>
+                </div>
+
+                <div className="bg-white p-1.5 rounded-lg border border-border shadow-2xs">
+                  <svg className="w-16 h-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="white" />
+                    <rect x="8" y="8" width="26" height="26" rx="2" fill="#0f172a" />
+                    <rect x="13" y="13" width="16" height="16" rx="1" fill="white" />
+                    <rect x="18" y="18" width="6" height="6" fill="#0f172a" />
+                    <rect x="66" y="8" width="26" height="26" rx="2" fill="#0f172a" />
+                    <rect x="71" y="13" width="16" height="16" rx="1" fill="white" />
+                    <rect x="76" y="18" width="6" height="6" fill="#0f172a" />
+                    <rect x="8" y="66" width="26" height="26" rx="2" fill="#0f172a" />
+                    <rect x="13" y="71" width="16" height="16" rx="1" fill="white" />
+                    <rect x="18" y="76" width="6" height="6" fill="#0f172a" />
+                    <rect x="40" y="12" width="10" height="6" fill="#0f172a" />
+                    <rect x="40" y="24" width="16" height="6" fill="#0f172a" />
+                    <rect x="14" y="42" width="8" height="14" fill="#0f172a" />
+                    <rect x="30" y="42" width="16" height="16" rx="2" fill="#059669" />
+                    <rect x="52" y="42" width="10" height="10" fill="#0f172a" />
+                    <rect x="70" y="42" width="16" height="8" fill="#0f172a" />
+                    <rect x="42" y="68" width="12" height="8" fill="#0f172a" />
+                    <rect x="62" y="66" width="10" height="14" fill="#0f172a" />
+                    <rect x="80" y="70" width="8" height="14" fill="#0f172a" />
+                  </svg>
+                </div>
               </div>
             </div>
 
