@@ -47,9 +47,10 @@ function AdminConsole() {
     price,
     user,
     switchRole,
+    reviewMerchantKyc,
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<"merchants" | "products" | "orders" | "financials">("merchants");
+  const [activeTab, setActiveTab] = useState<"merchants" | "kyc" | "products" | "orders" | "financials">("merchants");
   const [storeSearch, setStoreSearch] = useState("");
   const [commRateInput, setCommRateInput] = useState(commissionRate);
   const [savedSettingsToast, setSavedSettingsToast] = useState(false);

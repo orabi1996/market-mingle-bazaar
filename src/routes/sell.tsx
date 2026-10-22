@@ -19,6 +19,8 @@ import {
   RotateCcw,
   Landmark,
   AlertTriangle,
+  Upload,
+  FileCheck,
 } from "lucide-react";
 import p1 from "@/assets/p1.jpg";
 import p2 from "@/assets/p2.jpg";
@@ -65,6 +67,7 @@ function SellerCenter() {
     sellerPayouts,
     requestSellerPayout,
     approveReturn,
+    submitMerchantKyc,
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<"inventory" | "newProduct" | "orders" | "returns" | "payouts">("inventory");
@@ -101,6 +104,46 @@ function SellerCenter() {
   const [descAr, setDescAr] = useState("");
   const [descEn, setDescEn] = useState("");
   const [successToast, setSuccessToast] = useState(false);
+
+  
+  // KYC Modal States
+  const [isKycModalOpen, setIsKycModalOpen] = useState(false);
+  const [crInput, setCrInput] = useState(user?.commercialRegNumber || "");
+  const [taxIdInput, setTaxIdInput] = useState(user?.taxIdNumber || "");
+  const [nationalIdInput, setNationalIdInput] = useState("28901230104921");
+  const [govInput, setGovInput] = useState("القاهرة (التجمع الخامس)");
+  const [docFileName, setDocFileName] = useState<string | null>(null);
+
+  const handleKycSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!crInput || !taxIdInput) return;
+    submitMerchantKyc(user?.id || "seller", {
+      commercialRegNumber: crInput,
+      taxIdNumber: taxIdInput,
+      nationalIdNumber: nationalIdInput,
+      governorate: govInput,
+      documentUrl: docFileName || "commercial-registration-scan.pdf",
+    });
+    setIsKycModalOpen(false);
+  };
+
+  // Real Image Upload States
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          const res = ev.target.result as string;
+          setUploadedImages((prev) => [res, ...prev]);
+          setSelectedImage(res);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const isSeller = user?.role === "seller";
 
@@ -293,10 +336,25 @@ function SellerCenter() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold">{user?.storeName || (lang === "ar" ? "متجر سوقلي" : "Souqly Store")}</h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                {lang === "ar" ? "بائع موثق" : "Verified Seller"}
-              </span>
+              {user?.kycStatus === "pending" ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-600 animate-pulse">
+                  <Clock className="h-3.5 w-3.5" />
+                  {lang === "ar" ? "التوثيق قيد المراجعة" : "KYC Pending"}
+                </span>
+              ) : user?.commercialRegNumber || user?.kycStatus === "verified" ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  {lang === "ar" ? "بائع موثق رسمياً (سجل وضريبة)" : "Verified Merchant"}
+                </span>
+              ) : (
+                <button
+                  onClick={() => setIsKycModalOpen(true)}
+                  className="inline-flex items-center gap-1 rounded-full bg-gold/20 hover:bg-gold/30 px-2.5 py-0.5 text-xs font-bold text-gold-foreground dark:text-gold border border-gold/40 cursor-pointer transition"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>{lang === "ar" ? "توثيق المتجر بالسجل والبطاقة الضريبية ⚡" : "Verify Store KYC ⚡"}</span>
+                </button>
+              )}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               {lang === "ar" ? "التاجر:" : "Owner:"} <span className="font-semibold text-foreground">{user?.name}</span> • {user?.email}
@@ -1029,6 +1087,137 @@ function SellerCenter() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* Merchant KYC Submission Modal */}
+      {isKycModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2 font-bold text-base text-foreground">
+                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                <span>{lang === "ar" ? "توثيق المتجر بالسجل التجاري والبطاقة الضريبية" : "Store Verification & Tax KYC"}</span>
+              </div>
+              <button
+                onClick={() => setIsKycModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-800 dark:text-emerald-300">
+              <span className="font-bold block mb-1">
+                {lang === "ar" ? "✓ مميزات التاجر الموثق على منصة سوقلي:" : "Verified Merchant Perks:"}
+              </span>
+              <p className="text-[11px] leading-relaxed">
+                {lang === "ar"
+                  ? "الحصول على الشارة الذهبية، تصدر نتائج البحث، وزيادة ثقة المشترين في مصر والخليج وسحب الأرباح الفوري يومياً."
+                  : "Golden verified badge, search priority and daily instant settlements."}
+              </p>
+            </div>
+
+            <form onSubmit={handleKycSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "رقم السجل التجاري (Commercial Registration) *" : "Commercial Registration (CR) *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={crInput}
+                  onChange={(e) => setCrInput(e.target.value)}
+                  placeholder="مثال: CR-104928-CAIRO"
+                  className="w-full rounded-lg border border-input bg-background p-2 font-mono outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "رقم التسجيل الضريبي الموحد (Tax ID - 9 أرقام) *" : "Tax ID Number *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={taxIdInput}
+                  onChange={(e) => setTaxIdInput(e.target.value)}
+                  placeholder="مثال: 482-901-342"
+                  className="w-full rounded-lg border border-input bg-background p-2 font-mono outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "الرقم القومي / الهوية الوطنية للمفوض (14 رقماً) *" : "National ID / Representative ID *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={nationalIdInput}
+                  onChange={(e) => setNationalIdInput(e.target.value)}
+                  placeholder="28901230104921"
+                  className="w-full rounded-lg border border-input bg-background p-2 font-mono outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "المحافظة والمقر الرئيسي للمتجر / المستودع *" : "Governorate & Headquarters *"}
+                </label>
+                <select
+                  value={govInput}
+                  onChange={(e) => setGovInput(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background p-2 outline-none cursor-pointer"
+                >
+                  <option value="القاهرة (مدينة نصر والتجمع)">القاهرة (مدينة نصر والتجمع)</option>
+                  <option value="الجيزة (مدينة 6 أكتوبر والشيخ زايد)">الجيزة (مدينة 6 أكتوبر والشيخ زايد)</option>
+                  <option value="الإسكندرية (سموحة والمنطقة الحرة)">الإسكندرية (سموحة والمنطقة الحرة)</option>
+                  <option value="الدقهلية (المنصورة)">الدقهلية (المنصورة)</option>
+                  <option value="الغربية (طنطا والمحلة الكبرى)">الغربية (طنطا والمحلة الكبرى)</option>
+                  <option value="بورسعيد (المنطقة الحرة)">بورسعيد (المنطقة الحرة)</option>
+                  <option value="المملكة العربية السعودية (الرياض)">المملكة العربية السعودية (الرياض)</option>
+                  <option value="الإمارات العربية المتحدة (دبي)">الإمارات العربية المتحدة (دبي)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1">
+                  {lang === "ar" ? "صورة السجل التجاري أو البطاقة الضريبية (ملف PDF / صورة):" : "Document Scan (PDF/Image):"}
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setDocFileName(e.target.files[0].name);
+                    }
+                  }}
+                  className="w-full rounded-lg border border-input bg-background p-1.5 outline-none cursor-pointer"
+                />
+                {docFileName && (
+                  <p className="mt-1 text-[11px] text-emerald-600 font-semibold">✓ تم اختيار الملف: {docFileName}</p>
+                )}
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsKycModalOpen(false)}
+                  className="rounded-lg border border-border px-4 py-2 text-xs font-bold hover:bg-muted cursor-pointer"
+                >
+                  {lang === "ar" ? "إلغاء" : "Cancel"}
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-lg bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 cursor-pointer"
+                >
+                  {lang === "ar" ? "إرسال مستندات التوثيق للمراجعة" : "Submit KYC"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

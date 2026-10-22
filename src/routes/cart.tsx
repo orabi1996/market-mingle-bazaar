@@ -16,6 +16,16 @@ import {
   X,
   Lock,
   Wallet,
+  QrCode,
+  Copy,
+  Check,
+  Clock,
+  Printer,
+  Smartphone,
+  KeyRound,
+  Building2,
+  AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/cart")({
@@ -75,6 +85,15 @@ function Cart() {
   const [cardExpiry, setCardExpiry] = useState("12/28");
   const [cardCvv, setCardCvv] = useState("789");
 
+  // Interactive Egyptian Fintech Modals
+  const [showInstaPayModal, setShowInstaPayModal] = useState(false);
+  const [showFawryModal, setShowFawryModal] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState("482910");
+  const [isAuthorizing, setIsAuthorizing] = useState(false);
+  const [copiedIpa, setCopiedIpa] = useState(false);
+  const [copiedFawry, setCopiedFawry] = useState(false);
+
   const items = products.filter((p) => cart[p.id]);
   const subtotal = items.reduce((s, p) => s + p.price * (cart[p.id] ?? 0), 0);
   const discountAmount = calculateDiscount(subtotal);
@@ -94,10 +113,7 @@ function Cart() {
     }
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customerName || !customerPhone || !customerAddress) return;
-
+  const executeOrder = (confirmedMethodName?: string) => {
     const orderItems: OrderItem[] = items.map((p) => ({
       productId: p.id,
       name: p.name,
@@ -107,12 +123,14 @@ function Cart() {
       seller: p.seller,
     }));
 
-    if (paymentMethod.includes("محفظة سوقلي")) {
+    const finalMethod = confirmedMethodName || paymentMethod;
+
+    if (finalMethod.includes("محفظة سوقلي")) {
       if (walletBalance < finalTotal) {
         alert(lang === "ar" ? "رصيد محفظة سوقلي غير كافٍ لإتمام عملية الشراء. يرجى شحن المحفظة أو اختيار وسيلة دفع أخرى." : "Insufficient Souqly Wallet balance.");
         return;
       }
-      deductWallet(finalTotal, "شراء طلب من المتجر");
+      deductWallet(finalTotal, "شراء طلب من متجر سوقلي");
     }
 
     const order = createOrder({
@@ -124,8 +142,8 @@ function Cart() {
       country,
       paymentMethod:
         appliedCoupon
-          ? `${paymentMethod} (كوبون: ${appliedCoupon.code} - خصم ${price(discountAmount)})`
-          : paymentMethod,
+          ? `${finalMethod} (كوبون: ${appliedCoupon.code} - خصم ${price(discountAmount)})`
+          : finalMethod,
       items: orderItems,
       total: finalTotal,
       currency,
@@ -133,6 +151,32 @@ function Cart() {
 
     setCompletedOrderNumber(order.id);
     setIsCheckingOut(false);
+    setShowInstaPayModal(false);
+    setShowFawryModal(false);
+    setShowOtpModal(false);
+    setIsAuthorizing(false);
+  };
+
+  const handlePlaceOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerName || !customerPhone || !customerAddress) return;
+
+    // Trigger interactive fintech simulators based on method
+    if (paymentMethod.includes("إنستاباي") || paymentMethod.includes("فودافون كاش")) {
+      setShowInstaPayModal(true);
+      return;
+    }
+    if (paymentMethod.includes("فوري")) {
+      setShowFawryModal(true);
+      return;
+    }
+    if (paymentMethod.includes("فيزا") || paymentMethod.includes("مدى")) {
+      setShowOtpModal(true);
+      return;
+    }
+
+    // Direct execution for Wallet / COD / etc.
+    executeOrder();
   };
 
   if (completedOrderNumber) {
@@ -632,6 +676,361 @@ function Cart() {
           </div>
         </div>
       )}
+    
+      {/* 1. InstaPay Interactive Transfer Modal */}
+      {showInstaPayModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl text-start relative overflow-hidden">
+            <div className="absolute top-0 start-0 end-0 h-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500" />
+            
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600">
+                  <Smartphone className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black">الدفع اللحظي عبر إنستاباي / المحافظ</h3>
+                  <p className="text-[11px] text-muted-foreground">InstaPay Instant Payment Network (IPN)</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowInstaPayModal(false)}
+                className="p-1 rounded-lg text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4">
+              {/* QR Code Container */}
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4 text-center">
+                <div className="bg-white p-3 rounded-2xl shadow-inner border border-purple-200">
+                  {/* Clean SVG Mock QR */}
+                  <svg className="w-40 h-40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="white" />
+                    {/* Top Left */}
+                    <rect x="10" y="10" width="24" height="24" rx="3" fill="#1e1b4b" />
+                    <rect x="14" y="14" width="16" height="16" rx="2" fill="white" />
+                    <rect x="18" y="18" width="8" height="8" fill="#7c3aed" />
+                    {/* Top Right */}
+                    <rect x="66" y="10" width="24" height="24" rx="3" fill="#1e1b4b" />
+                    <rect x="70" y="14" width="16" height="16" rx="2" fill="white" />
+                    <rect x="74" y="18" width="8" height="8" fill="#7c3aed" />
+                    {/* Bottom Left */}
+                    <rect x="10" y="66" width="24" height="24" rx="3" fill="#1e1b4b" />
+                    <rect x="14" y="70" width="16" height="16" rx="2" fill="white" />
+                    <rect x="18" y="74" width="8" height="8" fill="#7c3aed" />
+                    {/* Patterns */}
+                    <rect x="38" y="14" width="6" height="6" fill="#1e1b4b" />
+                    <rect x="48" y="14" width="12" height="6" fill="#7c3aed" />
+                    <rect x="38" y="24" width="16" height="6" fill="#1e1b4b" />
+                    <rect x="14" y="38" width="6" height="16" fill="#7c3aed" />
+                    <rect x="24" y="44" width="14" height="6" fill="#1e1b4b" />
+                    <rect x="42" y="42" width="16" height="16" rx="2" fill="#7c3aed" />
+                    <rect x="64" y="38" width="10" height="6" fill="#1e1b4b" />
+                    <rect x="78" y="44" width="12" height="8" fill="#7c3aed" />
+                    <rect x="40" y="66" width="12" height="6" fill="#1e1b4b" />
+                    <rect x="40" y="78" width="6" height="12" fill="#7c3aed" />
+                    <rect x="52" y="72" width="14" height="6" fill="#1e1b4b" />
+                    <rect x="70" y="68" width="8" height="8" fill="#7c3aed" />
+                    <rect x="82" y="76" width="8" height="12" fill="#1e1b4b" />
+                  </svg>
+                </div>
+                <div className="mt-2.5 flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-400">
+                  <QrCode className="h-4 w-4" />
+                  <span>امسح الكود من تطبيق إنستاباي أو المحفظة الإلكترونية</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
+                  <Clock className="h-3 w-3 text-amber-500" />
+                  صالح للدفع اللحظي لمدة: 04:59 دقيقة
+                </span>
+              </div>
+
+              {/* Payment Details */}
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/40 p-2.5">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">عنوان الدفع اللحظي (IPA):</span>
+                    <span className="font-mono font-bold text-foreground">souqly.market@instapay</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard?.writeText("souqly.market@instapay");
+                      setCopiedIpa(true);
+                      setTimeout(() => setCopiedIpa(false), 2000);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-background border border-border px-2.5 py-1.5 text-[11px] font-bold text-foreground hover:bg-muted"
+                  >
+                    {copiedIpa ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedIpa ? "تم النسخ" : "نسخ IPA"}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/40 p-2.5">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">الرقم المرجعي للعملية:</span>
+                    <span className="font-mono font-bold text-foreground">IPN-84920199</span>
+                  </div>
+                  <div className="text-end">
+                    <span className="text-[10px] text-muted-foreground block">المبلغ المطلوب سداده:</span>
+                    <span className="font-bold text-emerald-600 text-sm">{price(finalTotal)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => executeOrder("إنستاباي / محفظة إلكترونية (دفع لحظي IPN)")}
+                  className="w-full rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white shadow hover:bg-emerald-700 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  تم التحويل بنجاح - تأكيد الطلب فوراً
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowInstaPayModal(false)}
+                  className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-muted-foreground hover:bg-muted"
+                >
+                  تغيير وسيلة الدفع
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Fawry Pay 48-Hour Official Voucher Modal */}
+      {showFawryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-amber-500/30 bg-card p-6 shadow-2xl text-start relative overflow-hidden">
+            <div className="absolute top-0 start-0 end-0 h-2 bg-amber-500" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 font-black">
+                  F
+                </div>
+                <div>
+                  <h3 className="text-sm font-black">إذن دفع فوري باي (Fawry Pay)</h3>
+                  <p className="text-[11px] text-muted-foreground">صالح لدى أكثر من 300 ألف منفذ فوري وتطبيق MyFawry</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFawryModal(false)}
+                className="p-1 rounded-lg text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4">
+              {/* Voucher Box */}
+              <div className="rounded-2xl border-2 border-dashed border-amber-400 bg-amber-500/5 p-4 text-center">
+                <span className="text-[11px] font-bold text-muted-foreground block">
+                  كود الدفع المرجعي في فوري (Ref Code)
+                </span>
+                <span className="mt-1 font-mono text-2xl font-black tracking-widest text-amber-600 block">
+                  849 201 992
+                </span>
+
+                {/* Simulated Barcode */}
+                <div className="mt-3 flex justify-center items-end gap-[3px] h-12 bg-white p-2 rounded-lg border border-amber-200">
+                  <span className="w-1.5 h-full bg-black"></span>
+                  <span className="w-0.5 h-full bg-black"></span>
+                  <span className="w-1 h-full bg-black"></span>
+                  <span className="w-2 h-full bg-black"></span>
+                  <span className="w-0.5 h-full bg-black"></span>
+                  <span className="w-1.5 h-full bg-black"></span>
+                  <span className="w-0.5 h-full bg-black"></span>
+                  <span className="w-2 h-full bg-black"></span>
+                  <span className="w-1 h-full bg-black"></span>
+                  <span className="w-0.5 h-full bg-black"></span>
+                  <span className="w-1.5 h-full bg-black"></span>
+                  <span className="w-2 h-full bg-black"></span>
+                  <span className="w-0.5 h-full bg-black"></span>
+                  <span className="w-1 h-full bg-black"></span>
+                  <span className="w-1.5 h-full bg-black"></span>
+                  <span className="w-0.5 h-full bg-black"></span>
+                  <span className="w-2 h-full bg-black"></span>
+                </div>
+                <span className="text-[10px] font-mono text-muted-foreground mt-1 block">8492019920042</span>
+
+                <div className="mt-3 pt-3 border-t border-amber-200/60 flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">كود خدمة فوري:</span>
+                  <span className="font-bold text-foreground">788 (مدفوعات سوقلي Souqly)</span>
+                </div>
+                <div className="flex items-center justify-between text-xs mt-1">
+                  <span className="text-muted-foreground">المبلغ المستحق:</span>
+                  <span className="font-black text-foreground">{price(finalTotal)}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs mt-1 text-amber-700 dark:text-amber-400 font-semibold">
+                  <span>الصلاحية:</span>
+                  <span>48 ساعة من تاريخ الحجز</span>
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="rounded-xl bg-secondary/50 p-3 text-[11px] text-muted-foreground space-y-1">
+                <p className="font-bold text-foreground">📌 طريقة السداد لدى تاجر فوري:</p>
+                <p>1. أخبر التاجر بالدفع عبر كود خدمة "788" أو "فوري باي".</p>
+                <p>2. أعطه رقم الدفع المرجعي <b className="text-foreground">849201992</b>.</p>
+                <p>3. بعد السداد، سيتم تأكيد طلبك وشحنه تلقائياً بدون أي إجراء إضافي.</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => executeOrder("فوري باي (كود مرجعي: 849201992)")}
+                  className="w-full rounded-xl bg-amber-500 py-3 text-xs font-bold text-white shadow hover:bg-amber-600 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  حفظ القسيمة وتأكيد حجز الطلب
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard?.writeText("849201992");
+                      setCopiedFawry(true);
+                      setTimeout(() => setCopiedFawry(false), 2000);
+                    }}
+                    className="flex-1 rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground hover:bg-muted flex items-center justify-center gap-1.5"
+                  >
+                    {copiedFawry ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedFawry ? "تم نسخ الرقم" : "نسخ الكود"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="flex-1 rounded-xl border border-border bg-background py-2 text-xs font-bold text-foreground hover:bg-muted flex items-center justify-center gap-1.5"
+                  >
+                    <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                    طباعة القسيمة
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. 3D Secure SMS OTP Simulation Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl text-start relative overflow-hidden">
+            <div className="absolute top-0 start-0 end-0 h-2 bg-primary" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Building2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black">التحقق الآمن 3D Secure</h3>
+                  <p className="text-[11px] text-muted-foreground">شبكة ميزة الوطنية / البنك الأهلي المصري / CIB</p>
+                </div>
+              </div>
+              <button
+                disabled={isAuthorizing}
+                onClick={() => setShowOtpModal(false)}
+                className="p-1 rounded-lg text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4 text-xs">
+              {/* Transaction Summary Card */}
+              <div className="rounded-2xl border border-border bg-secondary/30 p-3.5 space-y-2">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>التاجر:</span>
+                  <span className="font-bold text-foreground">Souqly E-Commerce Ltd</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>البطاقة البنكية:</span>
+                  <span className="font-mono font-bold text-foreground">•••• •••• •••• 9821</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>المبلغ المراد خصمه:</span>
+                  <span className="font-black text-primary text-sm">{price(finalTotal)}</span>
+                </div>
+              </div>
+
+              {/* OTP Input Section */}
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary font-bold">
+                  <KeyRound className="h-4 w-4" />
+                  <span>أدخل رمز التأكيد لمرة واحدة (SMS OTP)</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  تم إرسال كود التحقق السري إلى هاتفك المحمول المسجل لدى البنك والمنتهي برقم <b className="text-foreground">**43</b>.
+                </p>
+                
+                <div>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    className="w-full rounded-xl border border-input bg-background py-3 text-center font-mono text-xl font-black tracking-widest outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="482910"
+                  />
+                  <span className="text-[10px] text-emerald-600 block mt-1 text-center font-semibold">
+                    ✓ كود التجربة التلقائي: 482910
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
+                  <span>لم يصلك الرمز؟</span>
+                  <button type="button" className="text-primary font-bold hover:underline">
+                    إعادة الإرسال (0:38)
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  disabled={isAuthorizing || !otpCode}
+                  onClick={() => {
+                    setIsAuthorizing(true);
+                    setTimeout(() => {
+                      executeOrder("بطاقة بنكية موثقة 3D Secure (ميزة / فيزا)");
+                    }, 1200);
+                  }}
+                  className="w-full rounded-xl bg-primary py-3 text-xs font-bold text-primary-foreground shadow hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isAuthorizing ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      جاري الاتصال بالبنك واعتماد العملية...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4 text-gold" />
+                      تأكيد الدفع وخصم {price(finalTotal)}
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  disabled={isAuthorizing}
+                  onClick={() => setShowOtpModal(false)}
+                  className="w-full rounded-xl border border-border bg-background py-2 text-xs font-bold text-muted-foreground hover:bg-muted"
+                >
+                  إلغاء المعاملة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

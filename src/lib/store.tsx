@@ -18,6 +18,9 @@ export type User = {
   storeName?: string;
   phone?: string;
   walletBalance?: number;
+  kycStatus?: "unverified" | "pending" | "verified" | "rejected";
+  commercialRegNumber?: string;
+  taxIdNumber?: string;
 };
 
 export type ShippingAddress = {
@@ -49,6 +52,13 @@ export type StoreInfo = {
   city?: string;
   country?: string;
   rating?: number;
+  kycStatus?: "unverified" | "pending" | "verified" | "rejected";
+  commercialRegNumber?: string;
+  taxIdNumber?: string;
+  nationalIdNumber?: string;
+  documentUrl?: string;
+  governorate?: string;
+  rejectionReason?: string;
 };
 
 // Approximate rates from SAR (base)
@@ -357,6 +367,11 @@ export const INITIAL_REVIEWS: Review[] = [
 export const INITIAL_STORES: StoreInfo[] = [
   {
     id: "seller_cairo_tech",
+    kycStatus: "verified",
+    commercialRegNumber: "CR-104928-CAIRO",
+    taxIdNumber: "482-901-342",
+    nationalIdNumber: "28904120104821",
+    governorate: "القاهرة (التجمع الخامس)",
     name: "Cairo Techno - تكنو القاهرة",
     owner: "محمود الشربيني",
     email: "cairo.tech@souqly.market",
@@ -377,6 +392,11 @@ export const INITIAL_STORES: StoreInfo[] = [
   },
   {
     id: "seller_nile_cotton",
+    kycStatus: "verified",
+    commercialRegNumber: "CR-89214-ALEX",
+    taxIdNumber: "319-847-195",
+    nationalIdNumber: "29107150209412",
+    governorate: "الإسكندرية (المنطقة الحرة)",
     name: "Nile Cotton - قطن النيل الفاخر",
     owner: "شريف عبدالسلام",
     email: "cotton@souqly.market",
@@ -457,12 +477,17 @@ export const INITIAL_STORES: StoreInfo[] = [
   },
   {
     id: "seller_homeplus",
-    name: "Home Plus",
-    owner: "أحمد المنصور",
+    name: "Home Plus - هوم بلس مصر",
+    owner: "أحمد المنصور الشريف",
     email: "homeplus@souqly.market",
-    phone: "+966503332211",
+    phone: "+201098877665",
     category: "المنزل",
     isVerified: false,
+    kycStatus: "pending",
+    commercialRegNumber: "CR-58921-GIZA",
+    taxIdNumber: "291-840-109",
+    nationalIdNumber: "28509180103412",
+    governorate: "الجيزة (مدينة 6 أكتوبر)",
     status: "active",
     productsCount: 8,
     totalSales: 21400,
@@ -829,6 +854,17 @@ type Ctx = {
   approveReturn: (orderId: string) => void;
   sellerPayouts: SellerPayout[];
   requestSellerPayout: (amountSar: number, method: "instapay" | "vodafone_cash" | "bank_iban", destination: string) => boolean;
+  submitMerchantKyc: (
+    storeId: string,
+    kycData: {
+      commercialRegNumber: string;
+      taxIdNumber: string;
+      nationalIdNumber: string;
+      governorate: string;
+      documentUrl?: string;
+    }
+  ) => void;
+  reviewMerchantKyc: (storeId: string, approved: boolean, reason?: string) => void;
 };
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -1095,6 +1131,77 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const setCommissionRate = (rate: number) => {
     setCommissionRateState(rate);
     localStorage.setItem("bax-commission", String(rate));
+  };
+
+
+  const submitMerchantKyc = (
+    storeId: string,
+    kycData: {
+      commercialRegNumber: string;
+      taxIdNumber: string;
+      nationalIdNumber: string;
+      governorate: string;
+      documentUrl?: string;
+    }
+  ) => {
+    const nextStores = stores.map((s) =>
+      s.id === storeId
+        ? {
+            ...s,
+            ...kycData,
+            kycStatus: "pending" as const,
+          }
+        : s
+    );
+    saveStores(nextStores);
+
+    if (user && (user.id === storeId || user.role === "seller")) {
+      updateUser({
+        kycStatus: "pending",
+        commercialRegNumber: kycData.commercialRegNumber,
+        taxIdNumber: kycData.taxIdNumber,
+      });
+    }
+
+    addNotification({
+      title: { ar: "تم استلام مستندات التوثيق", en: "KYC Documents Received" },
+      message: {
+        ar: "تم إرسال بيانات السجل التجاري والبطاقة الضريبية للمراجعة والتدقيق بواسطة فريق سوقلي.",
+        en: "Your commercial documents have been submitted for verification.",
+      },
+      type: "seller",
+      link: "/sell",
+    });
+  };
+
+  const reviewMerchantKyc = (storeId: string, approved: boolean, reason?: string) => {
+    const nextStores = stores.map((s) =>
+      s.id === storeId
+        ? {
+            ...s,
+            isVerified: approved,
+            kycStatus: approved ? ("verified" as const) : ("rejected" as const),
+            rejectionReason: approved ? undefined : reason,
+          }
+        : s
+    );
+    saveStores(nextStores);
+
+    const store = stores.find((s) => s.id === storeId);
+    addNotification({
+      title: {
+        ar: approved ? "تهانينا! تم توثيق متجرك رسمياً" : "تحديث حول طلب التوثيق",
+        en: approved ? "Store Verified Successfully!" : "KYC Update",
+      },
+      message: {
+        ar: approved
+          ? `حصل متجرك "${store?.name}" على شارة التوثيق الذهبية والامتثال الضريبي على منصة سوقلي.`
+          : `تم رفض طلب التوثيق للسبب: ${reason || "مستندات غير مكتملة"}. يرجى إعادة التقديم.`,
+        en: approved ? "Store verified with golden badge." : `KYC rejected: ${reason}`,
+      },
+      type: "seller",
+      link: "/sell",
+    });
   };
 
   // User & Auth operations
@@ -1601,6 +1708,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         approveReturn,
         sellerPayouts,
         requestSellerPayout,
+        submitMerchantKyc,
+        reviewMerchantKyc,
       }}
     >
       {children}
