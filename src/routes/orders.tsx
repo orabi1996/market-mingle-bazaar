@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore, type Order } from "@/lib/store";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Package,
   ShoppingBag,
@@ -543,9 +544,15 @@ function OrdersPage() {
       )}
 
       {/* Cancel Order Interactive Modal */}
+      <AnimatePresence>
       {cancellingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2 text-rose-600 font-bold text-base">
                 <AlertTriangle className="h-5 w-5" />
@@ -633,14 +640,21 @@ function OrdersPage() {
                 {lang === "ar" ? "تأكيد الإلغاء واسترداد المبلغ" : "Confirm Cancellation"}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* Return Request Interactive Modal (Egyptian Consumer Protection Act 181/2018) */}
+      <AnimatePresence>
       {returningOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2 text-amber-600 font-bold text-base">
                 <RotateCcw className="h-5 w-5" />
@@ -759,14 +773,21 @@ function OrdersPage() {
                 {lang === "ar" ? "إرسال طلب الإرجاع وتوليد البوليصة" : "Submit Return Request"}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* Official Tax Invoice Modal */}
+      <AnimatePresence>
       {invoiceOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
-          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto print:border-none print:shadow-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto print:border-none print:shadow-none">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-gold" />
@@ -921,14 +942,21 @@ function OrdersPage() {
                 ? "فاتورة إلكترونية معتمدة تصدر آلياً من منصة سوقلي وفقاً لتعليمات مصلحة الضرائب المصرية وهيئة الزكاة والضريبة والجمارك ZATCA."
                 : "Certified automated tax invoice issued in compliance with Egyptian Tax Authority & ZATCA standards."}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
-    
+      </AnimatePresence>
+
       {/* WhatsApp & SMS Notification Preview Modal */}
+      <AnimatePresence>
       {whatsappModalOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-card p-6 shadow-2xl space-y-4 text-start relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-card p-6 shadow-2xl space-y-4 text-start relative overflow-hidden">
             {/* Top WhatsApp Header */}
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2.5">
@@ -997,9 +1025,10 @@ function OrdersPage() {
                 إغلاق
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
     </main>
   );

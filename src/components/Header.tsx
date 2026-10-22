@@ -18,8 +18,11 @@ import {
   LogOut,
   HelpCircle,
   Flame,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { gsap } from "gsap";
 
 export function Header() {
   const {
@@ -45,8 +48,23 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const tickerRef = useRef<HTMLDivElement>(null);
   const unreadCount = notifications.filter((n) => !n.read).length;
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
+
+  // GSAP subtle pulse and entrance for top ticker
+  useEffect(() => {
+    if (tickerRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          tickerRef.current,
+          { opacity: 0, y: -6 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+        );
+      }, tickerRef);
+      return () => ctx.revert();
+    }
+  }, []);
 
   const categories = [
     { id: "all", label: { ar: "جميع الأقسام", en: "All Departments" } },
@@ -58,15 +76,15 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
+    <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md font-sans">
       {/* Top Flash Announcement Ticker Bar */}
-      <div className="bg-primary/90 border-b border-white/10 py-1.5 text-[11px] text-white/90">
+      <div ref={tickerRef} className="bg-primary/95 border-b border-white/10 py-1.5 text-[11px] text-white/90">
         <div className="mx-auto flex max-w-[1720px] items-center justify-between px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-            <span className="font-black text-gold">🇪🇬 منصة سوقلي:</span>
+            <span className="font-display font-black text-gold">🇪🇬 منصة سوقلي:</span>
             <span>شحن سريع مجاني لجميع المحافظات المصرية للطلبات فوق 250 ج.م</span>
             <span className="text-white/40 hidden sm:inline">•</span>
-            <span className="hidden sm:inline">كوبون خصم إضافي: <b className="text-gold font-mono">MASR10</b></span>
+            <span className="hidden sm:inline">كوبون خصم إضافي: <b className="text-gold font-mono font-bold">MASR10</b></span>
             <span className="text-white/40 hidden md:inline">•</span>
             <span className="hidden md:inline">دفع إلكتروني لحظي عبر إنستاباي، فودافون كاش، وكروت ميزة</span>
           </div>
@@ -85,14 +103,15 @@ export function Header() {
         {/* Mobile menu trigger */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="rounded-lg p-1.5 hover:bg-white/10 md:hidden"
+          className="rounded-lg p-1.5 hover:bg-white/10 md:hidden cursor-pointer"
+          aria-label="Toggle menu"
         >
-          <Menu className="h-6 w-6" />
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
 
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-1.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold text-primary font-black text-xl tracking-tight shadow">S</div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold text-primary font-black text-xl tracking-tight shadow group-hover:scale-105 transition">S</div>
           <div className="flex flex-col">
             <span className="font-display text-2xl font-black tracking-tight leading-none text-white">
               Souqly<span className="text-gold text-sm font-normal ms-1">.market</span>
@@ -125,7 +144,8 @@ export function Header() {
             <div className="absolute end-1 flex items-center">
               <button
                 type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-md bg-gold text-gold-foreground hover:opacity-90"
+                className="flex h-8 w-8 items-center justify-center rounded-md bg-gold text-gold-foreground hover:opacity-90 cursor-pointer"
+                aria-label="Search"
               >
                 <Search className="h-4 w-4" />
               </button>
@@ -154,7 +174,7 @@ export function Header() {
           {/* Language Toggle */}
           <button
             onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-            className="flex items-center gap-1 rounded-lg border border-white/20 px-2 py-1 text-xs font-semibold hover:bg-white/10"
+            className="flex items-center gap-1 rounded-lg border border-white/20 px-2 py-1 text-xs font-semibold hover:bg-white/10 cursor-pointer"
           >
             <Globe className="h-3.5 w-3.5 text-gold" />
             <span>{lang === "ar" ? "EN" : "عربي"}</span>
@@ -187,86 +207,94 @@ export function Header() {
               </div>
             </button>
 
-            {/* User Dropdown Menu */}
-            {user && userMenuOpen && (
-              <div className="absolute end-0 top-full mt-2 w-56 rounded-2xl border border-border bg-card p-2 text-foreground shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="px-3 py-2 border-b border-border mb-1">
-                  <p className="font-bold text-xs truncate">{user.name}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-                  <span className="mt-1 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                    {user.role === "seller" ? (lang === "ar" ? "تاجر وشريك 🛡️" : "Merchant") : (lang === "ar" ? "مشتري معتمد" : "Buyer")}
-                  </span>
-                </div>
-
-                <div className="space-y-0.5 text-xs">
-                  <Link
-                    to="/profile"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
-                  >
-                    <User className="h-3.5 w-3.5 text-primary" />
-                    <span>{lang === "ar" ? "حسابي وعناويني" : "Profile & Addresses"}</span>
-                  </Link>
-
-                  <Link
-                    to="/orders"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
-                  >
-                    <Package className="h-3.5 w-3.5 text-gold" />
-                    <span>{lang === "ar" ? "طلباتي وشحناتي" : "My Orders"}</span>
-                  </Link>
-
-                  <Link
-                    to="/wishlist"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
-                  >
-                    <Heart className="h-3.5 w-3.5 text-red-500" />
-                    <span>{lang === "ar" ? "قائمة أمنياتي" : "My Wishlist"}</span>
-                  </Link>
-
-                  {user.role === "seller" && (
-                    <Link
-                      to="/sell"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-gold hover:bg-muted transition"
-                    >
-                      <Store className="h-3.5 w-3.5" />
-                      <span>{lang === "ar" ? "مركز بائعي سوقلي" : "Seller Central"}</span>
-                    </Link>
-                  )}
-
-                  <Link
-                    to="/help"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
-                  >
-                    <HelpCircle className="h-3.5 w-3.5 text-gold" />
-                    <span>{lang === "ar" ? "مركز المساعدة والضمان" : "Help & Warranty"}</span>
-                  </Link>
-
-                  <div className="pt-1 border-t border-border mt-1">
-                    <button
-                      onClick={() => {
-                        setUser(null);
-                        setUserMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 rounded-xl px-3 py-2 font-bold text-destructive hover:bg-destructive/10 transition cursor-pointer"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      <span>{lang === "ar" ? "تسجيل الخروج" : "Log Out"}</span>
-                    </button>
+            {/* User Dropdown Menu with Motion */}
+            <AnimatePresence>
+              {user && userMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute end-0 top-full mt-2 w-56 rounded-2xl border border-border bg-card p-2 text-foreground shadow-2xl z-50"
+                >
+                  <div className="px-3 py-2 border-b border-border mb-1">
+                    <p className="font-bold text-xs truncate">{user.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                    <span className="mt-1 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                      {user.role === "seller" ? (lang === "ar" ? "تاجر وشريك 🛡️" : "Merchant") : (lang === "ar" ? "مشتري معتمد" : "Buyer")}
+                    </span>
                   </div>
-                </div>
-              </div>
-            )}
+
+                  <div className="space-y-0.5 text-xs">
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                    >
+                      <User className="h-3.5 w-3.5 text-primary" />
+                      <span>{lang === "ar" ? "حسابي وعناويني" : "Profile & Addresses"}</span>
+                    </Link>
+
+                    <Link
+                      to="/orders"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                    >
+                      <Package className="h-3.5 w-3.5 text-gold" />
+                      <span>{lang === "ar" ? "طلباتي وشحناتي" : "My Orders"}</span>
+                    </Link>
+
+                    <Link
+                      to="/wishlist"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                    >
+                      <Heart className="h-3.5 w-3.5 text-red-500" />
+                      <span>{lang === "ar" ? "قائمة أمنياتي" : "My Wishlist"}</span>
+                    </Link>
+
+                    {user.role === "seller" && (
+                      <Link
+                        to="/sell"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-gold hover:bg-muted transition"
+                      >
+                        <Store className="h-3.5 w-3.5" />
+                        <span>{lang === "ar" ? "مركز بائعي سوقلي" : "Seller Central"}</span>
+                      </Link>
+                    )}
+
+                    <Link
+                      to="/help"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 font-medium hover:bg-muted transition"
+                    >
+                      <HelpCircle className="h-3.5 w-3.5 text-gold" />
+                      <span>{lang === "ar" ? "مركز المساعدة والضمان" : "Help & Warranty"}</span>
+                    </Link>
+
+                    <div className="pt-1 border-t border-border mt-1">
+                      <button
+                        onClick={() => {
+                          setUser(null);
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 rounded-xl px-3 py-2 font-bold text-destructive hover:bg-destructive/10 transition cursor-pointer"
+                      >
+                        <LogOut className="h-3.5 w-3.5" />
+                        <span>{lang === "ar" ? "تسجيل الخروج" : "Log Out"}</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Seller Central Link */}
           <Link
             to="/sell"
-            className="hidden sm:flex items-center gap-1.5 rounded-lg border border-gold/40 bg-gold/15 px-3 py-1 text-xs font-bold text-gold hover:bg-gold/25"
+            className="hidden sm:flex items-center gap-1.5 rounded-lg border border-gold/40 bg-gold/15 px-3 py-1 text-xs font-bold text-gold hover:bg-gold/25 transition"
           >
             <Store className="h-3.5 w-3.5" />
             <span>{t.sell}</span>
@@ -275,7 +303,7 @@ export function Header() {
           {/* Admin Link */}
           <Link
             to="/admin"
-            className="hidden lg:flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/90 hover:bg-white/20"
+            className="hidden lg:flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/90 hover:bg-white/20 transition"
           >
             <span>{t.admin}</span>
           </Link>
@@ -283,7 +311,7 @@ export function Header() {
           {/* Orders Link */}
           <Link
             to="/orders"
-            className="hidden sm:flex items-center gap-1 rounded-lg border border-white/20 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/10"
+            className="hidden sm:flex items-center gap-1 rounded-lg border border-white/20 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/10 transition"
           >
             <Package className="h-3.5 w-3.5 text-gold" />
             <span>{t.orders}</span>
@@ -292,14 +320,19 @@ export function Header() {
           {/* Wishlist Link */}
           <Link
             to="/wishlist"
-            className="relative flex items-center justify-center rounded-lg p-1.5 text-white hover:bg-white/10"
+            className="relative flex items-center justify-center rounded-lg p-1.5 text-white hover:bg-white/10 transition cursor-pointer"
             title={t.wishlist}
           >
             <Heart className="h-5 w-5 text-white" />
             {wishlist.length > 0 && (
-              <span className="absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+              <motion.span
+                key={wishlist.length}
+                initial={{ scale: 0.6 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white"
+              >
                 {wishlist.length}
-              </span>
+              </motion.span>
             )}
           </Link>
 
@@ -307,8 +340,11 @@ export function Header() {
           <div className="relative">
             <button
               type="button"
-              onClick={() => setNotifOpen(!notifOpen)}
-              className="relative flex items-center justify-center rounded-lg p-1.5 text-white hover:bg-white/10"
+              onClick={() => {
+                setNotifOpen(!notifOpen);
+                setUserMenuOpen(false);
+              }}
+              className="relative flex items-center justify-center rounded-lg p-1.5 text-white hover:bg-white/10 cursor-pointer"
               title={lang === "ar" ? "الإشعارات" : "Notifications"}
             >
               <Bell className="h-5 w-5 text-white" />
@@ -319,81 +355,97 @@ export function Header() {
               )}
             </button>
 
-            {/* Notifications Popover */}
-            {notifOpen && (
-              <div className="absolute end-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-card p-4 text-foreground shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center justify-between pb-3 border-b border-border">
-                  <span className="font-bold text-xs flex items-center gap-1.5">
-                    <Bell className="h-4 w-4 text-gold" />
-                    {lang === "ar" ? "مركز الإشعارات والتنبيهات" : "Notifications"}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={markAllNotificationsRead}
-                      className="text-[11px] text-primary hover:underline font-medium"
-                      title={lang === "ar" ? "تحديد الكل كمقروء" : "Mark read"}
-                    >
-                      <CheckCheck className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={clearNotifications}
-                      className="text-[11px] text-muted-foreground hover:text-destructive"
-                      title={lang === "ar" ? "مسح الكل" : "Clear"}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-2 max-h-72 overflow-y-auto space-y-2">
-                  {notifications.length === 0 ? (
-                    <p className="text-center py-6 text-xs text-muted-foreground">
-                      {lang === "ar" ? "لا توجد إشعارات جديدة حالياً" : "No notifications"}
-                    </p>
-                  ) : (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className={`rounded-xl p-3 text-xs transition border ${
-                          n.read
-                            ? "bg-background border-border/60 opacity-80"
-                            : "bg-primary/5 border-primary/20 font-medium"
-                        }`}
+            {/* Notifications Popover with Motion */}
+            <AnimatePresence>
+              {notifOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute end-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-card p-4 text-foreground shadow-2xl z-50"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-border">
+                    <span className="font-bold text-xs flex items-center gap-1.5">
+                      <Bell className="h-4 w-4 text-gold" />
+                      {lang === "ar" ? "مركز الإشعارات والتنبيهات" : "Notifications"}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={markAllNotificationsRead}
+                        className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
+                        title={lang === "ar" ? "تحديد الكل كمقروء" : "Mark read"}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-foreground text-xs">{n.title[lang]}</span>
-                          <span className="text-[10px] text-muted-foreground">{n.time}</span>
+                        <CheckCheck className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={clearNotifications}
+                        className="text-[11px] text-muted-foreground hover:text-destructive cursor-pointer"
+                        title={lang === "ar" ? "مسح الكل" : "Clear"}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 max-h-72 overflow-y-auto space-y-2">
+                    {notifications.length === 0 ? (
+                      <p className="text-center py-6 text-xs text-muted-foreground">
+                        {lang === "ar" ? "لا توجد إشعارات جديدة حالياً" : "No notifications"}
+                      </p>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className={`rounded-xl p-3 text-xs transition border ${
+                            n.read
+                              ? "bg-background border-border/60 opacity-80"
+                              : "bg-primary/5 border-primary/20 font-medium"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-foreground text-xs">{n.title[lang]}</span>
+                            <span className="text-[10px] text-muted-foreground">{n.time}</span>
+                          </div>
+                          <p className="text-muted-foreground text-[11px] mt-1 leading-relaxed">
+                            {n.message[lang]}
+                          </p>
+                          {n.link && (
+                            <Link
+                              to={n.link}
+                              onClick={() => setNotifOpen(false)}
+                              className="inline-block mt-1 text-[11px] font-bold text-primary hover:underline"
+                            >
+                              {lang === "ar" ? "عرض التفاصيل ←" : "View Details →"}
+                            </Link>
+                          )}
                         </div>
-                        <p className="text-muted-foreground text-[11px] mt-1 leading-relaxed">
-                          {n.message[lang]}
-                        </p>
-                        {n.link && (
-                          <Link
-                            to={n.link}
-                            onClick={() => setNotifOpen(false)}
-                            className="inline-block mt-1 text-[11px] font-bold text-primary hover:underline"
-                          >
-                            {lang === "ar" ? "عرض التفاصيل ←" : "View Details →"}
-                          </Link>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Shopping Cart */}
+          {/* Shopping Cart with Motion bounce */}
           <Link
             to="/cart"
-            className="relative flex items-center gap-2 rounded-lg bg-gold px-3 py-1.5 font-bold text-gold-foreground shadow-sm hover:opacity-95"
+            className="relative flex items-center gap-2 rounded-lg bg-gold px-3 py-1.5 font-bold text-gold-foreground shadow-sm hover:opacity-95 transition"
           >
             <ShoppingCart className="h-4 w-4" />
-            <span className="hidden sm:inline text-xs">{t.cart}</span>
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-black text-white">
-              {count}
-            </span>
+            <span className="hidden sm:inline text-xs font-display">{t.cart}</span>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={count}
+                initial={{ scale: 0.6 }}
+                animate={{ scale: [1, 1.25, 1] }}
+                transition={{ duration: 0.25 }}
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-black text-white"
+              >
+                {count}
+              </motion.span>
+            </AnimatePresence>
           </Link>
         </div>
       </div>
@@ -401,9 +453,9 @@ export function Header() {
       {/* Secondary Bar: Categories Navigation (Amazon-style) */}
       <div className="border-t border-white/15 bg-primary/95 text-xs">
         <div className="mx-auto flex max-w-[1720px] items-center gap-1.5 overflow-x-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-1.5 no-scrollbar">
-                    <Link
+          <Link
             to="/deals"
-            className="flex items-center gap-1.5 whitespace-nowrap rounded-md bg-rose-600/90 hover:bg-rose-600 px-3 py-1 font-bold text-white transition shadow-2xs me-1"
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-md bg-rose-600/90 hover:bg-rose-600 px-3 py-1 font-bold text-white transition shadow-2xs me-1 font-display"
           >
             <Flame className="h-3.5 w-3.5 text-gold fill-gold" />
             <span>{lang === "ar" ? "عروض اليوم الكبرى 🔥" : "Today's Deals 🔥"}</span>
@@ -414,9 +466,9 @@ export function Header() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`whitespace-nowrap rounded-md px-3 py-1 transition font-medium ${
+                className={`whitespace-nowrap rounded-md px-3 py-1 transition font-medium cursor-pointer ${
                   isActive
-                    ? "bg-gold text-gold-foreground font-bold"
+                    ? "bg-gold text-gold-foreground font-bold shadow-xs"
                     : "text-white/90 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -441,44 +493,51 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="border-t border-white/20 bg-primary p-4 md:hidden text-sm space-y-3">
-          <Link
-            to="/sell"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 py-2 font-bold text-gold border-b border-white/10"
+      {/* Mobile Drawer with Motion */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="border-t border-white/20 bg-primary p-4 md:hidden text-sm space-y-3 overflow-hidden"
           >
-            <Store className="h-4 w-4" />
-            <span>{t.sell} ({t.sellerDashboard})</span>
-          </Link>
-                    <Link
-            to="/deals"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 py-2 font-bold text-rose-300 border-b border-white/10"
-          >
-            <Flame className="h-4 w-4 text-gold fill-gold" />
-            <span>{lang === "ar" ? "عروض اليوم والصفقات الخاطفة 🔥" : "Today's Deals"}</span>
-          </Link>
-          <div className="py-2 text-xs font-semibold text-white/60">{t.categories}</div>
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCategory(cat.id);
-                  setMobileMenuOpen(false);
-                }}
-                className={`rounded-lg p-2 text-start text-xs ${
-                  selectedCategory === cat.id ? "bg-gold text-gold-foreground font-bold" : "bg-white/10 text-white"
-                }`}
-              >
-                {cat.label[lang]}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+            <Link
+              to="/sell"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 py-2 font-bold text-gold border-b border-white/10"
+            >
+              <Store className="h-4 w-4" />
+              <span>{t.sell} ({t.sellerDashboard})</span>
+            </Link>
+            <Link
+              to="/deals"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 py-2 font-bold text-rose-300 border-b border-white/10"
+            >
+              <Flame className="h-4 w-4 text-gold fill-gold" />
+              <span>{lang === "ar" ? "عروض اليوم والصفقات الخاطفة 🔥" : "Today's Deals"}</span>
+            </Link>
+            <div className="py-2 text-xs font-semibold text-white/60">{t.categories}</div>
+            <div className="grid grid-cols-2 gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedCategory(cat.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`rounded-lg p-2 text-start text-xs cursor-pointer ${
+                    selectedCategory === cat.id ? "bg-gold text-gold-foreground font-bold" : "bg-white/10 text-white"
+                  }`}
+                >
+                  {cat.label[lang]}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

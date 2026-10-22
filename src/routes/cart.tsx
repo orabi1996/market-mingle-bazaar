@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore, type OrderItem, getShippingZoneForCity } from "@/lib/store";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Trash2,
   Plus,
@@ -744,9 +745,15 @@ function Cart() {
       )}
     
       {/* 1. InstaPay Interactive Transfer Modal */}
+      <AnimatePresence>
       {showInstaPayModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl text-start relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl text-start relative overflow-hidden">
             <div className="absolute top-0 start-0 end-0 h-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500" />
             
             <div className="flex items-center justify-between pb-3 border-b border-border">
@@ -864,14 +871,21 @@ function Cart() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* 2. Fawry Pay 48-Hour Official Voucher Modal */}
+      <AnimatePresence>
       {showFawryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-3xl border border-amber-500/30 bg-card p-6 shadow-2xl text-start relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-md rounded-3xl border border-amber-500/30 bg-card p-6 shadow-2xl text-start relative overflow-hidden">
             <div className="absolute top-0 start-0 end-0 h-2 bg-amber-500" />
 
             <div className="flex items-center justify-between pb-3 border-b border-border">
@@ -980,14 +994,21 @@ function Cart() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* 3. 3D Secure SMS OTP Simulation Modal */}
+      <AnimatePresence>
       {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl text-start relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl text-start relative overflow-hidden">
             <div className="absolute top-0 start-0 end-0 h-2 bg-primary" />
 
             <div className="flex items-center justify-between pb-3 border-b border-border">
@@ -1093,9 +1114,10 @@ function Cart() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
     </main>
   );

@@ -6,6 +6,7 @@ import p2 from "@/assets/p2.jpg";
 import p3 from "@/assets/p3.jpg";
 import p4 from "@/assets/p4.jpg";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Star,
   Truck,
@@ -164,7 +165,7 @@ function ProductPage() {
             <span className="inline-block rounded-md bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
               {p.category[lang]}
             </span>
-            <h1 className="mt-2 text-2xl md:text-3xl font-black text-foreground leading-snug">
+            <h1 className="mt-2 text-2xl md:text-3xl font-black text-foreground leading-snug font-display">
               {p.name[lang]}
             </h1>
           </div>
@@ -321,17 +322,19 @@ function ProductPage() {
               </button>
             </div>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={handleAddToCart}
-              className="flex h-12 flex-1 w-full items-center justify-center gap-2 rounded-xl bg-gold font-bold text-gold-foreground shadow-md hover:opacity-90 transition text-sm"
+              className="flex h-12 flex-1 w-full items-center justify-center gap-2 rounded-xl bg-gold font-bold text-gold-foreground shadow-md hover:opacity-90 transition text-sm font-display cursor-pointer"
             >
               {t.add}
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.85 }}
               onClick={() => toggleWishlist(p.id)}
-              className={`flex h-12 items-center justify-center gap-1.5 rounded-xl border px-4 text-xs font-bold transition ${
+              className={`flex h-12 items-center justify-center gap-1.5 rounded-xl border px-4 text-xs font-bold transition cursor-pointer ${
                 isFav
                   ? "border-red-500 bg-red-50 text-red-600"
                   : "border-input bg-card text-foreground hover:bg-muted"
@@ -340,15 +343,22 @@ function ProductPage() {
             >
               <Heart className={`h-4 w-4 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
               <span className="hidden sm:inline">{isFav ? t.inWishlist : t.addToWishlist}</span>
-            </button>
+            </motion.button>
           </div>
 
-          {addedToast && (
-            <div className="flex items-center gap-2 rounded-xl bg-emerald-500/15 p-3 text-xs font-bold text-emerald-600 animate-in fade-in">
-              <CheckCircle2 className="h-4 w-4" />
-              {t.addedToCart}
-            </div>
-          )}
+          <AnimatePresence>
+            {addedToast && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="flex items-center gap-2 rounded-xl bg-emerald-500/15 p-3 text-xs font-bold text-emerald-600"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                {t.addedToCart}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Trust badges */}
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-4 text-center text-[11px] text-muted-foreground">

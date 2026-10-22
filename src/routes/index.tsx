@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import hero from "@/assets/hero.jpg";
 import { useStore } from "@/lib/store";
 import { ProductCard } from "@/components/ProductCard";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Sparkles,
   Truck,
@@ -11,24 +11,22 @@ import {
   Headphones,
   Store,
   ArrowRight,
-  Filter,
   X,
-  SlidersHorizontal,
   ArrowDownUp,
   Flame,
-  CheckCircle2,
   Star,
-  MapPin,
   BadgeCheck,
 } from "lucide-react";
+import { motion } from "motion/react";
+import { gsap } from "gsap";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "سوقلي | Souqly - سوق التجارة الإلكترونية الشامل في الخليج" },
-      { name: "description", content: "تسوق ملايين المنتجات من آلاف التجار المعتمدين في الخليج بتوصيل سريع وضمان ذهبي." },
+      { title: "سوقلي | Souqly - سوق التجارة الإلكترونية الشامل في مصر والخليج" },
+      { name: "description", content: "تسوق ملايين المنتجات من آلاف التجار المعتمدين في مصر ودول الخليج العربي بتوصيل سريع وضمان ذهبي." },
       { property: "og:title", content: "سوقلي | Souqly Marketplace" },
-      { property: "og:description", content: "سوق التجارة الإلكترونية الشامل في الخليج العربي." },
+      { property: "og:description", content: "سوق التجارة الإلكترونية الشامل في مصر والخليج العربي." },
     ],
   }),
   component: Index,
@@ -50,6 +48,23 @@ function Index() {
   const [sortBy, setSortBy] = useState<"featured" | "priceAsc" | "priceDesc" | "rating">("featured");
   const [onlyDeals, setOnlyDeals] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(2000);
+
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const trustSectionRef = useRef<HTMLElement>(null);
+
+  // GSAP Entrance Timeline for Hero & Trust Features
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.from(".hero-tag", { opacity: 0, y: 15, duration: 0.5 })
+        .from(".hero-title", { opacity: 0, y: 20, duration: 0.6 }, "-=0.3")
+        .from(".hero-sub", { opacity: 0, y: 15, duration: 0.5 }, "-=0.3")
+        .from(".hero-cta", { opacity: 0, y: 15, duration: 0.4, stagger: 0.1 }, "-=0.2")
+        .from(".trust-badge-item", { opacity: 0, y: 10, duration: 0.4, stagger: 0.08 }, "-=0.1");
+    }, heroSectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   // Filter products by Search Query, Category, Deals & Price
   let filteredProducts = products.filter((p) => {
@@ -91,40 +106,40 @@ function Index() {
   };
 
   return (
-    <main>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-sand">
+    <main className="font-sans">
+      {/* Hero Section with GSAP Animations */}
+      <section ref={heroSectionRef} className="relative overflow-hidden bg-sand">
         <img
           src={hero}
-          alt="Souqly Gulf Shopping"
+          alt="Souqly Egypt & Gulf Shopping"
           width={1600}
           height={800}
           className="absolute inset-0 h-full w-full object-cover ltr:scale-x-[-1] opacity-90"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/70 to-transparent"></div>
-        <div className="relative mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 py-16 md:py-28">
+        <div className="absolute inset-0 bg-linear-to-r from-background/95 via-background/75 to-transparent"></div>
+        <div className="relative mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-16 md:py-28">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/25 px-3 py-1 text-xs font-bold text-foreground mb-4">
+            <div className="hero-tag inline-flex items-center gap-1.5 rounded-full bg-gold/25 px-3 py-1 text-xs font-bold text-foreground mb-4 font-display">
               <Sparkles className="h-4 w-4 text-gold" />
               <span>{t.brandTag}</span>
             </div>
-            <h1 className="text-3xl font-black leading-tight md:text-5xl text-foreground">
+            <h1 className="hero-title text-3xl font-black leading-tight md:text-5xl text-foreground font-display">
               {t.heroTitle}
             </h1>
-            <p className="mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
+            <p className="hero-sub mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
               {t.heroSub}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/deals"
-                className="rounded-xl bg-gold px-6 py-3 text-sm font-black text-gold-foreground shadow-md transition hover:opacity-90 flex items-center gap-1.5"
+                className="hero-cta rounded-xl bg-gold px-6 py-3 text-sm font-black text-gold-foreground shadow-md transition hover:opacity-90 flex items-center gap-1.5 font-display cursor-pointer"
               >
                 <Flame className="h-4 w-4 fill-gold-foreground" />
                 <span>{lang === "ar" ? "عروض اليوم والصفقات الكبرى 🔥" : "Today's Flash Deals 🔥"}</span>
               </Link>
               <Link
                 to="/sell"
-                className="rounded-xl border border-input bg-card/90 backdrop-blur-xs px-6 py-3 text-sm font-bold text-foreground shadow-xs transition hover:bg-muted"
+                className="hero-cta rounded-xl border border-input bg-card/90 backdrop-blur-xs px-6 py-3 text-sm font-bold text-foreground shadow-xs transition hover:bg-muted font-display cursor-pointer"
               >
                 {t.sellCta}
               </Link>
@@ -134,45 +149,45 @@ function Index() {
       </section>
 
       {/* Trust & Guarantee Badges Bar */}
-      <section className="border-y border-border bg-card py-6">
-        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4">
+      <section ref={trustSectionRef} className="border-y border-border bg-card py-6">
+        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="flex items-center gap-3">
+            <div className="trust-badge-item flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Truck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold">{t.features.fastDelivery}</h4>
+                <h4 className="text-xs font-bold font-display">{t.features.fastDelivery}</h4>
                 <p className="text-[11px] text-muted-foreground">{t.features.fastDeliveryDesc}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="trust-badge-item flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/20 text-gold">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold">{t.features.genuine}</h4>
+                <h4 className="text-xs font-bold font-display">{t.features.genuine}</h4>
                 <p className="text-[11px] text-muted-foreground">{t.features.genuineDesc}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="trust-badge-item flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <CreditCard className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold">{t.features.securePay}</h4>
+                <h4 className="text-xs font-bold font-display">{t.features.securePay}</h4>
                 <p className="text-[11px] text-muted-foreground">{t.features.securePayDesc}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="trust-badge-item flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/20 text-gold">
                 <Headphones className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold">{t.features.support}</h4>
+                <h4 className="text-xs font-bold font-display">{t.features.support}</h4>
                 <p className="text-[11px] text-muted-foreground">{t.features.supportDesc}</p>
               </div>
             </div>
@@ -182,7 +197,7 @@ function Index() {
 
       {/* Flash Deals Spotlight on Home */}
       <section className="bg-sand/30 border-b border-border py-8">
-        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4">
+        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white shadow-xs">
@@ -190,7 +205,7 @@ function Index() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-black text-foreground">
+                  <h3 className="text-xl font-black text-foreground font-display">
                     {lang === "ar" ? "عروض اليوم والصفقات الخاطفة" : "Today's Flash Deals"}
                   </h3>
                   <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-bold text-rose-600">
@@ -207,7 +222,7 @@ function Index() {
 
             <Link
               to="/deals"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-card border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-muted hover:border-gold/50 transition w-fit"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-card border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-muted hover:border-gold/50 transition w-fit font-display cursor-pointer"
             >
               <span>{lang === "ar" ? "تصفح جميع العروض (صفحة الصفقات)" : "View All Deals"}</span>
               <ArrowRight className="h-3.5 w-3.5 text-gold rtl:rotate-180" />
@@ -217,37 +232,42 @@ function Index() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {products
               .filter((p) => p.oldPrice && p.oldPrice > p.price)
-              .slice(0, 4)
+              .slice(0, 6)
               .map((deal) => {
                 const discount = deal.oldPrice ? Math.round(((deal.oldPrice - deal.price) / deal.oldPrice) * 100) : 0;
                 return (
-                  <Link
+                  <motion.div
                     key={deal.id}
-                    to="/product/$id"
-                    params={{ id: deal.id }}
-                    className="group rounded-2xl border border-border bg-card p-3 shadow-2xs hover:shadow-md hover:border-gold/50 transition flex flex-col"
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <div className="relative aspect-square overflow-hidden rounded-xl bg-secondary mb-2.5">
-                      <img
-                        src={deal.image}
-                        alt=""
-                        className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                      <span className="absolute top-2 start-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-black text-white">
-                        -{discount}%
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">{deal.seller}</span>
-                    <h4 className="font-bold text-xs text-foreground line-clamp-1 group-hover:text-primary mt-0.5">
-                      {deal.name[lang] || deal.name.ar}
-                    </h4>
-                    <div className="mt-2 flex items-baseline gap-1.5">
-                      <span className="font-black text-sm text-primary">{price(deal.price)}</span>
-                      {deal.oldPrice && (
-                        <span className="text-[11px] text-muted-foreground line-through">{price(deal.oldPrice)}</span>
-                      )}
-                    </div>
-                  </Link>
+                    <Link
+                      to="/product/$id"
+                      params={{ id: deal.id }}
+                      className="group rounded-2xl border border-border bg-card p-3 shadow-2xs hover:shadow-md hover:border-gold/50 transition flex flex-col h-full"
+                    >
+                      <div className="relative aspect-square overflow-hidden rounded-xl bg-secondary mb-2.5">
+                        <img
+                          src={deal.image}
+                          alt=""
+                          className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                        <span className="absolute top-2 start-2 rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-black text-white">
+                          -{discount}%
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">{deal.seller}</span>
+                      <h4 className="font-bold text-xs text-foreground line-clamp-1 group-hover:text-primary mt-0.5 font-display">
+                        {deal.name[lang] || deal.name.ar}
+                      </h4>
+                      <div className="mt-auto pt-2 flex items-baseline gap-1.5">
+                        <span className="font-black text-sm text-primary">{price(deal.price)}</span>
+                        {deal.oldPrice && (
+                          <span className="text-[11px] text-muted-foreground line-through">{price(deal.oldPrice)}</span>
+                        )}
+                      </div>
+                    </Link>
+                  </motion.div>
                 );
               })}
           </div>
@@ -255,11 +275,11 @@ function Index() {
       </section>
 
       {/* Main Products Grid with Advanced Filter Bar */}
-      <section id="products" className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 py-12">
+      <section id="products" className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-12">
         {/* Section Heading & Result Summary */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+            <h2 className="text-2xl font-bold flex items-center gap-2 font-display">
               <Sparkles className="h-5 w-5 text-gold" />
               {selectedCategory === "all" ? t.deals : `${t.categories}: ${selectedCategory}`}
             </h2>
@@ -273,7 +293,7 @@ function Index() {
           {hasActiveFilters && (
             <button
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
               {lang === "ar" ? "إعادة ضبط التصفية" : "Reset Filters"}
@@ -287,7 +307,7 @@ function Index() {
             {/* Deals Only Toggle */}
             <button
               onClick={() => setOnlyDeals(!onlyDeals)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-bold transition cursor-pointer ${
                 onlyDeals
                   ? "bg-red-500 text-white shadow-xs"
                   : "border border-input bg-background text-foreground hover:bg-muted"
@@ -339,7 +359,7 @@ function Index() {
             </p>
             <button
               onClick={handleResetFilters}
-              className="mt-4 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
+              className="mt-4 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground cursor-pointer"
             >
               {lang === "ar" ? "عرض جميع المنتجات" : "View All Products"}
             </button>
@@ -354,10 +374,10 @@ function Index() {
       </section>
 
       {/* Featured Verified Stores Showcase */}
-      <section className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 pb-16">
+      <section className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 pb-16">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+            <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2 font-display">
               <Store className="h-5 w-5 text-gold" />
               <span>{lang === "ar" ? "المتاجر المعتمدة في سوقلي" : "Featured Partner Stores"}</span>
             </h2>
@@ -370,7 +390,7 @@ function Index() {
 
           <Link
             to="/sell"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-gold transition"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-gold transition font-display"
           >
             <span>{lang === "ar" ? "انضم كتاجر معتمد" : "Become a Partner"}</span>
             <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
@@ -390,61 +410,66 @@ function Index() {
               .toUpperCase();
 
             return (
-              <Link
+              <motion.div
                 key={s.id}
-                to="/store/$id"
-                params={{ id: s.id }}
-                className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-1 hover:border-gold/50 hover:shadow-md cursor-pointer"
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.2 }}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gold/20 to-primary/10 font-bold text-primary text-sm group-hover:scale-105 transition">
-                      {initials}
+                <Link
+                  to="/store/$id"
+                  params={{ id: s.id }}
+                  className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-4 transition-shadow hover:border-gold/50 hover:shadow-md cursor-pointer h-full"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gold/20 to-primary/10 font-bold text-primary text-sm group-hover:scale-105 transition font-display">
+                        {initials}
+                      </div>
+                      {s.isVerified && (
+                        <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+                          <BadgeCheck className="h-3 w-3" />
+                          {lang === "ar" ? "موثق" : "Verified"}
+                        </span>
+                      )}
                     </div>
-                    {s.isVerified && (
-                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
-                        <BadgeCheck className="h-3 w-3" />
-                        {lang === "ar" ? "موثق" : "Verified"}
-                      </span>
-                    )}
+
+                    <h3 className="font-bold text-sm text-foreground group-hover:text-gold transition line-clamp-1 font-display">
+                      {s.name}
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                      {s.category} • {s.city || "الرياض"}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground/80 mt-2 line-clamp-2 leading-relaxed">
+                      {s.bio ? s.bio[lang] : s.owner}
+                    </p>
                   </div>
 
-                  <h3 className="font-bold text-sm text-foreground group-hover:text-gold transition line-clamp-1">
-                    {s.name}
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-                    {s.category} • {s.city || "الرياض"}
-                  </p>
-
-                  <p className="text-xs text-muted-foreground/80 mt-2 line-clamp-2 leading-relaxed">
-                    {s.bio ? s.bio[lang] : s.owner}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1 text-gold font-bold">
-                    <Star className="h-3 w-3 fill-gold" />
-                    <span>{s.rating || 4.9}</span>
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1 text-gold font-bold">
+                      <Star className="h-3 w-3 fill-gold" />
+                      <span>{s.rating || 4.9}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-primary group-hover:underline">
+                      {storeProductCount} {lang === "ar" ? "منتج ↗" : "items ↗"}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-semibold text-primary group-hover:underline">
-                    {storeProductCount} {lang === "ar" ? "منتج ↗" : "items ↗"}
-                  </span>
-                </div>
-              </Link>
+                </Link>
+              </motion.div>
             );
           })}
         </div>
       </section>
 
       {/* Seller Invitation Banner (Amazon Marketplace style) */}
-      <section className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 px-4 pb-16">
+      <section className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 pb-16">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-3xl bg-linear-to-r from-primary to-primary/95 p-8 text-primary-foreground shadow-lg">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-1 rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-2">
+            <div className="inline-flex items-center gap-1 rounded-full bg-gold/20 px-3 py-1 text-xs font-bold text-gold mb-2 font-display">
               <Store className="h-3.5 w-3.5" />
               {t.sell}
             </div>
-            <h3 className="text-2xl font-bold md:text-3xl">
+            <h3 className="text-2xl font-bold md:text-3xl font-display">
               {lang === "ar" ? "هل تمتلك متجراً أو منتجات وتريد بيعها؟" : "Are you a seller or brand owner?"}
             </h3>
             <p className="mt-2 text-sm text-white/80 leading-relaxed">
@@ -455,7 +480,7 @@ function Index() {
           </div>
           <Link
             to="/sell"
-            className="whitespace-nowrap rounded-xl bg-gold px-6 py-3.5 text-sm font-bold text-gold-foreground shadow hover:opacity-90 transition"
+            className="whitespace-nowrap rounded-xl bg-gold px-6 py-3.5 text-sm font-bold text-gold-foreground shadow hover:opacity-90 transition font-display cursor-pointer"
           >
             {t.sellCta}
           </Link>

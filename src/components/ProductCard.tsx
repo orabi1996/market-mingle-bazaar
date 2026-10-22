@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useStore, type Product } from "@/lib/store";
-import { Heart, ShoppingCart, Star, Check, Zap, ShieldCheck } from "lucide-react";
+import { Heart, ShoppingCart, Star, Check, Zap } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 export function ProductCard({ p }: { p: Product }) {
   const { lang, t, price, add, wishlist, toggleWishlist } = useStore();
@@ -29,13 +30,23 @@ export function ProductCard({ p }: { p: Product }) {
   };
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 hover:shadow-lg">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-2xs transition-shadow duration-300 hover:border-gold/50 hover:shadow-lg"
+    >
       {/* Top Floating Badges */}
       <div className="absolute top-2.5 start-2.5 z-10 flex flex-col gap-1 items-start">
         {discountPercent > 0 && (
-          <span className="rounded-lg bg-rose-600 px-2 py-0.5 text-[11px] font-black text-white shadow-xs">
+          <motion.span
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="rounded-lg bg-rose-600 px-2 py-0.5 text-[11px] font-black text-white shadow-xs"
+          >
             -{discountPercent}%
-          </span>
+          </motion.span>
         )}
         {isEgyptianProduct && (
           <span className="rounded-lg bg-emerald-600/90 backdrop-blur-xs px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
@@ -45,14 +56,16 @@ export function ProductCard({ p }: { p: Product }) {
       </div>
 
       {/* Wishlist toggle button */}
-      <button
+      <motion.button
         type="button"
+        whileTap={{ scale: 0.75 }}
+        whileHover={{ scale: 1.1 }}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           toggleWishlist(p.id);
         }}
-        className="absolute top-2.5 end-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/85 backdrop-blur-xs shadow-xs transition hover:scale-110 cursor-pointer"
+        className="absolute top-2.5 end-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/85 backdrop-blur-xs shadow-xs transition cursor-pointer"
         title={isFav ? t.inWishlist : t.addToWishlist}
       >
         <Heart
@@ -60,7 +73,7 @@ export function ProductCard({ p }: { p: Product }) {
             isFav ? "fill-rose-500 text-rose-500" : "text-muted-foreground hover:text-rose-500"
           }`}
         />
-      </button>
+      </motion.button>
 
       {/* Image Container with HD zoom on hover */}
       <Link to="/product/$id" params={{ id: p.id }} className="relative aspect-square overflow-hidden bg-secondary/50">
@@ -95,7 +108,7 @@ export function ProductCard({ p }: { p: Product }) {
         <Link
           to="/product/$id"
           params={{ id: p.id }}
-          className="line-clamp-2 text-xs sm:text-sm font-bold text-foreground hover:text-primary transition leading-snug"
+          className="font-display line-clamp-2 text-xs sm:text-sm font-bold text-foreground hover:text-primary transition leading-snug"
         >
           {p.name[lang] || p.name.ar}
         </Link>
@@ -134,27 +147,42 @@ export function ProductCard({ p }: { p: Product }) {
         </div>
 
         {/* Quick Add to Cart Button */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={handleAdd}
           className={`mt-2.5 w-full rounded-xl py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer ${
             justAdded
               ? "bg-emerald-600 text-white"
-              : "bg-primary text-primary-foreground hover:opacity-90 active:scale-98"
+              : "bg-primary text-primary-foreground hover:opacity-90"
           }`}
         >
-          {justAdded ? (
-            <>
-              <Check className="h-3.5 w-3.5" />
-              <span>{lang === "ar" ? "تمت الإضافة ✓" : "Added ✓"}</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="h-3.5 w-3.5" />
-              <span>{t.add}</span>
-            </>
-          )}
-        </button>
+          <AnimatePresence mode="wait" initial={false}>
+            {justAdded ? (
+              <motion.span
+                key="added"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="flex items-center gap-1.5"
+              >
+                <Check className="h-3.5 w-3.5" />
+                <span>{lang === "ar" ? "تمت الإضافة ✓" : "Added ✓"}</span>
+              </motion.span>
+            ) : (
+              <motion.span
+                key="add"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="flex items-center gap-1.5"
+              >
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span>{t.add}</span>
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }

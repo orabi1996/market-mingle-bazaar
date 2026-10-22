@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore, type Product } from "@/lib/store";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Sparkles,
   Flame,
@@ -110,15 +111,22 @@ function DealsPage() {
   return (
     <main className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       {/* Toast Notification */}
-      {addedToast && (
-        <div className="fixed bottom-6 start-6 z-50 flex items-center gap-2 rounded-xl bg-foreground px-4 py-3 text-xs font-bold text-background shadow-2xl animate-in fade-in slide-in-from-bottom-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-          <span>{lang === "ar" ? `تمت إضافة "${addedToast}" إلى سلتك!` : `Added "${addedToast}" to cart!`}</span>
-          <Link to="/cart" className="ms-2 underline text-gold">
-            {lang === "ar" ? "عرض السلة" : "View Cart"}
-          </Link>
-        </div>
-      )}
+      <AnimatePresence>
+        {addedToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 start-6 z-50 flex items-center gap-2 rounded-xl bg-foreground px-4 py-3 text-xs font-bold text-background shadow-2xl"
+          >
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+            <span>{lang === "ar" ? `تمت إضافة "${addedToast}" إلى سلتك!` : `Added "${addedToast}" to cart!`}</span>
+            <Link to="/cart" className="ms-2 underline text-gold">
+              {lang === "ar" ? "عرض السلة" : "View Cart"}
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Deals Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-red-600 via-amber-600 to-primary p-6 md:p-10 text-white shadow-xl mb-10">
@@ -303,9 +311,11 @@ function DealsPage() {
           const inWish = isInWishlist(p.id);
 
           return (
-            <div
+            <motion.div
               key={p.id}
-              className="group flex flex-col rounded-2xl border border-border bg-card shadow-xs transition hover:shadow-md hover:border-gold/50 overflow-hidden relative"
+              whileHover={{ y: -5 }}
+              transition={{ duration: 0.2 }}
+              className="group flex flex-col rounded-2xl border border-border bg-card shadow-xs transition-shadow hover:shadow-lg hover:border-gold/50 overflow-hidden relative"
             >
               {/* Discount Badge */}
               <div className="absolute top-3 start-3 z-10 flex flex-col gap-1">
@@ -386,16 +396,17 @@ function DealsPage() {
 
                 {/* Add To Cart Button */}
                 <div className="mt-4 pt-3 border-t border-border mt-auto">
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleAddToCart(p)}
-                    className="w-full rounded-xl bg-gold py-2 text-xs font-black text-gold-foreground shadow-xs hover:opacity-90 flex items-center justify-center gap-1.5 transition cursor-pointer"
+                    className="w-full rounded-xl bg-gold py-2 text-xs font-black text-gold-foreground shadow-xs hover:opacity-90 flex items-center justify-center gap-1.5 transition cursor-pointer font-display"
                   >
                     <ShoppingCart className="h-3.5 w-3.5" />
                     <span>{t.add}</span>
-                  </button>
+                  </motion.button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
