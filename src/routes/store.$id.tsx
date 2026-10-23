@@ -42,6 +42,15 @@ function StoreView() {
         s.name.toLowerCase().replace(/\s+/g, "-") === id.toLowerCase()
     ) || stores[0];
 
+  if (!store) {
+    return (
+      <main className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-16 text-center">
+        <h1 className="font-display text-2xl font-bold">المتجر غير موجود</h1>
+        <Link to="/" className="mt-4 inline-block rounded-xl bg-primary px-4 py-2 text-white">العودة للرئيسية</Link>
+      </main>
+    );
+  }
+
   // Store products
   const storeProducts = products.filter(
     (p) =>
@@ -160,7 +169,7 @@ function StoreView() {
       <div className="relative border-b border-border bg-gradient-to-r from-primary via-slate-900 to-primary text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:20px_20px] opacity-10" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-8 md:py-12">
+        <div className="relative mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8 md:py-12">
           {/* Breadcrumb */}
           <div className="mb-6 flex items-center gap-2 text-xs text-white/70">
             <Link to="/" className="hover:text-gold">{lang === "ar" ? "الرئيسية" : "Home"}</Link>
@@ -279,7 +288,7 @@ function StoreView() {
 
       {/* Store Guarantees Strip */}
       <div className="border-b border-border bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex flex-wrap items-center justify-around gap-4 text-xs text-muted-foreground">
+        <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex flex-wrap items-center justify-around gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <Truck className="h-4 w-4 text-primary" />
             <span className="font-semibold text-foreground">{lang === "ar" ? "شحن خليجي سريع 24-48 ساعة" : "Express 24-48h Delivery"}</span>
@@ -296,7 +305,7 @@ function StoreView() {
       </div>
 
       {/* Catalog Search & Filter Controls */}
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">

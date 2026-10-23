@@ -37,7 +37,7 @@ export function Header() {
     selectedCategory,
     setSelectedCategory,
     user,
-    setUser,
+    logout,
     setIsAuthModalOpen,
     wishlist,
     notifications,
@@ -54,16 +54,14 @@ export function Header() {
 
   // GSAP subtle pulse and entrance for top ticker
   useEffect(() => {
-    if (tickerRef.current) {
-      const ctx = gsap.context(() => {
-        gsap.fromTo(
-          tickerRef.current,
-          { opacity: 0, y: -6 },
-          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-        );
-      }, tickerRef);
-      return () => ctx.revert();
-    }
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        tickerRef.current,
+        { opacity: 0, y: -6 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+      );
+    }, tickerRef);
+    return () => ctx.revert();
   }, []);
 
   const categories = [
@@ -276,7 +274,7 @@ export function Header() {
                     <div className="pt-1 border-t border-border mt-1">
                       <button
                         onClick={() => {
-                          setUser(null);
+                          logout();
                           setUserMenuOpen(false);
                         }}
                         className="w-full flex items-center gap-2 rounded-xl px-3 py-2 font-bold text-destructive hover:bg-destructive/10 transition cursor-pointer"

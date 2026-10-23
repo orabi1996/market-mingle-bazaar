@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore, type StoreInfo, type Order } from "@/lib/store";
 import { useState } from "react";
+import { RevenueChart } from "@/components/RevenueChart";
 import {
   ShieldCheck,
   Store,
@@ -449,7 +450,9 @@ function AdminConsole() {
 
       {/* Tab 4: Financials & Commission */}
       {activeTab === "financials" && (
-        <div className="mt-6 max-w-2xl rounded-2xl border border-border bg-card p-6 md:p-8 shadow-xs">
+        <>
+          <RevenueChart gmv={gmv} commissionRate={commissionRate} lang={lang} price={price} />
+          <div className="mt-6 max-w-2xl rounded-2xl border border-border bg-card p-6 md:p-8 shadow-xs">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <Percent className="h-5 w-5 text-gold" />
             {lang === "ar" ? "إعدادات العمولة والأرباح التشغيلية" : "Commission & Platform Take Rate"}
@@ -507,6 +510,7 @@ function AdminConsole() {
             </button>
           </form>
         </div>
+        </>
       )}
     </main>
   );

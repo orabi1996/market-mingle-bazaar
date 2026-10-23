@@ -136,7 +136,7 @@ function HelpCenterPage() {
       <div className="relative border-b border-border bg-gradient-to-r from-primary via-slate-900 to-primary text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:20px_20px] opacity-10" />
 
-        <div className="relative mx-auto max-w-5xl px-4 py-12 md:py-16 text-center">
+        <div className="relative mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-12 md:py-16 text-center">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3.5 py-1 text-xs font-bold text-gold mb-3">
             <Headphones className="h-3.5 w-3.5" />
             <span>{lang === "ar" ? "خدمة عملاء مصر والخليج العربي 🇪🇬 🇸🇦" : "Egypt & GCC Customer Care"}</span>
@@ -166,7 +166,7 @@ function HelpCenterPage() {
       </div>
 
       {/* 4 Quick Category Cards */}
-      <div className="mx-auto max-w-6xl px-4 -mt-6">
+      <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 -mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <button
             onClick={() => {
@@ -227,7 +227,7 @@ function HelpCenterPage() {
       </div>
 
       {/* Main Content: FAQs & Support Ticket Form */}
-      <div id="faqs" className="mx-auto max-w-6xl px-4 mt-12 grid gap-10 lg:grid-cols-3">
+      <div id="faqs" className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-12 grid gap-10 lg:grid-cols-3">
         {/* FAQs Accordion (2 cols on large) */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">

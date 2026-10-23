@@ -213,7 +213,7 @@ function ProductPage() {
               <span className="font-bold text-foreground">
                 {lang === "ar" ? "اللون المختار:" : "Color:"}{" "}
                 <span className="font-normal text-muted-foreground">
-                  {COLORS[selectedColor][lang === "ar" ? "nameAr" : "nameEn"]}
+                  {COLORS[selectedColor]?.[lang === "ar" ? "nameAr" : "nameEn"] ?? ""}
                 </span>
               </span>
               <span className="text-[11px] text-emerald-600 font-semibold">

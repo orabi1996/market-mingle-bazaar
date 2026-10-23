@@ -170,12 +170,12 @@ function SellerCenter() {
         en: categoryEn,
       },
       price: Number(productPrice),
-      oldPrice: oldPrice ? Number(oldPrice) : undefined,
+      ...(oldPrice ? { oldPrice: Number(oldPrice) } : {}),
       rating: 5.0,
       reviews: 1,
       image: customImageUrl.trim() ? customImageUrl.trim() : selectedImage,
       seller: user?.storeName || (lang === "ar" ? "متجر معتمد" : "Verified Store"),
-      sellerId: user?.id,
+      ...(user?.id ? { sellerId: user.id } : {}),
       stock: Number(stock),
       desc: {
         ar: descAr || nameAr,
@@ -1040,7 +1040,7 @@ function SellerCenter() {
                   value={payoutMethod}
                   onChange={(e) => {
                     const m = e.target.value;
-                    setPayoutMethod(m);
+                    setPayoutMethod(m as "instapay" | "vodafone_cash" | "bank_iban");
                     if (m === "instapay") setPayoutDest("cairo.tech@instapay");
                     else if (m === "vodafone_cash") setPayoutDest("01012345678");
                     else setPayoutDest("EG380002000100000012345678901");

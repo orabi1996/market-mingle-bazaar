@@ -9,6 +9,8 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { MotionConfig } from "motion/react";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -121,10 +123,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <StoreProvider>
+        <MotionConfig reducedMotion="user">
         <Header />
         <Outlet />
         <AuthModal />
         <LiveChatWidget />
+        <Toaster position="bottom-left" dir="rtl" richColors closeButton />
         <footer className="mt-20 border-t border-border bg-primary text-primary-foreground py-12">
           <div className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 grid gap-8 md:grid-cols-4 text-xs">
             <div>
@@ -174,6 +178,7 @@ function RootComponent() {
             جميع الحقوق محفوظة © 2026 سوقلي Souqly Marketplace
           </div>
         </footer>
+        </MotionConfig>
       </StoreProvider>
     </QueryClientProvider>
   );

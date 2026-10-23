@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { useStore } from "@/lib/store";
 import { Link } from "@tanstack/react-router";
 import {
@@ -142,8 +143,15 @@ export function LiveChatWidget() {
       )}
 
       {/* Floating Chat Box Window */}
-      {isOpen && (
-        <div className="flex flex-col w-[92vw] sm:w-96 h-[520px] max-h-[85vh] rounded-3xl border border-border bg-card text-foreground shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 16 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col w-[92vw] sm:w-96 h-[520px] max-h-[85vh] rounded-3xl border border-border bg-card text-foreground shadow-2xl overflow-hidden font-sans"
+          >
           {/* Header */}
           <div className="flex items-center justify-between bg-gradient-to-r from-primary via-slate-900 to-primary p-4 text-white">
             <div className="flex items-center gap-3">
@@ -280,8 +288,9 @@ export function LiveChatWidget() {
               <Send className="h-3.5 w-3.5" />
             </button>
           </form>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

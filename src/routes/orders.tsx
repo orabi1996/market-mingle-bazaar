@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useStore, type Order } from "@/lib/store";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -432,7 +433,7 @@ function OrdersPage() {
                           <button
                             onClick={() => {
                               add(item.productId, item.quantity);
-                              alert(lang === "ar" ? "تمت إضافة المنتج مجدداً لسلة التسوق!" : "Added back to cart!");
+                              toast(lang === "ar" ? "تمت إضافة المنتج مجدداً لسلة التسوق!" : "Added back to cart!");
                             }}
                             className="block text-[11px] font-semibold text-primary hover:underline mt-1 cursor-pointer"
                           >

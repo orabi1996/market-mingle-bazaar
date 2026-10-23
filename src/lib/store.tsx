@@ -58,7 +58,7 @@ export type StoreInfo = {
   nationalIdNumber?: string;
   documentUrl?: string;
   governorate?: string;
-  rejectionReason?: string;
+  rejectionReason?: string | undefined;
 };
 
 // Approximate rates from SAR (base)
@@ -172,11 +172,11 @@ export const SHIPPING_ZONES: ShippingZone[] = [
 ];
 
 export const getShippingZoneForCity = (cityOrGov: string): ShippingZone => {
-  if (!cityOrGov) return SHIPPING_ZONES[0];
+  if (!cityOrGov) return SHIPPING_ZONES[0]!;
   const found = SHIPPING_ZONES.find((z) =>
     z.governorates.some((g) => g.toLowerCase().includes(cityOrGov.toLowerCase()) || cityOrGov.toLowerCase().includes(g.toLowerCase()))
   );
-  return found || SHIPPING_ZONES[0];
+  return found || SHIPPING_ZONES[0]!;
 };
 
 export type Order = {
@@ -1160,12 +1160,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const decrease = (id: string) => {
-    if (!cart[id]) return;
+    const qty = cart[id];
+    if (typeof qty !== "number") return;
     const next = { ...cart };
-    if (next[id] <= 1) {
+    if (qty <= 1) {
       delete next[id];
     } else {
-      next[id] -= 1;
+      next[id] = qty - 1;
     }
     saveCart(next);
   };
@@ -1280,7 +1281,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...s,
             isVerified: approved,
             kycStatus: approved ? ("verified" as const) : ("rejected" as const),
-            rejectionReason: approved ? undefined : reason,
+            ...(approved ? {} : { rejectionReason: reason }),
           }
         : s
     );
@@ -1363,7 +1364,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const newReview: Review = {
       ...reviewData,
       id: "rev_" + Date.now(),
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0]!,
     };
     const nextReviews = [newReview, ...reviews];
     saveReviews(nextReviews);
@@ -1485,7 +1486,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const deleteAddress = (id: string) => {
     let updated = addresses.filter((a) => a.id !== id);
     if (updated.length > 0 && !updated.some((a) => a.isDefault)) {
-      updated[0].isDefault = true;
+      updated[0]!.isDefault = true;
     }
     saveAddresses(updated);
   };
@@ -1522,7 +1523,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ar: `شحن رصيد المحفظة عبر ${methodTitle}`,
         en: `Wallet top-up via ${methodTitle}`,
       },
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0]!,
       amount: amountSar,
       type: "credit",
       note: methodTitle,
@@ -1549,7 +1550,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ar: `دفع قيمة طلب من المحفظة`,
         en: `Order payment from wallet`,
       },
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0]!,
       amount: amountSar,
       type: "debit",
       note,
@@ -1586,7 +1587,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ar: `استرداد فوري لإلغاء الطلب ${target.id}`,
           en: `Instant refund for cancelled ${target.id}`,
         },
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toISOString().split("T")[0]!,
         amount: target.total,
         type: "credit",
         orderId: target.id,
@@ -1622,7 +1623,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...o,
             status: "return_requested" as const,
             returnReason: reason,
-            returnNotes: notes,
+            ...(notes ? { returnNotes: notes } : {}),
             returnDate: new Date().toISOString(),
             returnTrackingNumber: returnTracking,
             refundMethod: refundToWallet ? ("wallet" as const) : ("original_payment" as const),
@@ -1669,7 +1670,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ar: `استرداد إرجاع معتمد للطلب ${target.id}`,
         en: `Refund for returned ${target.id}`,
       },
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0]!,
       amount: target.total,
       type: "credit",
       orderId: target.id,
@@ -1708,7 +1709,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       method,
       destination,
       status: "completed",
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString().split("T")[0]!,
     };
     const next = [newPayout, ...sellerPayouts];
     saveSellerPayouts(next);

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useStore, type OrderItem, getShippingZoneForCity } from "@/lib/store";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -129,7 +130,7 @@ function Cart() {
 
     if (finalMethod.includes("محفظة سوقلي")) {
       if (walletBalance < finalTotal) {
-        alert(lang === "ar" ? "رصيد محفظة سوقلي غير كافٍ لإتمام عملية الشراء. يرجى شحن المحفظة أو اختيار وسيلة دفع أخرى." : "Insufficient Souqly Wallet balance.");
+        toast.error(lang === "ar" ? "رصيد محفظة سوقلي غير كافٍ لإتمام عملية الشراء. يرجى شحن المحفظة أو اختيار وسيلة دفع أخرى." : "Insufficient Souqly Wallet balance.");
         return;
       }
       deductWallet(finalTotal, "شراء طلب من متجر سوقلي");

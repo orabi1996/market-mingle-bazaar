@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useStore, type ShippingAddress, RATES } from "@/lib/store";
 import { useState } from "react";
 import {
@@ -77,7 +78,8 @@ const GULF_COUNTRIES = [
 function ProfilePage() {
   const {
     user,
-    setUser,
+    login,
+    logout,
     setIsAuthModalOpen,
     addresses,
     addAddress,
@@ -120,7 +122,7 @@ function ProfilePage() {
     if (user) {
       updateUser({ name, email, phone });
     } else {
-      setUser({
+      login({
         id: "usr_guest",
         name,
         email,
@@ -147,10 +149,10 @@ function ProfilePage() {
   const handleConfirmWithdraw = (e: React.FormEvent) => {
     e.preventDefault();
     if (withdrawAmount <= 0 || withdrawAmount > walletBalance) {
-      alert(lang === "ar" ? "رصيد المحفظة غير كافٍ لإتمام السحب" : "Insufficient balance");
+      toast.error(lang === "ar" ? "رصيد المحفظة غير كافٍ لإتمام السحب" : "Insufficient balance");
       return;
     }
-    alert(
+    toast(
       lang === "ar"
         ? `تم استلام طلب سحب ${price(withdrawAmount)} بنجاح، وسيتم التحويل إلى (${withdrawDestination}) خلال 24 ساعة.`
         : `Withdrawal request for ${price(withdrawAmount)} submitted.`
@@ -163,8 +165,8 @@ function ProfilePage() {
   const [addrTitle, setAddrTitle] = useState("المنزل");
   const [addrRecipient, setAddrRecipient] = useState(user?.name || "");
   const [addrPhone, setAddrPhone] = useState(user?.phone || "");
-  const [addrCountry, setAddrCountry] = useState(GULF_COUNTRIES[0].nameAr);
-  const [addrCity, setAddrCity] = useState(GULF_COUNTRIES[0].cities[0]);
+  const [addrCountry, setAddrCountry] = useState(GULF_COUNTRIES[0]?.nameAr || "جمهورية مصر العربية");
+  const [addrCity, setAddrCity] = useState(GULF_COUNTRIES[0]?.cities[0] || "القاهرة");
   const [addrDistrict, setAddrDistrict] = useState("");
   const [addrStreet, setAddrStreet] = useState("");
   const [addrPostal, setAddrPostal] = useState("");
@@ -179,7 +181,7 @@ function ProfilePage() {
       recipientName: addrRecipient,
       phone: addrPhone,
       country: addrCountry,
-      city: addrCity,
+      city: addrCity || "القاهرة",
       district: addrDistrict,
       street: addrStreet,
       postalCode: addrPostal,
@@ -200,7 +202,7 @@ function ProfilePage() {
   const selectedCountryObj = GULF_COUNTRIES.find((c) => c.nameAr === addrCountry) || GULF_COUNTRIES[0];
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
+    <main className="mx-auto max-w-[1720px] px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
       {/* Toast */}
       {saveToast && (
         <div className="fixed bottom-6 start-6 z-50 flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-xs font-bold text-background shadow-xl animate-in fade-in slide-in-from-bottom-2">
@@ -249,7 +251,7 @@ function ProfilePage() {
               </button>
             ) : (
               <button
-                onClick={() => setUser(null)}
+                onClick={() => logout()}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 px-3.5 py-2 text-xs font-bold text-destructive hover:bg-destructive/20 transition cursor-pointer"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -945,7 +947,7 @@ function ProfilePage() {
                     onChange={(e) => {
                       setAddrCountry(e.target.value);
                       const c = GULF_COUNTRIES.find((x) => x.nameAr === e.target.value);
-                      if (c && c.cities.length > 0) setAddrCity(c.cities[0]);
+                      if (c && c.cities.length > 0 && c.cities[0]) setAddrCity(c.cities[0]);
                     }}
                     className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none cursor-pointer"
                   >
@@ -962,7 +964,7 @@ function ProfilePage() {
                     onChange={(e) => setAddrCity(e.target.value)}
                     className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-xs outline-none cursor-pointer"
                   >
-                    {selectedCountryObj.cities.map((city) => (
+                    {selectedCountryObj?.cities.map((city) => (
                       <option key={city} value={city}>{city}</option>
                     ))}
                   </select>
